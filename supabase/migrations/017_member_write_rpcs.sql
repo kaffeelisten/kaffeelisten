@@ -12,7 +12,7 @@
 -- anon (the member flow calls them via PostgREST rpc()).
 --
 -- These also enable: server-side enforcement of app_settings.max_items_per_order,
--- and a real "Rückgängig" (undo) that deletes the just-logged rows – anon has no
+-- and a real "Rückgängig" (undo) that deletes the just-logged rows — anon has no
 -- direct DELETE, so undo must go through undo_order().
 
 -- ── log_order ────────────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ begin
 end;
 $$;
 
--- NOTE: this migration is additive – it does NOT yet revoke the direct anon
+-- NOTE: this migration is additive — it does NOT yet revoke the direct anon
 -- INSERTs. That happens in migration 018, which must be applied only AFTER the
 -- app code that calls these RPCs is deployed. Splitting the two avoids a
 -- member-write outage during the deploy window (the lesson from 015).

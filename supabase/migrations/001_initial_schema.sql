@@ -1,4 +1,4 @@
--- Kaffeelisten – initial schema
+-- Kaffeelisten — initial schema
 -- Migration: 001_initial_schema
 
 -- Enable UUID generation
@@ -48,7 +48,7 @@ create table if not exists items (
 comment on table items is 'Consumables available on campus (coffee, drinks, snacks).';
 
 -- ─────────────────────────────────────────────
--- Transactions (live – current month)
+-- Transactions (live — current month)
 -- ─────────────────────────────────────────────
 create table if not exists transactions (
   id          uuid primary key default gen_random_uuid(),
@@ -116,4 +116,4 @@ create policy "anon_insert_transactions" on transactions
   with check (true);
 
 -- Service role (Vercel serverless functions): full access via service-role key
--- No RLS policy needed – service role bypasses RLS by default in Supabase.
+-- No RLS policy needed — service role bypasses RLS by default in Supabase.

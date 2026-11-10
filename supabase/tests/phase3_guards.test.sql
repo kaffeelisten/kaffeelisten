@@ -180,7 +180,7 @@ begin
   raise notice 'ok  031 archive snapshot columns present';
 end $$;
 
--- ── 035: company payments – writable, never deletable, closed to anon ────────
+-- ── 035: company payments — writable, never deletable, closed to anon ────────
 do $$
 begin
   if not has_table_privilege('service_role', 'public.company_payments', 'UPDATE') then

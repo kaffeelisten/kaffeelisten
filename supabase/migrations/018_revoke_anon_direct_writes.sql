@@ -7,7 +7,7 @@
 -- ⚠️ DEPLOY ORDER: apply this ONLY after the app code that calls the RPCs
 -- (migration 017 functions) is deployed. Until then the member flow still does
 -- direct inserts and needs these grants. Applying this too early breaks logging
--- and self-registration – the same deploy-order hazard as migration 015.
+-- and self-registration — the same deploy-order hazard as migration 015.
 
 drop policy if exists anon_insert_transactions on public.transactions;
 revoke insert on public.transactions from anon, authenticated;
