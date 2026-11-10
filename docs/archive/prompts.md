@@ -1,4 +1,4 @@
-# Claude Design Prompts — Kaffeelisten
+# Claude Design Prompts – Kaffeelisten
 
 Use these prompts when generating the Kaffeelisten UI with Claude Design. Read `docs/design-foundation.md` and `docs/design-system.md` before any session.
 
@@ -7,7 +7,7 @@ Use these prompts when generating the Kaffeelisten UI with Claude Design. Read `
 ## Design system setup
 
 ```
-Set up a design system for Kaffeelisten — a digital coffee consumption logger
+Set up a design system for Kaffeelisten – a digital coffee consumption logger
 for ITC1 Deggendorf campus.
 
 Read the attached design-foundation.md and design-system.md.
@@ -18,7 +18,7 @@ The system has two distinct surfaces:
 2. Admin panel (professional internal tool, data tables, report triggers)
 
 Visual direction: warm, minimal, readable, professionally grounded. Bavarian
-Wald / ITC1 atmosphere as abstract detail — not decoration. Coffee motifs as
+Wald / ITC1 atmosphere as abstract detail – not decoration. Coffee motifs as
 the signature playful element. One-line SVG illustrations.
 
 All UI copy in German. No emojis. No lorem ipsum. Use realistic German copy
@@ -27,17 +27,17 @@ per docs/design-foundation.md.
 
 ---
 
-## Member flow — full screen set
+## Member flow – full screen set
 
 ```
 Generate the complete member-facing flow for Kaffeelisten:
 
-1. Home / company select — large company tiles on a clean background
-2. Member select — filtered by selected company, same large tile style
-3. Item select — grid of item cards (name, unit label, price, custom icon)
-4. Confirmation — review screen before submit
-5. Success — "Gespeichert." confirmation with coffee icon, auto-reset in 3s
-6. Error state — failed submission with retry option
+1. Home / company select – large company tiles on a clean background
+2. Member select – filtered by selected company, same large tile style
+3. Item select – grid of item cards (name, unit label, price, custom icon)
+4. Confirmation – review screen before submit
+5. Success – "Gespeichert." confirmation with coffee icon, auto-reset in 3s
+6. Error state – failed submission with retry option
 
 Design constraints:
 - Minimum 44x44px tap targets on every interactive element
@@ -53,30 +53,30 @@ instructions.
 
 ---
 
-## Admin panel — full screen set
+## Admin panel – full screen set
 
 ```
 Generate the complete admin panel for Kaffeelisten:
 
-1. PIN entry — numeric keypad, minimal, server-validated
-2. Dashboard — month-to-date summary cards (total transactions, total value, 
+1. PIN entry – numeric keypad, minimal, server-validated
+2. Dashboard – month-to-date summary cards (total transactions, total value, 
    top company, top item), quick actions
-3. Transaction log — full table (date, member, company, item, quantity), 
+3. Transaction log – full table (date, member, company, item, quantity), 
    sortable columns, search, filter by company
-4. Company summary — aggregated totals per company, current month
-5. Send report modal — confirm before triggering email + archive + reset,
+4. Company summary – aggregated totals per company, current month
+5. Send report modal – confirm before triggering email + archive + reset,
    clear warning about database reset
-6. Manage companies — CRUD list with active/inactive status
-7. Manage members — CRUD list linked to company, active/inactive
-8. Manage items — CRUD list with price, unit label, category, active/inactive
+6. Manage companies – CRUD list with active/inactive status
+7. Manage members – CRUD list linked to company, active/inactive
+8. Manage items – CRUD list with price, unit label, category, active/inactive
 
 Design constraints:
-- Professional internal tool aesthetic — not a startup marketing page
+- Professional internal tool aesthetic – not a startup marketing page
 - Sidebar navigation, standard admin layout
 - Warm stone neutral palette, amber accents for CTAs
 - Destructive actions (reset, delete) clearly marked in red
 - German copy throughout
-- Responsive down to tablet (768px) — sidebar collapses to top nav
+- Responsive down to tablet (768px) – sidebar collapses to top nav
 ```
 
 ---
@@ -87,14 +87,14 @@ Design constraints:
 Generate a landing page for Kaffeelisten for the B4Y3RW4LD Hackathon pitch.
 
 Sections:
-1. Hero — product name, one-sentence problem statement, one-sentence solution, 
+1. Hero – product name, one-sentence problem statement, one-sentence solution, 
    primary CTA "Demo ansehen", custom one-line SVG illustration
-2. Das Problem — the paper-on-wall tracking problem at ITC1, 2-3 bullet points
-3. Die Lösung — how Kaffeelisten works, 3-step visual flow
-4. Für wen — campus members (fast log) and campus admin (monthly report)
-5. Technik — Vercel, Supabase, Resend — kostenlos, wartungsarm, sicher
-6. Zukunft — what comes after the hackathon (Phase 1–3 roadmap teaser)
-7. Kontakt / Support CTA — "Das Projekt weiterentwickeln" backing/support section
+2. Das Problem – the paper-on-wall tracking problem at ITC1, 2-3 bullet points
+3. Die Lösung – how Kaffeelisten works, 3-step visual flow
+4. Für wen – campus members (fast log) and campus admin (monthly report)
+5. Technik – Vercel, Supabase, Resend – kostenlos, wartungsarm, sicher
+6. Zukunft – what comes after the hackathon (Phase 1–3 roadmap teaser)
+7. Kontakt / Support CTA – "Das Projekt weiterentwickeln" backing/support section
 8. Footer
 
 Tone: confident, warm, professional. Not startup-hype. Not tourist Bavaria.
@@ -124,7 +124,7 @@ Required spot illustrations (landing + empty states):
 
 Rules:
 - Consistent 1.5px stroke weight throughout
-- Minimal filled areas — line art discipline
+- Minimal filled areas – line art discipline
 - No emoji-like expressions
 - Bavarian Wald atmosphere in 1-2 abstract motifs for landing/empty states
 - All SVGs clean and exportable as individual files

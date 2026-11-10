@@ -221,7 +221,7 @@ function formatDay(iso: string | null): string | null {
 }
 
 // The report covers the previous, closed month and goes out on `autoDay` (default
-// 1) of the following month. Display hint only — the cron decides in Europe/Berlin.
+// 1) of the following month. Display hint only – the cron decides in Europe/Berlin.
 function nextSendLabel(autoDay: number | null): string {
   const now = new Date()
   const daysThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
@@ -378,7 +378,7 @@ export default function SettingsPage({ onToast, onMenuClick, onNavigate, onSendR
       ].filter(Boolean) as string[]
     : []
 
-  // Where invoice mode actually stands — the three conditions resolveIssuer checks.
+  // Where invoice mode actually stands – the three conditions resolveIssuer checks.
   const invoiceState: 'off' | 'incomplete' | 'unauthorized' | 'active' = !form.issueInvoices
     ? 'off'
     : issuerMissing.length > 0
@@ -414,11 +414,11 @@ export default function SettingsPage({ onToast, onMenuClick, onNavigate, onSendR
         if (t === 'system') {
           recordSingleton('theme', { default_mode: theme.mode, active_palette: theme.palette, custom: theme.custom })
           setSavedTheme(theme)
-          onToast('In der Demo gespeichert — nur in diesem Browser.')
+          onToast('In der Demo gespeichert – nur in diesem Browser.')
         } else {
           recordSingleton('settings', tabPayload(t, form) as Record<string, unknown>)
           setSaved(form)
-          onToast('In der Demo gespeichert — nur in diesem Browser.')
+          onToast('In der Demo gespeichert – nur in diesem Browser.')
         }
         return
       }

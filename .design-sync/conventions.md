@@ -1,4 +1,4 @@
-# Kaffeelisten — how to build with this design system
+# Kaffeelisten – how to build with this design system
 
 Kaffeelisten is the PWA that replaces the paper coffee-consumption sheet at the ITC1
 Deggendorf campus. The visual language is warm, minimal, Bavarian-Wald: amber accent,
@@ -8,12 +8,12 @@ dev-facing labels). No emojis in UI copy.
 ## Setup & wrapping
 
 Almost every component is a self-contained React component styled with Tailwind utility
-classes — just render it. The shipped `styles.css` carries all styling (it `@import`s the
+classes – just render it. The shipped `styles.css` carries all styling (it `@import`s the
 compiled Tailwind layer and a remote Inter `@font-face`); nothing else needs wiring.
 
 **Wrap designs in `<KaffeelistenProvider>`** (optional `palette`: `'bayerwald'` (amber,
 default) | `'b4y3rw4ld'` (ITC1 blue) | `'wald'` | `'deathstar'`). It supplies the Router that
-`Sidebar`'s `<Link>` needs and the theme context `Logo` reads — `Logo` (and so `Sidebar`)
+`Sidebar`'s `<Link>` needs and the theme context `Logo` reads – `Logo` (and so `Sidebar`)
 throws without it. It is nestable: an inner provider only switches the palette. Every other
 component needs no provider.
 
@@ -27,13 +27,13 @@ component needs no provider.
 `--surface`, `--bg`, `--border`, …) defined for light mode on `:root` and overridden under
 `[data-mode="dark"]`. Add `data-mode="dark"` to a wrapping element to preview dark mode; a
 brand palette can further override `--accent*` at runtime. Because the tokens are variables,
-you get theming for free by using the semantic classes below — never hard-code hex colors.
+you get theming for free by using the semantic classes below – never hard-code hex colors.
 
-## Styling idiom — two layers
+## Styling idiom – two layers
 
 There are two ways to style, both shipped via `styles.css`:
 
-1. **Design tokens + semantic type classes (`tokens/colors_and_type.css`) — prefer these for
+1. **Design tokens + semantic type classes (`tokens/colors_and_type.css`) – prefer these for
    custom styling, they are always present.** CSS custom properties cover the whole foundation:
    colors (`var(--brand)` = `#D97706`, `var(--brand-hover)`, `var(--fg-primary)`,
    `var(--fg-secondary)`, `var(--fg-muted)`, `var(--bg-default)`, `var(--surface-default)`,
@@ -42,23 +42,23 @@ There are two ways to style, both shipped via `styles.css`:
    type scale (`var(--fs-xs..4xl)` + matching `--lh-*`), weights, motion (`var(--ease-standard)`,
    `var(--duration-fast/base/slow)`), and tap targets (`--tap-min` 44px, `--tap-comfortable` 56px).
    Apply semantic type with the **`.k-*` classes**: `.k-display`, `.k-h1`, `.k-h2`, `.k-h3`,
-   `.k-body-lg` (member-flow body floor — never below 18px on the wall iPad), `.k-body`,
+   `.k-body-lg` (member-flow body floor – never below 18px on the wall iPad), `.k-body`,
    `.k-body-sm`, `.k-caption`, `.k-eyebrow` (uppercase), `.k-label`, `.k-mono`; emphasis with
    `.k-fg-secondary/.k-fg-muted/.k-fg-brand/.k-fg-success/.k-fg-error`; keyboard focus with `.k-focus`.
 
-2. **Tailwind utility classes — but a JIT-compiled SUBSET.** The components themselves are styled
+2. **Tailwind utility classes – but a JIT-compiled SUBSET.** The components themselves are styled
    with Tailwind, and `styles.css` ships only the utility classes the library's own source uses,
    **not all of Tailwind**. So a class outside the compiled set (e.g. `bg-blue-500`, `p-10`) renders
-   **unstyled — no fallback**. Treat the vocabulary below as the safe utility set; for anything else,
+   **unstyled – no fallback**. Treat the vocabulary below as the safe utility set; for anything else,
    reach for the tokens/`.k-*` classes in layer 1 or an inline `style={{…}}`.
 
-**Build primarily by composing the library components** — they already carry their full styling, so
+**Build primarily by composing the library components** – they already carry their full styling, so
 you rarely add classes at all.
 
-### The DS's class vocabulary (semantic tokens — present in the compiled CSS)
+### The DS's class vocabulary (semantic tokens – present in the compiled CSS)
 
 These map to the theme CSS variables above, so they follow light/dark and the brand palette
-automatically. Prefer them over raw color scales — this is the current idiom the components use.
+automatically. Prefer them over raw color scales – this is the current idiom the components use.
 
 - **Accent / primary:** `bg-accent` (the accent, amber `#D97706` in light), `text-accent`,
   `border-accent`, `bg-accent-subtle` (tinted fill), `ring-accent` (focus). Use for primary
@@ -70,7 +70,7 @@ automatically. Prefer them over raw color scales — this is the current idiom t
   `bg-error-subtle` (error/destructive). Amber accent doubles for warnings.
 - **Radius:** `rounded-md`, `rounded-lg`, `rounded-xl` (12px), `rounded-2xl` (16px), `rounded-full`.
 - **Type:** `font-medium`/`font-semibold`/`font-bold`, Inter via `font-sans`, JetBrains Mono via
-  `font-mono` (numeric/code, e.g. revealed PINs — loaded via the remote font `@import`). Tabular
+  `font-mono` (numeric/code, e.g. revealed PINs – loaded via the remote font `@import`). Tabular
   numbers via `tabular-nums`.
 - **Motion:** `animate-pop` (success/value pop-in), `animate-shake` (error shake), `animate-blink`
   (input caret). Accent caret color via `caret-accent`.
@@ -83,24 +83,24 @@ classes, and each component's `<Name>.prompt.md` + `<Name>.d.ts` for its API bef
 ## Components at a glance
 
 - **Brand marks:** `Logo` (amber rounded-square cappuccino mark; follows the accent via
-  `currentColor` — wrap in a `text-accent` element), `CappuccinoMark` (line-art cup that
+  `currentColor` – wrap in a `text-accent` element), `CappuccinoMark` (line-art cup that
   inherits `currentColor`), `DeathStarMark` (line-art mark of the Imperium palette, same idiom). Size them with `w-*`/`h-*` (or inline `style`).
 - **Member flow (zero-login, iPad-first):** `FlowShell` (step shell with progress dots, back,
   footer slot), `Tile` (company/member selection row), `ItemCard` (consumable with quantity
   stepper), `Stepper`, `BigButton` (primary/secondary/ghost), `SuccessScreen`, `Icon`.
-- **Admin panel:** `Sidebar` (needs `KaffeelistenProvider` — see Setup), `Topbar` + `MonthSelector`,
+- **Admin panel:** `Sidebar` (needs `KaffeelistenProvider` – see Setup), `Topbar` + `MonthSelector`,
   `SummaryCard` (KPI), `DataTable` (`columns`/`rows`, `render` per column), `Badge`
   (active/inactive/warn/error), `Modal`, `PinKeypad`, `AdminButton`
   (primary/secondary/ghost/destructive), `AdminIcon`, `Tabs` (tablist + panel for page sections;
   `tabs`/`active`/`onChange`/`ariaLabel`, optional per-tab `badge` such as an unsaved dot),
   `FilterBar` (one row above a table: `search`, compact `AdminSelect variant="filter"` children,
   `trailing` count/actions, optional `onReset` link).
-- **Admin form primitives** (build all admin forms from these — never raw `<input>`/`<select>`):
+- **Admin form primitives** (build all admin forms from these – never raw `<input>`/`<select>`):
   `AdminField` (labelled text/number/email input; `form` + compact `filter` variants, optional
   leading icon, `hint`/`error`, `required` asterisk), `AdminSelect` (labelled select, same
   variants, `options` prop), `Toggle` (on/off switch for booleans), `Toast` (`success`/`error`
   notification), `EmptyState` (illustration + title + body + optional action),
-  `SegmentedControl` (radio-group of 2–4 options; `size` `sm`/`md` — used for the theme-mode
+  `SegmentedControl` (radio-group of 2–4 options; `size` `sm`/`md` – used for the theme-mode
   switcher), `PinInput` (segmented numeric entry; `length`, `reveal`, `invalid`),
   `DayGridPicker` (day-of-month 1–28 grid + "last day" option), `TemplateField` (subject/intro
   input with placeholder-token chips and a live "Beispiel" preview),

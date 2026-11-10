@@ -1,7 +1,7 @@
 // Shared Chromium/Puppeteer helpers. One browser launch renders many PDFs, so a
 // monthly run that attaches a PDF to every email pays the Chromium cold-start
 // once instead of per recipient. All rendering is self-contained (inline styles,
-// data: images only) — JS is disabled and every non-data request is aborted, so
+// data: images only) – JS is disabled and every non-data request is aborted, so
 // crafted names can neither execute nor exfiltrate. Mirrors the hardening in
 // report.ts generatePdf.
 

@@ -1,7 +1,7 @@
 // Delivered documents: list, re-download, re-send.
 //
 //   GET  /api/admin/documents[?month=YYYY-MM]
-//        → { months, month, deliveries } — every document of every kind delivered
+//        → { months, month, deliveries } – every document of every kind delivered
 //          that month (migration 037), newest first. Re-sends appear as their own
 //          rows with `resend_of` set.
 //   GET  /api/admin/documents?id=<delivery>&as=pdf|xlsx|html
@@ -102,14 +102,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .order('sent_at', { ascending: false })
     if (error) throw new Error(error.message)
     // The company name, so a company document is recognisable by more than its
-    // contact ("Office", "Buchhaltung") — the admin searches by company.
+    // contact ("Office", "Buchhaltung") – the admin searches by company.
     const companyIds = [...new Set((data ?? []).map(d => d.company_id))]
     const { data: companyRows, error: companyErr } = companyIds.length
       ? await supabase.from('companies').select('id, name').in('id', companyIds)
       : { data: [], error: null }
     if (companyErr) throw new Error(companyErr.message)
     const names = new Map((companyRows ?? []).map(c => [c.id, c.name]))
-    const deliveries = (data ?? []).map(d => ({ ...d, company_name: names.get(d.company_id) ?? '—' }))
+    const deliveries = (data ?? []).map(d => ({ ...d, company_name: names.get(d.company_id) ?? '–' }))
     return res.status(200).json({ months, month, deliveries })
   } catch (err) {
     if (err instanceof DeliveryNotFoundError) return res.status(404).json({ error: 'Dokument nicht gefunden.' })

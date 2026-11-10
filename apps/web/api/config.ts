@@ -1,8 +1,8 @@
-// GET /api/config — public, non-sensitive runtime config for the member flow.
+// GET /api/config – public, non-sensitive runtime config for the member flow.
 //
 // app_settings is service-role only (it holds the PIN hash and reset token), so
 // the anonymous browser bundle cannot read it directly. This endpoint exposes
-// ONLY the non-sensitive fields the member flow needs — currently the per-order
+// ONLY the non-sensitive fields the member flow needs – currently the per-order
 // item cap. No PIN required; never add secret fields here.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'

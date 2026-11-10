@@ -10,7 +10,7 @@ export interface SortState {
 
 export interface SortableColumn<T> {
   key: string
-  // Presence makes the column sortable. Return the value to compare — the
+  // Presence makes the column sortable. Return the value to compare – the
   // rendered cell is often a badge or a formatted string.
   sortValue?: (row: T) => string | number | null | undefined
 }

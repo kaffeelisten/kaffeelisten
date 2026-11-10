@@ -1,7 +1,7 @@
 // Client wrapper for the PIN-protected admin API (/api/admin/*).
 //
 // The admin panel no longer talks to Supabase directly with the public anon key
-// — that key can no longer read work emails/transactions or write catalogue data
+// – that key can no longer read work emails/transactions or write catalogue data
 // (migration 015). All admin reads/writes go through the serverless API, which
 // authenticates the request server-side and uses the service-role key.
 //
@@ -16,7 +16,7 @@ import { applyList, paidOverride, recordCreate, recordPaid, recordUpdate, resetD
  * On the demo, keep this write in the visitor's browser and report success.
  *
  * Returns null anywhere else, so each method reads as "demo path, else the real
- * request". The server refuses these writes regardless (demoWriteBlocked) — this
+ * request". The server refuses these writes regardless (demoWriteBlocked) – this
  * is what stops the interface looking broken, not what makes it safe.
  */
 function demoWrite(record: () => void): Promise<{ ok: true }> | null {
@@ -176,7 +176,7 @@ async function errorMessage(res: Response): Promise<string> {
     const data = await res.json()
     if (data?.error) return data.error
   } catch {
-    // non-JSON error body — keep the generic message
+    // non-JSON error body – keep the generic message
   }
   return res.status === 401 ? 'Sitzung abgelaufen – bitte neu anmelden.' : 'Serverfehler'
 }
@@ -277,7 +277,7 @@ export const adminApi = {
     demoWrite(() => recordUpdate('members', id, values)) ??
     data('?resource=members', { method: 'PATCH', body: { id, values } }),
   // Mail is absent from the demo entirely, so this is a no-op there rather than
-  // a stored edit — there is nothing for the visitor to see either way.
+  // a stored edit – there is nothing for the visitor to see either way.
   sendMemberConfirmation: (id: string) =>
     demoWrite(() => {}) ??
     data('?resource=members&action=send-confirmation', { method: 'POST', body: { id } }),

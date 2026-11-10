@@ -1,4 +1,4 @@
-# Design Foundation — Kaffeelisten
+# Design Foundation – Kaffeelisten
 
 Creative brief for the Kaffeelisten UI/UX system.
 
@@ -13,7 +13,7 @@ Use this as the single source of truth for all design decisions, Claude Design s
 **Where it lives:** Mounted iPad on the wall + any browser (PWA).  
 **When it's used:** Multiple times per day, briefly.
 
-The interface must feel like a calm, professional tool — not a startup demo, not a kiosk machine, not a generic dashboard.
+The interface must feel like a calm, professional tool – not a startup demo, not a kiosk machine, not a generic dashboard.
 
 ---
 
@@ -21,7 +21,7 @@ The interface must feel like a calm, professional tool — not a startup demo, n
 
 **Mood:** Warm, minimal, readable, grounded, professional. Lightly hacker-inspired through precision and rhythm, not through terminal aesthetics.
 
-**Regional grounding:** Bavarian Wald, Bavaria, Deggendorf, ITC1, THD-adjacent academic-tech culture. Abstract and atmospheric — not tourist clichés.
+**Regional grounding:** Bavarian Wald, Bavaria, Deggendorf, ITC1, THD-adjacent academic-tech culture. Abstract and atmospheric – not tourist clichés.
 
 **Signature visual language:** one-line SVG illustrations, custom icons, coffee motifs as playful detail.
 
@@ -46,7 +46,7 @@ Use as inspiration only. Do not copy.
 
 The visual system should combine:
 
-- High readability at a glance — critical for a wall-mounted iPad in a busy kitchen
+- High readability at a glance – critical for a wall-mounted iPad in a busy kitchen
 - Generous whitespace and clear visual hierarchy
 - Strong typography, disciplined CTAs
 - One-line vector art and custom SVG icons
@@ -59,7 +59,7 @@ Avoid:
 - Generic SaaS gradients
 - Stock illustration styles
 - Overly rustic or regional decoration that reduces clarity
-- Clutter — every element on screen must earn its place
+- Clutter – every element on screen must earn its place
 
 ---
 
@@ -72,7 +72,7 @@ Every tap target must be large and obvious. The member should not need to think.
 Whitespace is intentional. The admin panel should feel professional and organized, not austere.
 
 **3. Playful through craft**  
-Personality comes from coffee icons, one-line illustrations, and microcopy rhythm — not from gimmicks.
+Personality comes from coffee icons, one-line illustrations, and microcopy rhythm – not from gimmicks.
 
 **4. Regional without costume**  
 B4Y3RW4LD / Bavarian Wald cues should be abstract and contemporary. Atmosphere over souvenir.
@@ -104,7 +104,7 @@ All member-facing and admin-facing copy is German. English only in code comments
 |---|---|
 | PIN entry | Simple keypad, server-validated |
 | Dashboard | Month-to-date summary: total transactions, top companies, top items |
-| Transaction log | Full table: date, member, company, item, quantity — filterable |
+| Transaction log | Full table: date, member, company, item, quantity – filterable |
 | Company summary | Aggregated totals per company for the current month |
 | Send report modal | Confirm before triggering email + archive + reset |
 | Manage companies | CRUD list |
@@ -137,7 +137,7 @@ Define the following design tokens and apply them through the Tailwind config:
 **Typography:**
 - Scale: xs / sm / base / lg / xl / 2xl / 3xl / 4xl
 - Weights: regular (400), medium (500), semibold (600), bold (700)
-- Use a clean, readable sans-serif — Inter or Geist preferred
+- Use a clean, readable sans-serif – Inter or Geist preferred
 - Member flow: large text for wall readability (minimum 18px body)
 - Admin panel: standard product text sizes
 
@@ -159,7 +159,7 @@ Member flow:
 - Self-registration modal (Vorname + Nachname inputs, live name preview, Hinzufügen button)
 - Item card (name, unit label, price; tap to add; when selected: amber highlight + inline −/qty/+ controls)
 - Category tab strip (filter items by coffee / drink / snack / food / other)
-- Cart footer (total count, grand total, "Auswahl löschen" + "Weiter" buttons — appears when cart non-empty)
+- Cart footer (total count, grand total, "Auswahl löschen" + "Weiter" buttons – appears when cart non-empty)
 - Confirmation rows (one row per item: name, quantity, subtotal; grand total row)
 - Primary action button (large, full-width on mobile)
 - Success animation / confirmation state

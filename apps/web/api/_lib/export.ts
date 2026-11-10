@@ -1,5 +1,5 @@
-// Admin export: any range of entries — including months already archived and
-// pruned from the live table — scoped by company, person or item.
+// Admin export: any range of entries – including months already archived and
+// pruned from the live table – scoped by company, person or item.
 //
 // Archived months are deliberately NOT shown in the admin's Einträge table (it
 // reads only the live table, see api/admin/data.ts); they are reachable here.
@@ -124,11 +124,11 @@ export function buildExportRows(
         item_id: t.item_id,
         quantity: t.quantity,
         logged_at: t.logged_at,
-        member_name: member?.name ?? '—',
+        member_name: member?.name ?? '–',
         work_email: member?.work_email ?? null,
-        company_name: lookups.companies.get(t.company_id) ?? '—',
-        item_name: archived.item_name ?? item?.name ?? '—',
-        item_category: archived.item_category ?? item?.category ?? '—',
+        company_name: lookups.companies.get(t.company_id) ?? '–',
+        item_name: archived.item_name ?? item?.name ?? '–',
+        item_category: archived.item_category ?? item?.category ?? '–',
         unit_label: archived.unit_label ?? item?.unit_label ?? 'Stück',
         price_cents,
         total_cents: price_cents * t.quantity,

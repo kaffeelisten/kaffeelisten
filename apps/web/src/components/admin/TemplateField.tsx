@@ -11,7 +11,7 @@ interface TemplateFieldProps {
   multiline?: boolean
   /** Ghost text shown when empty (also drives the example fallback). */
   placeholder?: string
-  /** Example text to show when the field is empty — i.e. the built-in default. */
+  /** Example text to show when the field is empty – i.e. the built-in default. */
   emptyExample?: string
 }
 
@@ -37,7 +37,7 @@ function tokenize(str: string): Part[] {
 
 const keyOf = (token: string) => token.slice(1, -1).toLowerCase() as PlaceholderKey
 
-// Shared text metrics — the mirror and the real input MUST use identical
+// Shared text metrics – the mirror and the real input MUST use identical
 // typography and padding so the highlighted tokens sit exactly under the
 // (transparent) input text.
 const TEXT = 'text-[15px] font-medium leading-normal'
@@ -53,7 +53,7 @@ const TOKEN_HL =
  * *inside* the field (a synced mirror layer renders `{tokens}` as amber chips
  * behind a transparent input), offers pill insert-chips (inserted at the
  * caret), and shows an elevated "Beispiel" card where the tokens are resolved
- * to sample values — so the admin sees exactly what recipients will get.
+ * to sample values – so the admin sees exactly what recipients will get.
  */
 export default function TemplateField({
   label,

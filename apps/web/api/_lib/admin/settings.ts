@@ -1,8 +1,8 @@
-// GET  /api/admin/settings — read the non-secret admin configuration
-// PUT  /api/admin/settings — update recipients, CEO email/CC, member toggle
+// GET  /api/admin/settings – read the non-secret admin configuration
+// PUT  /api/admin/settings – update recipients, CEO email/CC, member toggle
 //
 // Session-protected via requireAdmin (signed HttpOnly cookie). Never returns
-// admin_pin_hash or the reset token. Service-role only — see
+// admin_pin_hash or the reset token. Service-role only – see
 // docs/phase-2-production.md §F.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'
@@ -178,7 +178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       // ── Invoice mode + ITC1 issuer block ──
-      // The document is always ITC1's — these are ITC1's own details, entered by
+      // The document is always ITC1's – these are ITC1's own details, entered by
       // the admin (never a developer's). See docs/prd-billing-commercial-addendum.md.
       for (const [key, max] of [
         ['issuer_legal_name', ISSUER_NAME_MAX],

@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Kaffeelisten — demo campus seed
+-- Kaffeelisten – demo campus seed
 -- File: supabase/seeds/003_demo_campus.sql
 --
 -- Populates the shared staging/demo database with a WHOLLY INVENTED campus, so

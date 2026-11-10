@@ -1,4 +1,4 @@
-# Phase 3 — billing documents, company accounts, admin panel
+# Phase 3 – billing documents, company accounts, admin panel
 
 What was built in PR #41 in response to ITC1's feedback of 2026-09-16
 (`docs/phase-3-requirements.md`). Environments and the migration process are in
@@ -29,8 +29,8 @@ always has its PDF and Excel. The CEO's ZIP holds copies of every invoice file.
 | Company | Person receives | Company contact receives |
 | --- | --- | --- |
 | Each person pays (`individual`) | **Aufstellung** / **Rechnung** | **Aufstellung** (overview). Copies of its employees' documents only if opted in. No contact → nothing, and that is fine. |
-| Company pays (`company_paid`) | **Information** — own consumption, no payment details | **Aufstellung** / **Rechnung** over the full amount by item, naming no employee. The **Verzehrliste** (who consumed what) only if the company asked for it. No contact → nothing, and the admin report warns. |
-| Shared account (`checkout_mode` company or both) | — (no person) | Included in the company document as *Sammelkonto (Firma)* |
+| Company pays (`company_paid`) | **Information** – own consumption, no payment details | **Aufstellung** / **Rechnung** over the full amount by item, naming no employee. The **Verzehrliste** (who consumed what) only if the company asked for it. No contact → nothing, and the admin report warns. |
+| Shared account (`checkout_mode` company or both) | – (no person) | Included in the company document as *Sammelkonto (Firma)* |
 
 | ITC1 | Receives |
 | --- | --- |
@@ -52,8 +52,8 @@ ITC1 found emails listing every coffee unreadable.
 | --- | --- | --- | --- |
 | Person | Greeting, one line per item and price (`12× Espresso`), total, payment box (invoice only) | The same as a formal document; invoice fields when invoicing | `Meine Einträge`: every entry with date and time |
 | Company that pays | Full amount by item, no names; VAT and payment box on an invoice | The invoice: the same, as a formal document | `Artikel`, `Alle Einträge` (no names) |
-| Verzehrliste (opt-in) | Invoice mode: a note that it is attached. Statement mode: its own section under the amount | Per-person totals, then each person's item lines — marked as no invoice | `Pro Person`, `Pro Person × Artikel`, `Alle Einträge` |
-| Company whose people pay | Overview: every person with total and item summary (email only) | — | — |
+| Verzehrliste (opt-in) | Invoice mode: a note that it is attached. Statement mode: its own section under the amount | Per-person totals, then each person's item lines – marked as no invoice | `Pro Person`, `Pro Person × Artikel`, `Alle Einträge` |
+| Company whose people pay | Overview: every person with total and item summary (email only) | – | – |
 | Administration | Key figures, restocking list, warnings, per-company table | Monthly report | All entries; campus roll-up with month-over-month comparison |
 
 **Company invoices name no one (ITC1, 2026-09-17).** A paying company gets one
@@ -107,20 +107,20 @@ Level51 have names plus unnamed rows (→ `both`).
 
 ## Admin panel
 
-- **Übersicht** — month against the same days of the previous month, per company.
-- **Einträge** — live month only, full names with email, filters, export.
-- **Dokumente** — every delivered document with company, amount, attachments,
+- **Übersicht** – month against the same days of the previous month, per company.
+- **Einträge** – live month only, full names with email, filters, export.
+- **Dokumente** – every delivered document with company, amount, attachments,
   email preview and re-send; PDF and Excel download for invoices. Re-sending re-renders from the
   stored data and never allocates a new invoice number.
-- **Unternehmen** — who pays, checkout mode, people, month total, contact warning.
-- **Mitarbeitende** — grouped by company; people of paying companies in bold; paid
+- **Unternehmen** – who pays, checkout mode, people, month total, contact warning.
+- **Mitarbeitende** – grouped by company; people of paying companies in bold; paid
   ticks per paying person or once per paying company; a dash for months without
   consumption.
-- **Artikel** — price, sold this month against last month, revenue.
-- **Einstellungen** — *Abrechnung* (matrix, recipients, invoice mode and its
+- **Artikel** – price, sold this month against last month, revenue.
+- **Einstellungen** – *Abrechnung* (matrix, recipients, invoice mode and its
   gate, texts), *Versand* (schedule, send now), *Zahlungen* (paid column),
   *iPad* (items per order), *System* (appearance, PIN).
-- **Export** (every list) — CSV, Excel or PDF over any date range, live and
+- **Export** (every list) – CSV, Excel or PDF over any date range, live and
   archived months, deduplicated. Row caps: 50,000 (CSV/Excel), 2,000 (PDF).
 
 ## Data and retention
@@ -168,7 +168,7 @@ This release: `030, 031, 033, 034, 035, 036, 037, 038, 039, 040, 041`, all `depl
 They apply automatically when the PR merges (`Database - production`), alongside
 the Vercel production build.
 
-Follow-up PR, after this release is live and iPads have reloaded: `042` — revoke
+Follow-up PR, after this release is live and iPads have reloaded: `042` – revoke
 DELETE on `transactions_archive` and narrow anon's `companies` grant to the
 public columns (`deploy: post`).
 

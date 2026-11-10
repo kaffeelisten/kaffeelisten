@@ -36,8 +36,8 @@ const FORMATS: { value: Format; label: string }[] = [
 ]
 
 /**
- * Export entries for any date range — including months already archived, which
- * the Einträge table deliberately does not show — scoped by company, person and
+ * Export entries for any date range – including months already archived, which
+ * the Einträge table deliberately does not show – scoped by company, person and
  * item. Shared by every admin tab.
  */
 export default function ExportDialog({ open, onClose, initial, companies, members, items, onToast }: ExportDialogProps) {

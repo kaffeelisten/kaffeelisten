@@ -7,14 +7,14 @@ interface PinInputProps {
   length?: number
   /** Show the digits instead of masking them (used for the reset code). */
   reveal?: boolean
-  /** Error styling (red boxes) — a fresh error also replays the shake. */
+  /** Error styling (red boxes) – a fresh error also replays the shake. */
   invalid?: boolean
   autoFocus?: boolean
   ariaLabel?: string
 }
 
 /**
- * Segmented numeric PIN entry — renders `length` boxes with a single invisible
+ * Segmented numeric PIN entry – renders `length` boxes with a single invisible
  * input on top capturing the digits. Non-digits are stripped; input is capped
  * at `length`. The active slot shows a blinking amber caret, filled slots pop
  * in a masking dot (or the mono digit when `reveal` is set), and a new error

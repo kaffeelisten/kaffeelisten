@@ -93,7 +93,7 @@ export default function OverviewPage({ rows, loading, month, months, onMonthChan
       sortValue: r => percentChange(r.totalCents, r.previousCents) ?? (r.totalCents > 0 ? Infinity : -Infinity),
       render: r => {
         const pct = percentChange(r.totalCents, r.previousCents)
-        if (pct === null) return r.totalCents > 0 ? <span className="text-success">neu</span> : <span className="text-fg-subtle">—</span>
+        if (pct === null) return r.totalCents > 0 ? <span className="text-success">neu</span> : <span className="text-fg-subtle">–</span>
         return <span className={pct > 0 ? 'text-success' : pct < 0 ? 'text-error' : 'text-fg-muted'}>{pct > 0 ? '+' : ''}{pct} %</span>
       },
     },
@@ -137,7 +137,7 @@ export default function OverviewPage({ rows, loading, month, months, onMonthChan
             />
             <SummaryCard
               label="Beliebtester Artikel"
-              metric={now.topItem?.name ?? '—'}
+              metric={now.topItem?.name ?? '–'}
               sub={now.topItem ? `${now.topItem.quantity} × im Monat` : undefined}
               accent="stone"
             />

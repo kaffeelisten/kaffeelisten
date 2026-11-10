@@ -41,7 +41,7 @@ export const DEMO_DISABLED_ADMIN_ROUTES = ['documents'] as const
  * Admin routes the demo may still receive a non-GET on.
  *
  * `auth` needs POST to log anyone in at all; `preview-report` renders the report
- * on POST and writes nothing. Everything else is read-only — see demoWriteBlocked.
+ * on POST and writes nothing. Everything else is read-only – see demoWriteBlocked.
  */
 const DEMO_WRITABLE_ADMIN_ROUTES = ['auth', 'preview-report']
 
@@ -51,7 +51,7 @@ const DEMO_WRITABLE_ADMIN_ROUTES = ['auth', 'preview-report']
  * **The demo is explorable, not editable.** Every mutation in the admin API is a
  * non-GET method, so one rule covers all of them: a visitor may open every page,
  * read every list and export anything, and nothing they do reaches the database.
- * That matters because the demo is public and single-tenant — a visitor renaming
+ * That matters because the demo is public and single-tenant – a visitor renaming
  * a company or ticking a month as paid would change it for everyone after them.
  *
  * The interface still lets them make the change; the client keeps it in their own

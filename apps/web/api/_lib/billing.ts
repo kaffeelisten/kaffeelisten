@@ -1,4 +1,4 @@
-// Invoice ledger + numbering — isolated from the report path so the statement
+// Invoice ledger + numbering – isolated from the report path so the statement
 // flow is untouched when invoice mode is off. The invoice is always ITC1's
 // document (issuer data from app_settings); the app only renders and numbers it.
 
@@ -37,7 +37,7 @@ export interface IssuerRow {
   invoice_mode_authorized?: boolean
 }
 
-// Effective issuer config — present only when invoice mode is on, ITC1's written
+// Effective issuer config – present only when invoice mode is on, ITC1's written
 // authority to issue in its name is recorded, AND every mandatory field is set.
 // Mirrors the guard in api/admin/settings.ts so the report path can never issue
 // an invoice with a missing issuer/VAT id/account.
@@ -74,7 +74,7 @@ export function resolveIssuerForReissue(row: IssuerRow | null | undefined): Issu
   return resolveIssuer({ ...row, issue_invoices: true, invoice_mode_authorized: true })
 }
 
-// Sample issuer for previews before the admin has filled the real block — so an
+// Sample issuer for previews before the admin has filled the real block – so an
 // invoice preview shows realistic placeholders instead of blanks. Values are from
 // ITC1's Kaffeerechnung-Vorlage; clearly a preview stand-in, never used to send.
 export const PLACEHOLDER_ISSUER: IssuerConfig = {
@@ -94,7 +94,7 @@ export interface VatSplit {
   grossCents: number
 }
 
-// Item prices are stored gross (incl. VAT) — the template shows an Endbetrag
+// Item prices are stored gross (incl. VAT) – the template shows an Endbetrag
 // "incl. 19% USt". Split a gross total into net + VAT for the invoice breakdown.
 export function splitVat(grossCents: number, vatRate: number): VatSplit {
   const netCents = Math.round(grossCents / (1 + vatRate / 100))
@@ -195,7 +195,7 @@ export async function ensureBillingDocument(
     .single()
 
   if (error) {
-    // A concurrent insert won the partial-unique index — return the winning row.
+    // A concurrent insert won the partial-unique index – return the winning row.
     const again = await findBillingDocument(supabase, input)
     if (again) return again
     throw new Error(`insert billing document failed: ${error.message}`)

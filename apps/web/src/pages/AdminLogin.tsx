@@ -3,7 +3,7 @@
 // PIN is validated server-side via /api/admin/auth?action=verify. After too many failed
 // attempts the keypad locks and the recovery flow opens: the admin enters their
 // email, a one-time code is sent to that address (if it's a known admin), and
-// they set a new PIN with it — so a locked-out admin can always regain access
+// they set a new PIN with it – so a locked-out admin can always regain access
 // even if they never received a broadcast PIN. Never expose ADMIN_PIN client-side.
 
 import { useEffect, useRef, useState } from 'react'
@@ -58,7 +58,7 @@ export default function AdminLogin() {
   // used only for client-side route guarding (the cookie is the real auth).
   const enter = () => {
     sessionStorage.setItem('adminSession', 'true')
-    // Getting in is the proof that the footer hint landed — not the click on
+    // Getting in is the proof that the footer hint landed – not the click on
     // the link, which is also the only way to reach this screen at all and so
     // would retire that hint for anyone who merely looked.
     retireHint('start-admin')
@@ -80,13 +80,13 @@ export default function AdminLogin() {
       }
       status = res.status
     } catch {
-      /* network error — treat as a generic failure below */
+      /* network error – treat as a generic failure below */
     }
 
     setError(true)
 
     // 429 = throttled, not a wrong PIN. Don't count it toward the lockout and
-    // don't bounce to recovery — just tell the user to wait. Otherwise the real
+    // don't bounce to recovery – just tell the user to wait. Otherwise the real
     // admin gets kicked into the email flow the moment the limiter kicks in.
     if (status === 429) {
       setNotice('Zu viele Versuche. Bitte einige Minuten warten und erneut versuchen.')
@@ -100,7 +100,7 @@ export default function AdminLogin() {
       // the endpoints behind the flow answer 410, and walking a visitor through
       // "enter your admin email" for an account they do not own is nonsense.
       if (demo) {
-        setNotice('Zu viele Fehlversuche. Die Demo-PIN steht oben — einfach erneut versuchen.')
+        setNotice('Zu viele Fehlversuche. Die Demo-PIN steht oben – einfach erneut versuchen.')
         return
       }
       setLockedOut(true)
@@ -127,7 +127,7 @@ export default function AdminLogin() {
         body: JSON.stringify({ email: value }),
       })
     } catch {
-      /* generic — proceed regardless so we never reveal whether the email matched */
+      /* generic – proceed regardless so we never reveal whether the email matched */
     } finally {
       setSending(false)
       setView('code')
@@ -166,7 +166,7 @@ export default function AdminLogin() {
 
   if (view === 'pin') {
     // One mark, and it is not the PIN. The PIN is already printed in bold on
-    // this screen with its own button underneath it — an arrow saying "the PIN
+    // this screen with its own button underneath it – an arrow saying "the PIN
     // is here" repeats the screen back to the visitor, and two marks on a page
     // this bare is what made the overlay feel busy. What nobody guesses is that
     // the small wordmark above the heading is the way back to the app.
@@ -259,7 +259,7 @@ export default function AdminLogin() {
         ) : (
           <div className="bg-surface border border-border rounded-2xl shadow-sm p-6 flex flex-col gap-4">
             <p className="text-sm text-fg-muted leading-relaxed">
-              Wir haben — falls die Adresse hinterlegt ist — einen Code an <strong className="text-fg">{email.trim()}</strong> gesendet.
+              Wir haben – falls die Adresse hinterlegt ist – einen Code an <strong className="text-fg">{email.trim()}</strong> gesendet.
               Gib ihn ein und wähle eine neue {pinLength}-stellige PIN.
             </p>
             <div className="flex flex-col gap-2">

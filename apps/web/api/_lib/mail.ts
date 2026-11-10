@@ -24,7 +24,7 @@ const RATE_LIMIT_DELAYS_MS = [1000, 2000, 4000]
 /**
  * Resend allows 10 requests per second per team. A monthly run sends one email
  * at a time, but a re-send or a second tab can push past that; a 429 used to
- * count the document as failed. Retry it with backoff — the idempotency key on
+ * count the document as failed. Retry it with backoff – the idempotency key on
  * every send makes a retry safe. Quota errors (daily/monthly limit reached) are
  * not retried: waiting seconds does not help.
  */

@@ -1,6 +1,6 @@
 # Supabase CLI config for the Kaffeelisten project.
 #
-# `project_id` is a LOCAL slug for the CLI's Docker containers — it is NOT the
+# `project_id` is a LOCAL slug for the CLI's Docker containers – it is NOT the
 # remote project ref. The linked remote ref (fdnfdscpefxqvtggbbbr) lives in
 # supabase/.temp/project-ref after `supabase link` and is intentionally untracked.
 #

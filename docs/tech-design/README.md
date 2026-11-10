@@ -1,13 +1,13 @@
-# Tech Design — Kaffeelisten Phase 2
+# Tech Design – Kaffeelisten Phase 2
 
 The Phase 2 technical design document, as a self-contained HTML file meant to be
 printed to PDF and sent to the team and the campus stakeholders.
 
 ## File
 
-- [`kaffeelisten-phase-2-tdd.html`](kaffeelisten-phase-2-tdd.html) — open in any
+- [`kaffeelisten-phase-2-tdd.html`](kaffeelisten-phase-2-tdd.html) – open in any
   browser. Everything is inlined (no fonts, CDN, scripts, or build step). It is a
-  plain read-only document — no forms, no buttons.
+  plain read-only document – no forms, no buttons.
 
 ## How to send it
 

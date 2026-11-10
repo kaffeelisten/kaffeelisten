@@ -1,6 +1,6 @@
 // Admin shell: sidebar, page switching, the shared live-entries data, the manual
 // report send and the toast. Each page lives in pages/admin/.
-// Protected — requires a valid session from the AdminLogin PIN flow.
+// Protected – requires a valid session from the AdminLogin PIN flow.
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'

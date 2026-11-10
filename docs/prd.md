@@ -6,27 +6,27 @@
 **Status:** v1.0 shipped at the hackathon; in productization toward an ITC1 campus deployment  
 **Date:** 2026-05-08 (original); under active development since
 
-**Related attachment:** [`prd-billing-commercial-addendum.md`](prd-billing-commercial-addendum.md) documents the 2026-07 client-requested billing, invoice, company-contact, and ZIP-archive scope — with ITC1 as the invoice issuer — plus the one-time developer-handover posture. It supersedes the original billing non-goal only if ITC1 approves that new phase, and is subject to legal/tax review.
+**Related attachment:** [`prd-billing-commercial-addendum.md`](prd-billing-commercial-addendum.md) documents the 2026-07 client-requested billing, invoice, company-contact, and ZIP-archive scope – with ITC1 as the invoice issuer – plus the one-time developer-handover posture. It supersedes the original billing non-goal only if ITC1 approves that new phase, and is subject to legal/tax review.
 
 ---
 
 ## Problem Statement
 
-ITC1 is a coworking and startup campus in Deggendorf that houses multiple companies. Coffee machines and shared fridges are available to all campus members, and consumption is currently tracked on a paper sheet mounted on the wall — members write their name, their company, what they took, and sign it. At the end of each month, an administrator collects these sheets, tallies consumption per company, and manually bills each company accordingly.
+ITC1 is a coworking and startup campus in Deggendorf that houses multiple companies. Coffee machines and shared fridges are available to all campus members, and consumption is currently tracked on a paper sheet mounted on the wall – members write their name, their company, what they took, and sign it. At the end of each month, an administrator collects these sheets, tallies consumption per company, and manually bills each company accordingly.
 
 This system is error-prone, easy to ignore, and generates administrative overhead. Sheets get lost, handwriting is illegible, and there is no audit trail. The campus CEO has to spend time manually aggregating paper records before billing can happen.
 
-The proposed alternative — per-person magnet buttons linked to physical hardware — is too expensive to set up and maintain at scale.
+The proposed alternative – per-person magnet buttons linked to physical hardware – is too expensive to set up and maintain at scale.
 
 ---
 
 ## Goals
 
-1. **Eliminate paper tracking entirely** — all consumption is logged digitally with a timestamp, member name, company, and item within the current month.
-2. **Reduce end-of-month admin effort to under 5 minutes** — the administrator receives a clean, formatted email report automatically, requiring no manual aggregation.
-3. **Zero onboarding friction for campus members** — a member can log a coffee in under 15 seconds with no account, no password, and no app install required.
-4. **Zero ongoing infrastructure cost for ITC1** — the system runs on free-tier services and requires no dedicated IT maintenance.
-5. **Provide an auditable, exportable record** — the admin can view or export all transactions at any time during the month, not just at month's end.
+1. **Eliminate paper tracking entirely** – all consumption is logged digitally with a timestamp, member name, company, and item within the current month.
+2. **Reduce end-of-month admin effort to under 5 minutes** – the administrator receives a clean, formatted email report automatically, requiring no manual aggregation.
+3. **Zero onboarding friction for campus members** – a member can log a coffee in under 15 seconds with no account, no password, and no app install required.
+4. **Zero ongoing infrastructure cost for ITC1** – the system runs on free-tier services and requires no dedicated IT maintenance.
+5. **Provide an auditable, exportable record** – the admin can view or export all transactions at any time during the month, not just at month's end.
 
 ---
 
@@ -76,7 +76,7 @@ The ITC1 campus CEO or an assigned manager. They receive the monthly report and 
 
 ## Requirements
 
-### P0 — Must-Have (MVP cannot ship without these)
+### P0 – Must-Have (MVP cannot ship without these)
 
 **Member Logging Flow**
 
@@ -110,7 +110,7 @@ The ITC1 campus CEO or an assigned manager. They receive the monthly report and 
 
 ---
 
-### P1 — Nice-to-Have
+### P1 – Nice-to-Have
 
 - [ ] **Quick-log shortcut**: a "same as last time" button for members who always get the same thing
 - [ ] **Undo window**: after logging, a 10-second undo button appears before the screen resets
@@ -122,10 +122,10 @@ The ITC1 campus CEO or an assigned manager. They receive the monthly report and 
 
 ---
 
-### P2 — Future Considerations
+### P2 – Future Considerations
 
 - Company self-service portal: each company gets a read-only view of their own consumption
-- ~~Member self-registration without admin involvement~~ — **Shipped in v0.1** (modal in member flow, name standardisation, migration 004)
+- ~~Member self-registration without admin involvement~~ – **Shipped in v0.1** (modal in member flow, name standardisation, migration 004)
 - Admin approval flow for self-registered members (currently auto-approved)
 - Item photo next to each item to reduce selection errors
 - Multi-campus support: extend the data model for multiple locations
@@ -151,8 +151,8 @@ Full schema: `supabase/migrations/001_initial_schema.sql`
 
 | Layer | Tool | Tier |
 |---|---|---|
-| Frontend | React + Vite + TypeScript | — |
-| Styling | Tailwind CSS | — |
+| Frontend | React + Vite + TypeScript | – |
+| Styling | Tailwind CSS | – |
 | Hosting | Vercel | Free |
 | Database | Supabase (PostgreSQL) | Free |
 | Email | Resend | Free (3,000/mo) |
@@ -196,8 +196,8 @@ Full schema: `supabase/migrations/001_initial_schema.sql`
 |---|---|
 | PRD approved | 2026-05-08 |
 | Data model and Supabase schema | 2026-05-08 |
-| Member logging flow — working in browser | 2026-05-08 (hackathon day 1) |
-| Admin panel — read + manual report trigger | 2026-05-09 morning |
+| Member logging flow – working in browser | 2026-05-08 (hackathon day 1) |
+| Admin panel – read + manual report trigger | 2026-05-09 morning |
 | Email report functional | 2026-05-09 |
 | PWA manifest + installable | 2026-05-09 |
 | Final pitch demo | 2026-05-09, 12:00 |

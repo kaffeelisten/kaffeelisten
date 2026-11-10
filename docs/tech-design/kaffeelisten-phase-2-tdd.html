@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kaffeelisten — Phase 2 Technical Design</title>
+<title>Kaffeelisten – Phase 2 Technical Design</title>
 <style>
   :root{
     --amber:#D97706; --amber-dark:#B45309; --amber-50:#FFFBEB;
@@ -79,7 +79,7 @@
   footer{ padding:18px 46px 26px; border-top:1px solid var(--stone-200);
     color:var(--stone-500); font-size:11.5px; background:var(--stone-50); }
   @media(max-width:600px){ header,.body,footer{ padding-left:24px; padding-right:24px; } }
-  /* Print — this is the primary delivery format (Ctrl+P → PDF) */
+  /* Print – this is the primary delivery format (Ctrl+P → PDF) */
   @media print{
     @page{ margin:14mm 0; }
     body{ background:#fff; font-size:10.7pt; line-height:1.5; }
@@ -100,7 +100,7 @@
 
   <header>
     <p class="eyebrow">Kaffeelisten · ITC1 Deggendorf</p>
-    <h1>Phase 2 — Technical Design Document</h1>
+    <h1>Phase 2 – Technical Design Document</h1>
     <div class="meta">
       <div><b>Status</b>Draft for review</div>
       <div><b>Branch</b><span class="mono">feat/itc1-production-prep</span></div>
@@ -149,17 +149,17 @@
     <h2><span class="n">2.</span> Goals &amp; non-goals</h2>
     <h4>Goals</h4>
     <ul>
-      <li>Run on real campus data — real companies, people, products and prices.</li>
-      <li>Let non-developers operate it: change/reset the PIN, manage who gets reports, turn features on/off — all in the app, no redeploy.</li>
+      <li>Run on real campus data – real companies, people, products and prices.</li>
+      <li>Let non-developers operate it: change/reset the PIN, manage who gets reports, turn features on/off – all in the app, no redeploy.</li>
       <li>Reach every person who consumed something at month-end with their own statement, without making them log in.</li>
       <li>Stay on free service tiers, and keep logging a coffee under 15 seconds.</li>
     </ul>
     <h4>Non-goals (deliberately out of scope)</h4>
     <ul>
-      <li>No personal logins or accounts for members — the member email is one-way only.</li>
-      <li>No invoicing or billing automation — the CEO still bills companies; the app only provides the figures.</li>
-      <li>No multi-location support — ITC1 only.</li>
-      <li>No per-person admin accounts this phase — one shared admin PIN (see §13).</li>
+      <li>No personal logins or accounts for members – the member email is one-way only.</li>
+      <li>No invoicing or billing automation – the CEO still bills companies; the app only provides the figures.</li>
+      <li>No multi-location support – ITC1 only.</li>
+      <li>No per-person admin accounts this phase – one shared admin PIN (see §13).</li>
     </ul>
 
     <h2><span class="n">3.</span> Current system</h2>
@@ -167,7 +167,7 @@
        of automated jobs that send the monthly report.</p>
     <p>The app is a web app (React) running in the browser/on a wall-mounted tablet. Data
        lives in Supabase (a hosted PostgreSQL database). Small server-side functions on
-       Vercel handle anything sensitive — building and emailing the monthly report (PDF +
+       Vercel handle anything sensitive – building and emailing the monthly report (PDF +
        Excel via Resend), then archiving the month and clearing it. A scheduled job runs on
        the last day of the month as a safety net in case the admin forgets. The admin PIN
        and the report recipient are currently fixed values set by a developer.</p>
@@ -176,13 +176,13 @@
       <li>The PIN and recipients can only be changed by a developer doing a redeploy.</li>
       <li>The PIN is 4 digits, fixed, stored in plain text, with no way to reset it.</li>
       <li>A person's email is optional, so we can't reliably reach individuals.</li>
-      <li>The settings screen is empty — a placeholder.</li>
+      <li>The settings screen is empty – a placeholder.</li>
     </ul>
 
     <h2><span class="n">4.</span> Data model changes</h2>
 
     <h3>New <code>app_settings</code> table <span class="tag tag-done">DONE · migration 010</span></h3>
-    <p>A single row that holds all admin configuration — moving it out of developer-only
+    <p>A single row that holds all admin configuration – moving it out of developer-only
        settings and into the database so it can be managed from the app. Because it holds
        secrets (the access code), it is locked down so the browser can never read it; only
        the trusted server-side functions can.</p>
@@ -210,7 +210,7 @@
        data is cleared or all emails are filled in (see §10).</p>
 
     <h2><span class="n">5.</span> PIN management <span class="tag tag-plan">PLANNED</span></h2>
-    <p class="plain">The 6-digit code that opens the admin area — changeable and resettable
+    <p class="plain">The 6-digit code that opens the admin area – changeable and resettable
        by the admin, with no developer involved.</p>
     <h4>How it's stored</h4>
     <p>The PIN is stored as a one-way <b>hash</b> (it cannot be read back, only checked), and
@@ -222,9 +222,9 @@
       <tr><td class="mono">verify-pin</td><td>Check an entered PIN against the stored hash (falls back to the old fixed code until one is set).</td></tr>
       <tr><td class="mono">change-pin</td><td>Set a new 6-digit PIN after confirming the current one.</td></tr>
       <tr><td class="mono">request-pin-reset</td><td>Email a one-time reset code (valid 15 minutes) to the admin/CEO addresses.</td></tr>
-      <tr><td class="mono">reset-pin</td><td>Set a new PIN using that reset code — or a private recovery code as a last resort.</td></tr>
+      <tr><td class="mono">reset-pin</td><td>Set a new PIN using that reset code – or a private recovery code as a last resort.</td></tr>
     </table>
-    <h4>Reset — two ways (decided)</h4>
+    <h4>Reset – two ways (decided)</h4>
     <div class="flow">
       <div class="step"><b>Locked out</b>Admin forgot the PIN, taps "PIN zurücksetzen".</div>
       <div class="arr">→</div>
@@ -239,7 +239,7 @@
     <p>The monthly report will be sent to the configured recipient list, with the CEO
        automatically in copy (CC) whenever that option is on. Because both the manual
        "send report" button and the automatic month-end job use the same routine, the CEO
-       is copied on <b>every</b> report by design — manual or automatic.</p>
+       is copied on <b>every</b> report by design – manual or automatic.</p>
 
     <h2><span class="n">7.</span> Per-member monthly statements <span class="tag tag-plan">PLANNED</span></h2>
     <p><b>This adds to the existing report; it does not replace it.</b> The company report to
@@ -256,9 +256,9 @@
       <div class="step"><b>4 · Archive</b>Month archived and cleared as today.</div>
     </div>
     <ul>
-      <li><b>Volume:</b> about one email per active person per month — comfortably within the free email allowance even at the full campus roster.</li>
+      <li><b>Volume:</b> about one email per active person per month – comfortably within the free email allowance even at the full campus roster.</li>
       <li><b>Reliability:</b> if one address fails, it is logged and skipped; the rest still go out, and the company report has already been sent.</li>
-      <li><b>Privacy:</b> a person sees only their own consumption — never anyone else's, and never the company total.</li>
+      <li><b>Privacy:</b> a person sees only their own consumption – never anyone else's, and never the company total.</li>
     </ul>
 
     <h2><span class="n">8.</span> Settings page &amp; API <span class="tag tag-plan">PLANNED</span></h2>
@@ -282,17 +282,17 @@
     </ul>
 
     <h2><span class="n">10.</span> Migration &amp; rollout</h2>
-    <p class="plain">The order matters — the destructive steps are done by hand, once, when
+    <p class="plain">The order matters – the destructive steps are done by hand, once, when
        the real data is ready.</p>
     <ol>
-      <li>Apply migration 010 (new settings table) — safe anytime; the app keeps working.</li>
+      <li>Apply migration 010 (new settings table) – safe anytime; the app keeps working.</li>
       <li>Export anything worth keeping from the archive (to a spreadsheet).</li>
-      <li>Run the data-reset script — clears the demo data; settings are kept.</li>
-      <li>Load the real data — companies, people (with emails), products and real prices.</li>
-      <li>Apply migration 011 — locks in the "email required" rule once no one is missing one.</li>
+      <li>Run the data-reset script – clears the demo data; settings are kept.</li>
+      <li>Load the real data – companies, people (with emails), products and real prices.</li>
+      <li>Apply migration 011 – locks in the "email required" rule once no one is missing one.</li>
       <li>Set the admin PIN from the app once the PIN feature ships.</li>
     </ol>
-    <div class="warn"><b>Steps 3–5 are destructive and done manually</b> — never automatically
+    <div class="warn"><b>Steps 3–5 are destructive and done manually</b> – never automatically
        by a deploy. The reset has not been run against the live system yet.</div>
 
     <h2><span class="n">11.</span> Failure modes &amp; edge cases</h2>
@@ -308,9 +308,9 @@
 
     <h2><span class="n">12.</span> Alternatives considered</h2>
     <ul>
-      <li><b>Keep the PIN as a fixed developer setting:</b> rejected — it can't be changed or reset by the people running the campus, which is the whole point.</li>
+      <li><b>Keep the PIN as a fixed developer setting:</b> rejected – it can't be changed or reset by the people running the campus, which is the whole point.</li>
       <li><b>Full login system for admins:</b> heavier than needed for a single shared admin role; revisit only if per-person admin accounts are wanted (§13).</li>
-      <li><b>Personal emails replace the company report:</b> rejected — the CEO still needs the per-company view for billing. We keep both.</li>
+      <li><b>Personal emails replace the company report:</b> rejected – the CEO still needs the per-company view for billing. We keep both.</li>
       <li><b>Personal email with total only (no item list):</b> a simpler option that's still on the table (§13).</li>
     </ul>
 
@@ -330,7 +330,7 @@
       <li><b>Data &amp; privacy:</b> are personal emails acceptable, and are there retention expectations?</li>
     </ul>
 
-    <h2><span class="n">14.</span> Appendix — change map</h2>
+    <h2><span class="n">14.</span> Appendix – change map</h2>
     <pre><span class="c"># DONE on feat/itc1-production-prep</span>
 supabase/migrations/010_app_settings.sql
 supabase/migrations/011_member_fields_required.sql   <span class="c"># apply after reset</span>

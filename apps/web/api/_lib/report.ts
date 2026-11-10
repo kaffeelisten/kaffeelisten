@@ -33,6 +33,7 @@ import { findPalette } from './palettes'
 import { makeMailer, replyTo } from './mail'
 import { databaseConfigError } from '../../shared/environment'
 import { mergeLiveAndArchive, unitPriceOf } from './pricing'
+import { fetchAllRows } from './paged'
 import {
   computeCampusRollup,
   generateCampusRollupExcel,
@@ -68,12 +69,12 @@ export type { EnrichedTransaction, MemberSummary, CompanySummary }
 // The report email's logo is a hosted image (public/email-logo.png): an inline
 // cid: attachment showed as broken in Resend's preview and in some clients.
 // The admin preview inlines the same PNG as a data URI (EMAIL_LOGO_PNG_BASE64).
-// The URL is resolved per deployment — see publicUrl.ts for why it is no longer
+// The URL is resolved per deployment – see publicUrl.ts for why it is no longer
 // hardcoded to the apex.
 export { emailLogoUrl }
 export const EMAIL_LOGO_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAGAAAABNCAYAAABZqmHQAAAFhElEQVR4nOycW4xdUxzGvzOM6ZS2o6j77aE0LlHULdEQEhKhiLsHIqQkqFDxJKlHmnjxUNKQIOJFSLRumYgH16pqk5aQKo5rVA2j2k61Osf3Weukx2SfOVusddbqnv8v+bJm9t5zztr/b6/72tMDIyk9MJJiBiTGDEiMGZAYMyAxZkBizIDEmAGJMQMSYwYkJmsDGo1GnTocFWZvZAoDP5VJX61W+wEVJucSsIOaVHSC5tyNipDcAAZzNrVy7HE++duZbOC5OQV/dj6PX4YKkEMJOIz6ps25ZdS8guNHUF+jAuRgwFZqSptzH1EnFRzfQk1FBcjBgLXUWaxS9ik4p3ag6PjH1LmoAMkNYF3/G5O3qEsKTs+ivio4/jJ1KSpALr2gddRxYw/SnCVM3iy4fg11AipALuOABlUrOkETlrW5vhLkUgJOpL74D9efQn2OClBDJrARnsKn/Q9MMLIxYKJis6GJidIIszq5AK5e72853ON/lzTH0+elfn6vz4u0l9fY0jlK7fL6y2uH159emr4Y8WrlF2oVq7i1yIygVRADfzaTR6l9qTpccAeoaXCjXWky3Oh3G1zAJAVPgdyJ3UFWwBst+WwaI5N6/WfLQJnZ7z9XxzRKVluymfqdGvbXq+F+nZpPI0aRCcEMYPCPZfIe3BzNUdRGagXcdMJq3vQ6dAk16HABP506kzoHzhDxPfOSzSAupAEaNN1KzeUNrkSGMI8PMlnE/PUiE0I2wir6qpfn8Uaz610xTxo5z0FmhGyEP4Qr6qpf3+ANq/jX4SbbPqE+o9bz6fsSkeB3qh2YSR0PN1WhmdTZ/rSqwneoC5ERIasgTabdwgBfw5/VCB9DHU0dSWld91DqYGoGdSA1Hc4s1c1qNNUoq/fSbJCbDbHyqJKqh6XZ8CrQ+g7V9dP83w3B9XZ+pn6ifqS0nPkt3HpD3X/GJuZxAJkQpRvKG1Qv51Ovf0FzFEzN5St4+8EFs9k1be2S6rrmA6LeULP72ex2Nruc+q5/ej783i3j5Yvfjdzo+mSc7wIOe6Wgj0a8W3BcD0QdbmZ2kPl8G10g210REVEpKlrU19qDqrHTqMU0SQ/IQzRiBSIyEQ3YxaCuKTjePDZIPUwDbmb6KtP7eP0ziMRENKAUCjqDrx7ci0y38fcXEAGbjBsHX1JUEh6jCYcgAmZAB2iCxg5PUQsRATOgHEupGxEBM6AELAUazGmj8BkIjBlQng1wo/ugWC+oPBp1T0JgzIDy7A+3wBMUM6A8JyPCVhgzoARsfLUPdSsb4/UIjBlQjgVwY4HgmAEd4NN/D5MBPv1PIAIhDVAjNRl5o/WG0otQDP5dTG6nor2NE9IAbSPvR95ozn+o00UMvHZUaOpBq3mXx1xGDW3ATOSN1opHGeBFBee0lUZ9fa0hH0QtZeBvQmSCGcDMbuSNbaJObTPfngNz4Va9RgrO6Zjy/VzsRZhWQjfCr1BXYffiRm5cSd3ZzQB3IvRckFaO5rMUTEdmME/XMhnKKfgi+AYq3ugjTPp5owuQCcyTtrKsohYyX4PIiBgGaFuJ9ogu4c0+jQxgnp5kMsz83I/MCD4Q403u5A3fwR9fY7qZv7+EhPgSeQDzcRsyJNbGrNW+zn2e6YxYo8jx8BvAHofbjXc9MiXagozf2HQRdR2D8Sw1C13C/x8J7dDeznxc4f/vRJZ0ZRczA/IAk3vh3vldTn3AoHyHQPDz9eKGNuOeR10NV7IXt3nFNSu6to2cQdJq0g3UxXAvTmiDrnapjeD/oVKsDbqaKn6fWp5bT2c8ku3j94Zo+N9xbqbTRzHgv2IPxV5TTYztikiMGZAYMyAxZkBizIDEmAGJMQMSYwYkxgxIjBmQGDMgMWZAYsyAxJgBifkbAAD//3bPWa4AAAAGSURBVAMAqkWL0ctGfuYAAAAASUVORK5CYII='
 
-// ─── Supabase (service role — bypasses RLS) ───────────────────────────────────
+// ─── Supabase (service role – bypasses RLS) ───────────────────────────────────
 
 function makeSupabase() {
   const url = process.env.VITE_SUPABASE_URL
@@ -198,7 +199,7 @@ export async function fetchCompanyBilling(): Promise<Map<string, CompanyBilling>
 
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
-// forMonth: "2026-05" — defaults to the current calendar month if omitted
+// forMonth: "2026-05" – defaults to the current calendar month if omitted
 export async function fetchAndEnrich(forMonth?: string): Promise<{
   transactions: EnrichedTransaction[]
   reportMonth: string
@@ -219,20 +220,24 @@ export async function fetchAndEnrich(forMonth?: string): Promise<{
   // month's live rows are pruned, reading only the live table returned nothing, so
   // a forced re-send of an older month quietly produced an empty report. The two
   // are merged so each transaction counts once (pricing.ts mergeLiveAndArchive).
-  const [liveRes, archiveRes] = await Promise.all([
-    supabase
+  // Paged. A month at campus volume is thousands of rows, and an unbounded
+  // select stops at max_rows without erroring - which silently understated the
+  // invoice this report becomes. See _lib/paged.ts.
+  const [liveRows, archiveRows] = await Promise.all([
+    fetchAllRows((from, to) => supabase
       .from('transactions')
       .select('*')
       .gte('logged_at', monthStart)
-      .lt('logged_at', monthEnd),
-    supabase
+      .lt('logged_at', monthEnd)
+      .order('id')
+      .range(from, to), 'Failed to fetch transactions'),
+    fetchAllRows((from, to) => supabase
       .from('transactions_archive')
       .select('*')
-      .eq('report_month', reportMonth),
+      .eq('report_month', reportMonth)
+      .order('id')
+      .range(from, to), 'Failed to fetch archived transactions'),
   ])
-
-  if (liveRes.error) throw new Error(`Failed to fetch transactions: ${liveRes.error.message}`)
-  if (archiveRes.error) throw new Error(`Failed to fetch archived transactions: ${archiveRes.error.message}`)
 
   const [membersRes, companiesRes, itemsRes] = await Promise.all([
     supabase.from('members').select('id, name, company_id, work_email, kind'),
@@ -249,7 +254,7 @@ export async function fetchAndEnrich(forMonth?: string): Promise<{
   const itemMap = new Map((itemsRes.data ?? []).map(i => [i.id, i]))
   const catalogue = new Map((itemsRes.data ?? []).map(i => [i.id, i.price_cents]))
 
-  const rows = mergeLiveAndArchive(liveRes.data ?? [], archiveRes.data ?? [])
+  const rows = mergeLiveAndArchive(liveRows, archiveRows)
     .sort((a, b) => String(a.logged_at).localeCompare(String(b.logged_at)))
 
   const transactions: EnrichedTransaction[] = rows.map(t => {
@@ -265,12 +270,12 @@ export async function fetchAndEnrich(forMonth?: string): Promise<{
       item_id: t.item_id,
       quantity: t.quantity,
       logged_at: t.logged_at,
-      member_name: member?.name ?? '—',
+      member_name: member?.name ?? '–',
       member_kind: member?.kind === 'house' ? 'house' : 'person',
       work_email: member?.work_email ?? null,
-      company_name: companyMap.get(t.company_id) ?? '—',
-      item_name: t.item_name ?? item?.name ?? '—',
-      item_category: t.item_category ?? item?.category ?? '—',
+      company_name: companyMap.get(t.company_id) ?? '–',
+      item_name: t.item_name ?? item?.name ?? '–',
+      item_category: t.item_category ?? item?.category ?? '–',
       unit_label: t.unit_label ?? item?.unit_label ?? 'Stück',
       price_cents,
       total_cents: price_cents * t.quantity,
@@ -282,7 +287,7 @@ export async function fetchAndEnrich(forMonth?: string): Promise<{
 
 // ─── Summary computation ──────────────────────────────────────────────────────
 
-// Groups by company_id then member_id — never by display name. Names are not
+// Groups by company_id then member_id – never by display name. Names are not
 // unique, and per-person documents are built from these summaries, so grouping
 // on names would bill two same-named colleagues for each other's entries.
 export function computeSummary(transactions: EnrichedTransaction[]): CompanySummary[] {
@@ -348,7 +353,7 @@ export async function generatePdf(
 
 // Per-run PDF budget. Attaching a PDF to every email spins Chromium once per page;
 // on the serverless ceiling that must stay bounded. Generation stops after a
-// wall-clock deadline (leaving time for archive/prune) and a hard count cap — the
+// wall-clock deadline (leaving time for archive/prune) and a hard count cap – the
 // email still sends, just without that attachment. A document sent without its
 // PDF is still collected and flagged in the archive manifest (archive.ts), never
 // silently dropped.
@@ -359,7 +364,7 @@ interface PdfBudget {
 }
 
 // Both report endpoints (send-report.ts, cron/monthly-report.ts) declare
-// maxDuration: 300 — Vercel reads that as a literal, so it cannot import this.
+// maxDuration: 300 – Vercel reads that as a literal, so it cannot import this.
 // PDF rendering stops 60 s before the limit, leaving time to send the admin
 // email, archive and prune. The old 45 s / 120-document budget sat inside a
 // 60 s limit and could not render ITC1's ~90 documents, which took ~1 s each
@@ -476,7 +481,7 @@ export async function sendEmail(
     // admin explicitly forces a re-send.
     { idempotencyKey: `report-${idempotencyKey}` },
   )
-  // Resend returns { data, error } and generally does NOT throw on API errors —
+  // Resend returns { data, error } and generally does NOT throw on API errors –
   // so an unchecked call reports failures as success. Surface it so the caller
   // does not archive/prune a report that was never delivered.
   if (error) {
@@ -656,7 +661,7 @@ async function sendPrepared(
       await recordDelivery(ctx, p, data?.id ?? null)
       collect.push(p.issued)
       sent++
-      // Light throttle — Resend limits requests per second.
+      // Light throttle – Resend limits requests per second.
       await new Promise(r => setTimeout(r, 120))
     } catch (err) {
       failed++
@@ -667,7 +672,7 @@ async function sendPrepared(
   return { sent, failed }
 }
 
-// Sends each planned person their document — an invoice, a statement, or an
+// Sends each planned person their document – an invoice, a statement, or an
 // information copy when their company pays (documentMatrix.ts decides which).
 export async function sendMemberStatements(
   ctx: DeliveryContext,
@@ -720,7 +725,7 @@ export async function sendMemberStatements(
         kind: d.kind,
         reportMonth: ctx.reportMonth,
         companyId: d.companyId,
-        companyName: companyNames.get(d.companyId) ?? '—',
+        companyName: companyNames.get(d.companyId) ?? '–',
         memberId: d.memberId,
         documentNumber: invoiceRender?.documentNumber ?? null,
         recipientName: d.name,
@@ -875,7 +880,7 @@ export async function archiveTransactions(
   const now = new Date().toISOString()
 
   // upsert with ignoreDuplicates so re-sending the same month's report
-  // never fails — rows already archived are simply skipped.
+  // never fails – rows already archived are simply skipped.
   //
   // The archive is permanent (never pruned; DELETE revoked in migration 042), so each row carries the price paid
   // and the item's identity as they were at reporting time (migration 031). A
@@ -918,14 +923,14 @@ export async function pruneOldTransactions(): Promise<void> {
 
   // Only delete live transactions that have actually been archived. A month that
   // was never reported (and therefore never archived) is retained rather than
-  // silently lost — the delete goes through prune_reported_transactions, which
+  // silently lost – the delete goes through prune_reported_transactions, which
   // filters on existence in transactions_archive.
   const { error: liveErr } = await supabase.rpc('prune_reported_transactions', { p_cutoff: cutoff })
   if (liveErr) throw new Error(`Prune transactions failed: ${liveErr.message}`)
 
   // transactions_archive is never pruned. It used to be trimmed to the same
   // window "to stay within Supabase free-tier storage", which destroyed all
-  // history after ~2-3 months — including the audit trail migration 025 relies
+  // history after ~2-3 months – including the audit trail migration 025 relies
   // on and invoice data §14b UStG requires be kept for 8 years. At ITC1's volume
   // (~2,400 rows/month, a few MB/year) storage was never the constraint.
   // Migration 039 (follow-up PR) revokes DELETE on the archive so this cannot quietly return.
@@ -939,18 +944,21 @@ export async function deactivateInactiveMembers(): Promise<void> {
   const cutoff = new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString()
 
   // Find members whose most recent transaction is older than the cutoff.
-  // Members with zero transactions ever are intentionally excluded — they may
+  // Members with zero transactions ever are intentionally excluded – they may
   // be newly added and simply haven't logged anything yet.
-  const { data: txData, error: txErr } = await supabase
+  // Paged: this read decides who gets DEACTIVATED, and an unbounded select saw
+  // only the newest max_rows transactions - so anyone whose latest activity fell
+  // outside that page looked inactive and was deactivated. See _lib/paged.ts.
+  const txData = await fetchAllRows((from, to) => supabase
     .from('transactions')
     .select('member_id, logged_at')
     .order('logged_at', { ascending: false })
-
-  if (txErr) throw new Error(`deactivateInactiveMembers fetch failed: ${txErr.message}`)
+    .order('id')
+    .range(from, to), 'deactivateInactiveMembers fetch failed')
 
   // Build a map: member_id → most recent logged_at
   const latestByMember = new Map<string, string>()
-  for (const row of txData ?? []) {
+  for (const row of txData) {
     if (!latestByMember.has(row.member_id)) {
       latestByMember.set(row.member_id, row.logged_at)
     }
@@ -984,7 +992,7 @@ const RUNNING_STALE_MS = 15 * 60 * 1000
 interface RunResult {
   status: 'sent' | 'skipped'
   memberStatements?: MemberStatementResult
-  // Recipients who could not be sent a document, and why — e.g. a company that
+  // Recipients who could not be sent a document, and why – e.g. a company that
   // pays but has no billing contact. Intentionally disabled documents are omitted.
   skipped?: SkippedDelivery[]
   // Documents delivered without a PDF or Excel (flagged in the archive manifest).
@@ -1088,14 +1096,14 @@ export async function runMonthlyReport(
     const needDocs = transactions.length > 0 && (settings.companyDocumentsEnabled || settings.memberStatementsEnabled)
 
     // One Chromium for the whole run: the aggregate summary PDF plus every
-    // per-recipient PDF. A launch failure must NOT sink the report — we fall back
+    // per-recipient PDF. A launch failure must NOT sink the report – we fall back
     // to sending without PDFs, and the archive manifest flags every missing file.
     let browser: Browser | null = null
     if (format.includePdf || needDocs) {
       try {
         browser = await launchBrowser()
       } catch (err) {
-        console.error('[report] Chromium launch failed — sending without PDFs:', err instanceof Error ? err.message : err)
+        console.error('[report] Chromium launch failed – sending without PDFs:', err instanceof Error ? err.message : err)
         browser = null
       }
     }
@@ -1107,7 +1115,7 @@ export async function runMonthlyReport(
         try {
           pdfBuffer = await pageToPdf(browser, buildReportHtml(summaries, transactions, monthLabel, reportMonth))
         } catch (err) {
-          console.error('[report] aggregate PDF failed — sending without it:', err instanceof Error ? err.message : err)
+          console.error('[report] aggregate PDF failed – sending without it:', err instanceof Error ? err.message : err)
         }
       }
       const xlsxBuffer = format.includeExcel ? await generateExcel(summaries, transactions) : null
@@ -1323,7 +1331,7 @@ export class DeliveryNotFoundError extends Error {
 /**
  * Rebuild a delivered document from the archive (+ live table) for its month.
  *
- * An invoice keeps its stored number and its stored net, VAT and gross amounts —
+ * An invoice keeps its stored number and its stored net, VAT and gross amounts –
  * nothing here allocates a document number. Entries are read with their price
  * snapshots, so a later price change does not alter the copy. Only the issuer
  * block reflects today's settings (see resolveIssuerForReissue).
@@ -1343,7 +1351,7 @@ export async function regenerateDelivery(deliveryId: string): Promise<Regenerate
     fetchReportSettings(),
     supabase.from('companies').select('id, name, billing_contact_name, billing_mode, employee_list_enabled').eq('id', delivery.company_id).maybeSingle(),
   ])
-  const companyName: string = company?.name ?? '—'
+  const companyName: string = company?.name ?? '–'
 
   let invoice: InvoiceRender | undefined
   if (delivery.document_number) {
@@ -1483,7 +1491,7 @@ export async function resendDelivery(
     .eq('id', deliveryId)
     .single()
   if (origErr) throw new Error(`Re-send delivered but could not be recorded: ${origErr.message}`)
-  // Copy the original's fields explicitly — never spread the row, which would
+  // Copy the original's fields explicitly – never spread the row, which would
   // carry its id or sent_at into the new record.
   const { data: row, error: insErr } = await supabase
     .from('document_deliveries')

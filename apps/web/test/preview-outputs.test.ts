@@ -39,7 +39,7 @@ async function call(body: Record<string, unknown>) {
 
 describe('preview-report outputs', () => {
   // The handler falls back to sampleData(), which derives reportMonth from
-  // new Date() — so the download filename follows the wall clock. Pin it, or
+  // new Date() – so the download filename follows the wall clock. Pin it, or
   // the assertions below only hold during the month they were written in.
   // Only Date is faked: faking timers wholesale would stall the async handler.
   beforeAll(() => {

@@ -1,5 +1,5 @@
 // Theme context, types, and helpers (kept out of theme.tsx so that file only
-// exports the ThemeProvider component — required for React Fast Refresh).
+// exports the ThemeProvider component – required for React Fast Refresh).
 
 import { createContext, useContext } from 'react'
 import type { Palette } from './palettes'

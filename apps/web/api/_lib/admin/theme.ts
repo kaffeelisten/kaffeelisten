@@ -1,5 +1,5 @@
-// GET  /api/admin/theme — read the global appearance (default mode, palette, custom)
-// PUT  /api/admin/theme — update it. PIN-protected; app_theme is public-readable
+// GET  /api/admin/theme – read the global appearance (default mode, palette, custom)
+// PUT  /api/admin/theme – update it. PIN-protected; app_theme is public-readable
 // but only the service role may write. See docs/phase-2-production.md.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'

@@ -1,4 +1,4 @@
--- Kaffeelisten — development seed data
+-- Kaffeelisten – development seed data
 -- Represents a realistic ITC1 Deggendorf campus setup.
 -- Run after migration 001.
 
