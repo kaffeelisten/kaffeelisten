@@ -4,7 +4,7 @@
 --
 -- billing_documents (migration 025) records INVOICES only, and invoice mode stays
 -- off until ITC1 authorises it (migration 036). A documents view built on it would
--- therefore be empty for statements and information copies – which is everything
+-- therefore be empty for statements and information copies — which is everything
 -- the app sends today. This table records every document actually delivered, of
 -- every kind, so the admin can see what went to whom, spot missing attachments,
 -- and re-download or re-send any of them.
@@ -12,7 +12,7 @@
 -- APPEND-ONLY. A re-send inserts a new row pointing at the original (resend_of)
 -- instead of overwriting it; markBillingDocumentSent overwrites sent_at and
 -- resend_message_id on billing_documents, which erases the record of the first
--- send. service_role may select and insert only – no update, no delete.
+-- send. service_role may select and insert only — no update, no delete.
 --
 -- Files are not stored here. A re-download regenerates the document from the
 -- archive with its original number and amounts (api/admin/documents.ts); storing

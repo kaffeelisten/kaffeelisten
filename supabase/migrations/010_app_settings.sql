@@ -2,7 +2,7 @@
 -- Introduces a single-row settings table that moves admin configuration out of
 -- environment variables and into the database, so the admin can manage it from
 -- the dashboard (Phase 2). Covers:
---   • the admin PIN (now 6-digit, hashed – never stored or returned in clear)
+--   • the admin PIN (now 6-digit, hashed — never stored or returned in clear)
 --   • a self-service PIN reset token (email-based reset flow)
 --   • the CEO / billing recipient that is CC'd on every monthly report
 --   • the list of report recipients (admin inboxes)
@@ -20,9 +20,9 @@ create table if not exists app_settings (
   -- Enforced singleton: only the row with id = 1 may ever exist.
   id                       smallint primary key default 1 check (id = 1),
 
-  -- Admin PIN – bcrypt hash via pgcrypto crypt(pin, gen_salt('bf')).
+  -- Admin PIN — bcrypt hash via pgcrypto crypt(pin, gen_salt('bf')).
   -- NULL until the admin sets a PIN; until then verify-pin falls back to the
-  -- ADMIN_PIN env var (migration bridge – see docs runbook).
+  -- ADMIN_PIN env var (migration bridge — see docs runbook).
   admin_pin_hash           text,
   pin_length               smallint not null default 6 check (pin_length between 4 and 8),
   pin_updated_at           timestamptz,
@@ -48,7 +48,7 @@ create table if not exists app_settings (
 );
 
 comment on table app_settings is
-  'Singleton (id=1) admin configuration: hashed PIN, reset token, report recipients, CEO CC, feature toggles. Service-role only – never exposed to anon.';
+  'Singleton (id=1) admin configuration: hashed PIN, reset token, report recipients, CEO CC, feature toggles. Service-role only — never exposed to anon.';
 
 -- Seed the singleton row. PIN hash stays NULL so the system keeps working via
 -- the ADMIN_PIN env fallback until the admin sets a real PIN from the dashboard.

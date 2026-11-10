@@ -40,8 +40,11 @@ docs/             PRD, design docs, roadmap – read before designing
   then sums as if it were everything. Use `fetchAllRows` from `api/_lib/paged.ts`, and give
   the query a unique last sort key so pages do not overlap.
 - **Never type an em dash (U+2014). Use an en dash (`–`, U+2013).** Everywhere: prose,
-  comments, UI copy, commit messages, changelog entries. The repository contains no U+2014 at
-  all, which is what makes the rule checkable:
+  comments, UI copy, commit messages, changelog entries. **Applied migrations are the exception**
+  and are never swept: `supabase/migrations/` and `supabase/tests/` are a record of what ran
+  against production, several of them carry text inside `COMMENT ON … IS '…'` literals, and an
+  immutable file does not get retyped for punctuation. Everything else contains no U+2014, which
+  is what makes the rule checkable:
   ```bash
   python -c "import io,subprocess as s; f=s.run(['git','ls-files'],capture_output=True,text=True).stdout.split(); print([x for x in f if chr(0x2014) in io.open(x,encoding='utf-8',errors='ignore').read()])"
   ```

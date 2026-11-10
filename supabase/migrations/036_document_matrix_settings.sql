@@ -12,8 +12,8 @@
 --   addendum.md §1.1: invoice mode must stay disabled until ITC1 gives written
 --   authority for documents issued in its name and its tax adviser approves the
 --   process. `issue_invoices` alone was a single toggle anyone with the admin PIN
---   could flip. resolveIssuer (api/_lib/billing.ts) now returns no issuer – and so
---   every invoice path stays dormant – unless BOTH flags are set, and the settings
+--   could flip. resolveIssuer (api/_lib/billing.ts) now returns no issuer — and so
+--   every invoice path stays dormant — unless BOTH flags are set, and the settings
 --   API refuses to set the authorisation without a note recording who granted it
 --   and when.
 --

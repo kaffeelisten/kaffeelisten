@@ -1,6 +1,6 @@
 -- Minimal stand-in for a Supabase project's bootstrap, enough to apply the
 -- kaffeelisten migrations to a plain Postgres: the three API roles and
--- Supabase's default grants. Used only by scripts/test-migrations.sh – never
+-- Supabase's default grants. Used only by scripts/test-migrations.sh — never
 -- apply this to a real Supabase project, which already has all of it.
 
 -- Roles are cluster-wide, so they survive the per-run database drop.
@@ -21,7 +21,7 @@ grant usage on schema public to anon, authenticated, service_role;
 
 -- Supabase grants ALL on public tables, functions and sequences to the API roles
 -- by default and relies on RLS to restrict them. This is the grant that makes a
--- missing GRANT in a migration harmless and a missing REVOKE dangerous – the
+-- missing GRANT in a migration harmless and a missing REVOKE dangerous — the
 -- archive DELETE revoked by migration 042 exists only because of it.
 alter default privileges in schema public grant all on tables    to anon, authenticated, service_role;
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;

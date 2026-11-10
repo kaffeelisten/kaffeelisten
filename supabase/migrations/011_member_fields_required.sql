@@ -1,8 +1,8 @@
 -- Migration: 011_member_fields_required
 -- Makes member identity fields mandatory now that Phase 2 sends each member a
--- personal monthly statement – a member with no work email cannot be reached.
+-- personal monthly statement — a member with no work email cannot be reached.
 --
--- ORDERING – IMPORTANT:
+-- ORDERING — IMPORTANT:
 --   work_email is currently nullable and the demo data leaves some rows NULL.
 --   Setting NOT NULL fails if any NULL remains. Run this migration only AFTER
 --   the demo data has been cleared (supabase/maintenance/clear_demo_data.sql)
@@ -35,4 +35,4 @@ alter table public.members
 -- with an FK in 001. This migration's sole job is the work_email guarantee.
 
 comment on column public.members.work_email is
-  'Work email – required since Phase 2 (used to deliver per-member monthly statements).';
+  'Work email — required since Phase 2 (used to deliver per-member monthly statements).';
