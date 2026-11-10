@@ -1,9 +1,9 @@
-# Email deliverability — `kaffeelisten.de` (Resend)
+# Email deliverability – `kaffeelisten.de` (Resend)
 
 All Kaffeelisten mail is sent from `bericht@kaffeelisten.de` via **Resend** (EU region,
 `eu-west-1`): the monthly company report, the per-member statements, the admin PIN-reset code, and
 the member email-confirmation link. For those to reach inboxes and not spam, the domain must pass
-**SPF**, **DKIM**, and (recommended) **DMARC**. These are DNS + Resend-dashboard settings — they
+**SPF**, **DKIM**, and (recommended) **DMARC**. These are DNS + Resend-dashboard settings – they
 **cannot be verified from this repository**. This document is the checklist to complete and audit
 them.
 
@@ -25,9 +25,9 @@ one by breaking another:
   return-path and a **root-domain DKIM key** (`resend._domainkey`). It does **not** use the root MX or
   root SPF, so it neither needs nor touches the Hetzner records above.
 
-## 1. DNS records — current status
+## 1. DNS records – current status
 
-All four records are **live and correct** — the three Resend requires (DKIM, `send` MX, `send` SPF)
+All four records are **live and correct** – the three Resend requires (DKIM, `send` MX, `send` SPF)
 plus the recommended DMARC policy. Verified with `nslookup` (see §3). DMARC resolves on Google's
 resolver; a lag on other resolvers (e.g. Cloudflare `1.1.1.1`) is just propagation on the 7200s TTL.
 
@@ -48,9 +48,9 @@ Notes:
 - **DMARC covers the whole domain**, including your Hetzner mailbox mail. Resend already passes via
   **DKIM alignment** (`d=kaffeelisten.de`). Keep `p=none` until you've watched a few `rua` reports and
   confirmed your Hetzner mail also aligns, **then** tighten to `p=quarantine` and eventually `p=reject`.
-- **Root SPF is `?all` (neutral)** — very permissive. Harmless for Resend (which doesn't rely on it),
+- **Root SPF is `?all` (neutral)** – very permissive. Harmless for Resend (which doesn't rely on it),
   but once you're confident in your senders you may want to tighten the root `@` record to `~all`.
-- **Do not** add `include:amazonses.com` to the **root** SPF or change the root MX — Resend's SPF lives
+- **Do not** add `include:amazonses.com` to the **root** SPF or change the root MX – Resend's SPF lives
   on the `send.` subdomain by design.
 
 ## 2. Verify on Resend
@@ -59,7 +59,7 @@ Notes:
 2. Click **Verify DNS Records**. DKIM and SPF should read **Verified** (green) immediately, since those
    records are already live. (DMARC is not required for Resend to verify.)
 3. Send a test from the dashboard (or add a member in the admin panel) and confirm delivery to a real
-   inbox — check that it lands in the inbox, not spam.
+   inbox – check that it lands in the inbox, not spam.
 
 ## 3. Self-check propagation from the CLI
 
@@ -83,7 +83,7 @@ dig +short txt _dmarc.kaffeelisten.de
 - `Reply-To` set to a monitored mailbox (`ADMIN_EMAIL[0]`).
 - Member statements are sent sequentially with a light throttle to respect rate limits and avoid a
   sudden burst that can trip spam filters (`apps/web/api/_lib/report.ts`).
-- Emails have a plain, real German subject and body — no all-image content.
+- Emails have a plain, real German subject and body – no all-image content.
 
 ## 5. Ownership
 

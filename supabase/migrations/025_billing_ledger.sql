@@ -2,7 +2,7 @@
 --
 -- When invoice mode is on, every monthly document (per member, per company, or
 -- the ITC1 archive) is recorded here with a unique, never-reused number so the
--- billing is auditable and re-sends are idempotent. Nothing large is stored — the
+-- billing is auditable and re-sends are idempotent. Nothing large is stored – the
 -- document IS the email body; this ledger plus transactions_archive is the audit
 -- trail. See docs/prd-billing-commercial-addendum.md §7.
 --
@@ -82,7 +82,7 @@ create index if not exists billing_documents_month_idx on billing_documents (rep
 
 -- RLS on, no policies → anon/authenticated denied; service_role bypasses RLS but
 -- still needs object-level grants. INSERT + UPDATE only (voiding is an UPDATE);
--- DELETE withheld — the ledger is immutable (least privilege, like migration 022).
+-- DELETE withheld – the ledger is immutable (least privilege, like migration 022).
 alter table billing_runs       enable row level security;
 alter table billing_documents  enable row level security;
 grant select, insert, update on public.billing_runs      to service_role;

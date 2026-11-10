@@ -1,12 +1,12 @@
 // The month's issued documents, and the archive built from them.
 //
-// Every document actually delivered is collected here — invoice or statement,
-// with or without a PDF — so the CEO archive holds exact copies of what went out
+// Every document actually delivered is collected here – invoice or statement,
+// with or without a PDF – so the CEO archive holds exact copies of what went out
 // and a manifest of all of it. Two failures this replaces:
 //
 //   • A document was only collected when its PDF rendered. If the PDF budget ran
 //     out, the email still went out but the document vanished from the company
-//     archive, the CEO archive and the ledger — while billing_documents still
+//     archive, the CEO archive and the ledger – while billing_documents still
 //     recorded it as sent. Now a missing file is listed and flagged.
 //   • Every member statement was named "Kaffeeliste-<month>.pdf", so inside one
 //     zip they overwrote each other and only one survived. Names are now unique.
@@ -65,7 +65,7 @@ const KIND_FILE_PREFIX: Record<IssuedDocKind, string> = {
  * A file stem unique within one month's archive.
  *
  * An invoice is identified by its number, which is unique by construction. Any
- * other document is identified by who it is for — and because two people can
+ * other document is identified by who it is for – and because two people can
  * share a name, a short prefix of their id is always appended.
  */
 export function documentFileStem(doc: IssuedDoc): string {
@@ -82,7 +82,7 @@ export interface ArchiveFile {
 }
 
 /**
- * Files for an archive zip — each document's PDF and Excel under a unique name —
+ * Files for an archive zip – each document's PDF and Excel under a unique name –
  * plus manifest rows for every document, including those missing a file.
  * `folder` groups files inside the zip ("Personen/", "Unternehmen/").
  */

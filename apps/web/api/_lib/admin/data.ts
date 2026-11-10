@@ -17,6 +17,7 @@ import { sendMemberConfirmation } from '../confirmationEmail'
 import { publicBaseUrl } from '../publicUrl'
 import { companyBillingTouched, companyConfigError, hasHouseAccount, type BillingMode, type CheckoutMode } from '../documentMatrix'
 import { classifyServerError } from '../errors'
+import { fetchAllRows } from '../paged'
 
 // Request origin (e.g. https://itc1.kaffeelisten.de) for building confirmation
 // links. The request's own host is authoritative; publicBaseUrl() is the
@@ -33,7 +34,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const NAME_MAX = 120
 const NOTES_MAX = 1000
 const UNIT_MAX = 40
-const PRICE_MAX = 1_000_000 // €10 000 in cents — generous upper bound
+const PRICE_MAX = 1_000_000 // €10 000 in cents – generous upper bound
 const CATEGORIES = ['coffee', 'drink', 'snack', 'food', 'other'] as const
 
 type Resource = 'companies' | 'items' | 'members'
@@ -120,7 +121,7 @@ async function validateCompany(
   // Only a save that touches billing or checkout is judged against the billing
   // rules. Otherwise a company that is ALREADY misconfigured (e.g. paying, with
   // no contact, from before the rule existed) could not even be renamed or
-  // deactivated — the very actions needed to deal with it.
+  // deactivated – the very actions needed to deal with it.
   if (!companyBillingTouched(body, partial)) return { value: out }
 
   // Judge the company as it will be AFTER this save: on a partial update, fill
@@ -181,7 +182,7 @@ function validateItem(body: Record<string, unknown>, partial: boolean): Ok<Parti
 // (anna@gmial.com, chef@firma.col) are caught before a per-member statement is
 // ever addressed to a dead domain. Checks MX records, falling back to A/AAAA
 // per RFC 5321. Fails OPEN on transient DNS trouble (timeout, SERVFAIL): a flaky
-// resolver must never block a legitimate save — only a domain that definitively
+// resolver must never block a legitimate save – only a domain that definitively
 // does not exist / accepts no mail is rejected.
 async function domainAcceptsMail(domain: string): Promise<Ok<true> | Err> {
   const NOT_DELIVERABLE = new Set(['ENOTFOUND', 'ENODATA', 'NOTFOUND'])
@@ -239,7 +240,7 @@ async function validateMember(
 }
 
 // A company-checkout company books every order on its house account; make sure
-// one exists (idempotent — also reactivates an existing one). Switching back to
+// one exists (idempotent – also reactivates an existing one). Switching back to
 // member checkout leaves the account in place, so its history stays attached.
 async function provisionHouseAccount(
   supabase: ReturnType<typeof makeAdminClient>,
@@ -276,18 +277,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // LIVE TABLE ONLY, by design. Reported months leave this view once the
         // live table is pruned; they stay retrievable through /api/admin/export,
         // which reads the archive. Do not union the archive in here.
-        const [txRes, membersRes, companiesRes, itemsRes] = await Promise.all([
-          supabase.from('transactions').select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at').order('logged_at', { ascending: false }),
+        const [transactions, membersRes, companiesRes, itemsRes] = await Promise.all([
+          // Paged: the dashboard used to show only the newest max_rows rows and
+          // total them as if that were the month. See _lib/paged.ts.
+          fetchAllRows((from, to) => supabase
+            .from('transactions')
+            .select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at')
+            .order('logged_at', { ascending: false })
+            .order('id')
+            .range(from, to), 'dashboard: transactions'),
           supabase.from('members').select('id, name, work_email, kind'),
           // All companies, not just active ones: entries logged before a company
           // was deactivated must still show its name.
           supabase.from('companies').select('id, name, active').order('name'),
           supabase.from('items').select('id, name, price_cents'),
         ])
-        const firstErr = txRes.error || membersRes.error || companiesRes.error || itemsRes.error
+        const firstErr = membersRes.error || companiesRes.error || itemsRes.error
         if (firstErr) throw new Error(firstErr.message)
         return res.status(200).json({
-          transactions: txRes.data ?? [],
+          transactions,
           members: membersRes.data ?? [],
           companies: companiesRes.data ?? [],
           items: itemsRes.data ?? [],
@@ -369,7 +377,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(201).json({ ok: true })
     }
 
-    // PATCH — requires an id
+    // PATCH – requires an id
     const id = String(body.id ?? '').trim()
     if (!id) return res.status(400).json({ error: 'id fehlt.' })
     if (Object.keys(validated.value).length === 0) {

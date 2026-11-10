@@ -1,6 +1,6 @@
 // GET /api/admin/export?from=YYYY-MM-DD&to=YYYY-MM-DD[&company_id&member_id&item_id]&format=csv|xlsx|pdf
 //
-// Downloads entries for any range, scoped by company, person or item — including
+// Downloads entries for any range, scoped by company, person or item – including
 // months already archived and pruned from the live table. Those months are
 // intentionally NOT shown in the admin's Einträge table (api/admin/data.ts reads
 // only the live table); this is the one place they can be retrieved.
@@ -23,6 +23,7 @@ import { launchBrowser, pageToPdf } from '../pdf'
 import { buildExportHtml } from '../reportHtml'
 import { sanitizeFile } from '../archive'
 import { classifyServerError } from '../errors'
+import { fetchAllRows } from '../paged'
 
 // A PDF export launches Chromium; spreadsheets finish in well under this.
 export const config = { maxDuration: 60 }
@@ -51,22 +52,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return out
     }
 
-    const [liveRes, archiveRes, membersRes, companiesRes, itemsRes] = await Promise.all([
-      scoped(
+    const [liveRows, archiveRows, membersRes, companiesRes, itemsRes] = await Promise.all([
+      // Paged: a wide export window is far more than max_rows, and the CSV
+      // simply stopped early without saying so. See _lib/paged.ts.
+      fetchAllRows((from, to) => scoped(
         supabase.from('transactions')
           .select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at')
           .gte('logged_at', window.gte).lt('logged_at', window.lt),
-      ),
-      scoped(
+      ).order('id').range(from, to), 'export: transactions'),
+      fetchAllRows((from, to) => scoped(
         supabase.from('transactions_archive')
           .select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at, report_month, item_name, unit_label, item_category')
           .gte('logged_at', window.gte).lt('logged_at', window.lt),
-      ),
+      ).order('id').range(from, to), 'export: transactions_archive'),
       supabase.from('members').select('id, name, work_email'),
       supabase.from('companies').select('id, name'),
       supabase.from('items').select('id, name, unit_label, category, price_cents'),
     ])
-    const firstErr = liveRes.error || archiveRes.error || membersRes.error || companiesRes.error || itemsRes.error
+    const firstErr = membersRes.error || companiesRes.error || itemsRes.error
     if (firstErr) throw new Error(firstErr.message)
 
     const lookups: ExportLookups = {
@@ -75,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       items: new Map((itemsRes.data ?? []).map(i => [i.id, i])),
     }
 
-    const rows = buildExportRows(liveRes.data ?? [], archiveRes.data ?? [], lookups, filters)
+    const rows = buildExportRows(liveRows, archiveRows, lookups, filters)
     const limit = EXPORT_ROW_LIMIT[format]
     if (rows.length > limit) {
       return res.status(413).json({

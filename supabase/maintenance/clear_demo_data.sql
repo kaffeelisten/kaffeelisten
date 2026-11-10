@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Kaffeelisten — clear demo / hackathon data
+-- Kaffeelisten – clear demo / hackathon data
 -- File: supabase/maintenance/clear_demo_data.sql
 --
 -- Wipes ALL operational data (companies, members, items, live + archived
@@ -8,7 +8,7 @@
 --
 -- What it does NOT touch:
 --   • schema / tables / RLS policies / grants
---   • app_settings (admin PIN hash, CEO email, recipients, toggles) — config survives
+--   • app_settings (admin PIN hash, CEO email, recipients, toggles) – config survives
 --
 -- This is destructive and irreversible. There is no automatic backup.
 -- BEFORE RUNNING: export anything worth keeping
@@ -31,7 +31,7 @@ truncate table
   companies
 cascade;
 
--- Sanity check — every data table must be empty after this runs.
+-- Sanity check – every data table must be empty after this runs.
 do $$
 declare
   n int;
@@ -52,6 +52,6 @@ end $$;
 commit;
 
 -- Next steps:
---   1. Seed real data — fill in supabase/seed_production.template.sql and run it.
+--   1. Seed real data – fill in supabase/seed_production.template.sql and run it.
 --   2. Apply migration 011 to lock members.work_email NOT NULL.
 --   See docs/phase-2-production.md §Migration order.

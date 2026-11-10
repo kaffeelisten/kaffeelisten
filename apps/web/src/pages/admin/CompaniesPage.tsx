@@ -223,8 +223,8 @@ export default function CompaniesPage({ onToast, onMenuClick }: Props) {
         ? <Badge kind="inactive">Firmen-Checkout</Badge>
         : <span className="text-sm text-fg-muted">pro Person</span>),
     },
-    { key: 'people', label: 'Personen', align: 'right', mono: true, sortValue: r => r.people, render: r => (r.checkout_mode === 'company' ? <span className="text-fg-subtle">—</span> : r.people) },
-    { key: 'month', label: monthLabel(month), align: 'right', mono: true, sortValue: r => r.monthCents, render: r => (r.monthCents > 0 ? euro(r.monthCents) : <span className="text-fg-subtle">—</span>) },
+    { key: 'people', label: 'Personen', align: 'right', mono: true, sortValue: r => r.people, render: r => (r.checkout_mode === 'company' ? <span className="text-fg-subtle">–</span> : r.people) },
+    { key: 'month', label: monthLabel(month), align: 'right', mono: true, sortValue: r => r.monthCents, render: r => (r.monthCents > 0 ? euro(r.monthCents) : <span className="text-fg-subtle">–</span>) },
     { key: 'active', label: 'Status', sortValue: r => (r.active ? 1 : 0), render: r => <Badge kind={r.active ? 'active' : 'inactive'}>{r.active ? 'Aktiv' : 'Inaktiv'}</Badge> },
     {
       key: 'actions',

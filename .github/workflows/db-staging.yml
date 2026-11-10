@@ -46,8 +46,8 @@ jobs:
 
       # Migration 038 revokes every API-role privilege in `public`, which also
       # strips the grants of whatever else shares the project (see
-      # docs/environments.md). The breakage is silent — an empty list, not an
-      # error — so repair it here rather than trusting anyone to remember.
+      # docs/environments.md). The breakage is silent – an empty list, not an
+      # error – so repair it here rather than trusting anyone to remember.
       # A no-op when staging has the project to itself.
       - name: Restore co-tenant grants
         if: steps.config.outputs.ready == 'true'

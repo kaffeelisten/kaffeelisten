@@ -7,7 +7,7 @@ import { DEMO_DISABLED_ADMIN_ROUTES, DEMO_DISABLED_AUTH_ACTIONS, isDemoDeploymen
 
 // Importing api/admin/[...path] pulls in every admin handler, and with them
 // puppeteer-core, exceljs and the mail stack. Cold, with 46 files competing for
-// the pool, that first import has been measured past the 5 s default — which
+// the pool, that first import has been measured past the 5 s default – which
 // shows up as a flaky "refuses /api/admin/documents with 410". The assertions
 // are instant; only the import is slow, so the timeout is generous.
 const IMPORT_HEAVY = 30_000

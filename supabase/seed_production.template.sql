@@ -1,10 +1,10 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Kaffeelisten — PRODUCTION seed template (ITC1 internal demo)
+-- Kaffeelisten – PRODUCTION seed template (ITC1 internal demo)
 -- File: supabase/seed_production.template.sql
 --
 -- This is a TEMPLATE. Copy the rows below and replace the placeholders with the
 -- real ITC1 companies, members and items + prices. Do NOT commit real personal
--- data (member names / emails) to the repo unless that is explicitly agreed —
+-- data (member names / emails) to the repo unless that is explicitly agreed –
 -- prefer running the filled-in version directly against Supabase and keeping it
 -- out of git (see .gitignore note at the bottom).
 --

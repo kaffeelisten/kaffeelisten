@@ -4,7 +4,7 @@
 --
 -- For a company whose employees each pay their own way, the monthly run used to
 -- zip every employee's individual invoice and send it to the employer's billing
--- contact — automatically, for every such company, in invoice mode. That hands
+-- contact – automatically, for every such company, in invoice mode. That hands
 -- each employee's itemised consumption to their employer without anyone having
 -- decided it should.
 --

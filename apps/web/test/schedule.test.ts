@@ -40,7 +40,7 @@ describe('computeDueReport', () => {
   })
 
   it('clamps a 31 send day to the last day of a short month', () => {
-    // June has 30 days — day 31 can never arrive, so it must fire on the 30th.
+    // June has 30 days – day 31 can never arrive, so it must fire on the 30th.
     const r = computeDueReport(at('2026-06-30T12:00:00Z'), { autoEnabled: true, autoDay: 31 })
     expect(r).toEqual({ due: true, targetMonth: '2026-05' })
   })

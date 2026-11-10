@@ -1,4 +1,4 @@
--- Migration 015: RLS lockdown — remove the anonymous key's access to PII and
+-- Migration 015: RLS lockdown – remove the anonymous key's access to PII and
 -- to admin data/operations.
 --
 -- Background: the member-facing flow is anonymous by design, so the `anon` role
@@ -7,15 +7,15 @@
 -- table-wide SELECT on members (incl. work_email) and transactions, plus
 -- INSERT/UPDATE on companies, members and items. That let anyone with the public
 -- key read every member's work email and every transaction, and corrupt the
--- catalogue — directly contradicting the privacy notice ("only campus admins
+-- catalogue – directly contradicting the privacy notice ("only campus admins
 -- have access").
 --
 -- After this migration the anon role can ONLY:
 --   • read active companies and items (for the selectors)
 --   • read the non-PII columns (id, name, company_id, active) of active members
 --   • insert its own member row (self-registration) and transactions (logging)
--- Everything else — reading work emails, reading transactions, and all
--- companies/members/items writes — now happens exclusively through the
+-- Everything else – reading work emails, reading transactions, and all
+-- companies/members/items writes – now happens exclusively through the
 -- PIN-protected, service-role serverless API (apps/web/api/admin/*).
 --
 -- NOTE: this does NOT yet validate the anon INSERT paths (quantity bounds,

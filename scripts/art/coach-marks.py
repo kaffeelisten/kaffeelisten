@@ -9,7 +9,7 @@ WHY THESE ARE GENERATED AND NOT DRAWN IN SVG. The look is the point: a pencil
 stroke that is visibly a human's, sitting on top of a precise interface, is what
 makes a hint read as a hint rather than as chrome. A hand-authored Bezier looks
 like a logo. The reference is `doodle-arrow.png` from PROJECTS/15-Flipper, which
-is where this style already lives in Alexander's work — every mark is an edit of
+is where this style already lives in Alexander's work – every mark is an edit of
 it, so they are one family rather than five unrelated doodles.
 
 WHAT IS NOT IN THE IMAGES: text. The captions are real DOM text (CoachMarks.tsx)
@@ -92,7 +92,7 @@ def finish(path: pathlib.Path) -> None:
     * rebuilding from raw pixel data drops the C2PA chunk and every other bit of
       provenance metadata the model attaches;
     * the model fills a 1024 square, so most of each file is transparent nothing
-      — cropping to the ink is what lets the overlay position a mark by its own
+      – cropping to the ink is what lets the overlay position a mark by its own
       bounding box instead of guessing where inside the square the line sits;
     * at 1024 these were 220-465 KB each, which is absurd for a hint someone may
       dismiss in two seconds. Line art at 512 is indistinguishable on screen and

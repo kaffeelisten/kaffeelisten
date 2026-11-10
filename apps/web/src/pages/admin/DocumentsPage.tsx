@@ -41,8 +41,8 @@ interface Props {
 }
 
 /**
- * Every document the monthly run delivered — invoices, statements and information
- * copies — with preview, download and re-send. Invoices also carry their paid
+ * Every document the monthly run delivered – invoices, statements and information
+ * copies – with preview, download and re-send. Invoices also carry their paid
  * status here, which used to be buried at the bottom of the settings page.
  */
 export default function DocumentsPage({ onToast, onMenuClick }: Props) {
@@ -210,7 +210,7 @@ export default function DocumentsPage({ onToast, onMenuClick }: Props) {
             label={paidByDoc[d.billing_document_id] ? 'Bezahlt' : 'Offen'}
           />
         ) : (
-          <span className="text-fg-subtle">—</span>
+          <span className="text-fg-subtle">–</span>
         ),
     },
     { key: 'sent_at', label: 'Gesendet', mono: true, muted: true, sortValue: d => d.sent_at, render: d => when(d.sent_at) },

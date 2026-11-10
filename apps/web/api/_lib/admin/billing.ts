@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ ok: true })
     }
 
-    // GET — distinct months (newest first) + the selected month's documents.
+    // GET – distinct months (newest first) + the selected month's documents.
     const { data: monthRows, error: monthErr } = await supabase
       .from('billing_documents')
       .select('report_month')

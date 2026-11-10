@@ -1,4 +1,4 @@
-// GDPR / data-protection notice — route: /datenschutz
+// GDPR / data-protection notice – route: /datenschutz
 // Linked from the start screen footer. No cookies, no tracking, no banner needed.
 
 import { useNavigate } from 'react-router-dom'
@@ -70,7 +70,7 @@ export default function Datenschutz() {
               <span>
                 Arbeits-E-Mail-Adresse{' '}
                 <span className="text-fg-subtle">
-                  (erforderlich — zur eindeutigen Zuordnung und für die monatliche
+                  (erforderlich – zur eindeutigen Zuordnung und für die monatliche
                   Abrechnung)
                 </span>
               </span>
@@ -124,21 +124,21 @@ export default function Datenschutz() {
             <li className="flex gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent-subtle0 shrink-0" />
               <span>
-                <strong className="text-fg font-medium">Supabase</strong> — Hosting
+                <strong className="text-fg font-medium">Supabase</strong> – Hosting
                 der Datenbank
               </span>
             </li>
             <li className="flex gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent-subtle0 shrink-0" />
               <span>
-                <strong className="text-fg font-medium">Vercel</strong> — Hosting und
+                <strong className="text-fg font-medium">Vercel</strong> – Hosting und
                 Auslieferung der Anwendung
               </span>
             </li>
             <li className="flex gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent-subtle0 shrink-0" />
               <span>
-                <strong className="text-fg font-medium">Resend</strong> — Versand des
+                <strong className="text-fg font-medium">Resend</strong> – Versand des
                 monatlichen Abrechnungsberichts per E-Mail
               </span>
             </li>
@@ -161,7 +161,7 @@ export default function Datenschutz() {
 
         <Section title="Wer hat Zugriff">
           Ausschließlich die Campus-Verwaltung über das PIN-geschützte Admin-Panel.
-          Mitarbeitende sehen keine fremden Daten — die Logging-Ansicht zeigt nur die
+          Mitarbeitende sehen keine fremden Daten – die Logging-Ansicht zeigt nur die
           eigene Auswahl. Die Admin-PIN wird serverseitig geprüft und ist nicht Teil
           der Anwendung im Browser.
         </Section>
@@ -175,7 +175,7 @@ export default function Datenschutz() {
             Widerspruchsrecht gegen die Verarbeitung
           </strong>{' '}
           (Art. 21 DSGVO). Zudem kannst du dich bei einer Aufsichtsbehörde
-          beschweren — zuständig ist das{' '}
+          beschweren – zuständig ist das{' '}
           <strong className="text-fg font-medium">
             Bayerische Landesamt für Datenschutzaufsicht (BayLDA)
           </strong>

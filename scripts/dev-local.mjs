@@ -157,7 +157,7 @@ if (noDev) {
 // Vite gives real environment variables precedence over .env files, so these
 // override whatever that file says, for this process only.
 //
-// Without this the UI runs against whatever .env.local points at — which today
+// Without this the UI runs against whatever .env.local points at – which today
 // is a remote project. "Running it locally" while the browser talks to staging
 // is the kind of thing that looks fine and proves nothing.
 const anonKey = status.anon

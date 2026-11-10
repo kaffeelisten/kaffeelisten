@@ -97,7 +97,7 @@ describe('generateManifestExcel', () => {
       { kindLabel: 'Aufstellung (Person)', documentNumber: null, recipientName: 'Anna', recipientEmail: 'a@x.de',
         companyName: 'EFCO', netCents: null, taxCents: null, grossCents: 50, pdfFile: 'a.pdf', xlsxFile: 'a.xlsx' },
     ]))
-    expect(wb.getWorksheet('Versandte Dokumente')!.getRow(2).getCell(2).value).toBe('—')
+    expect(wb.getWorksheet('Versandte Dokumente')!.getRow(2).getCell(2).value).toBe('–')
   })
 })
 

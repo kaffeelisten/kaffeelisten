@@ -1,5 +1,5 @@
 // PIN-protected admin payments API (service-role). Backs the per-member paid
-// tracking in the Employees tab (migration 027) — independent of invoice mode.
+// tracking in the Employees tab (migration 027) – independent of invoice mode.
 //
 //   GET   /api/admin/payments?member_id=<uuid>
 //         → { months: [{ report_month, amount_cents, paid, covered_by_company }] }
@@ -7,7 +7,7 @@
 //           transactions plus the archive, so the list is meaningful even before
 //           any member_payments row exists.
 //   GET   /api/admin/payments
-//         → { enabled, months, rows, companies, summary } — the last three months'
+//         → { enabled, months, rows, companies, summary } – the last three months'
 //           paid grid. `rows` are individually billed people; `companies` are
 //           companies that pay for their people (one tick per company, migration
 //           035); `summary` counts each payer once. See _lib/paidGrid.ts.
@@ -20,6 +20,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { makeAdminClient, requireAdmin } from '../adminAuth'
 import { amountOf, mergeLiveAndArchive } from '../pricing'
 import { derivePaidGrid, summarisePaidGrid } from '../paidGrid'
+import { fetchAllRows } from '../paged'
 import { classifyServerError } from '../errors'
 
 interface MonthPayment {
@@ -52,7 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const paid = Boolean(body.paid)
 
       if (companyId) {
-        // One payment for the whole company (migration 035) — only meaningful when
+        // One payment for the whole company (migration 035) – only meaningful when
         // the company actually pays for its people.
         const { data: company, error: coErr } = await supabase
           .from('companies').select('billing_mode').eq('id', companyId).maybeSingle()
@@ -116,15 +117,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const [oy, om] = months[0].split('-').map(Number)
       const monthStart = new Date(oy, om - 1, 1).toISOString()
 
-      const [itemsRes, companiesRes, liveRes, archiveRes, memberPayRes, companyPayRes] = await Promise.all([
+      // The two transaction reads are paged: a three-month window is thousands of
+      // rows and an unbounded select stops at max_rows, which understated every
+      // amount in this grid. See _lib/paged.ts.
+      const [itemsRes, companiesRes, live, archive, memberPayRes, companyPayRes] = await Promise.all([
         supabase.from('items').select('id, price_cents'),
         supabase.from('companies').select('id, billing_mode'),
-        supabase.from('transactions').select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at').gte('logged_at', monthStart),
-        supabase.from('transactions_archive').select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at, report_month').in('report_month', months),
+        fetchAllRows((from, to) => supabase
+          .from('transactions')
+          .select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at')
+          .gte('logged_at', monthStart)
+          .order('id')
+          .range(from, to), 'payments grid: transactions'),
+        fetchAllRows((from, to) => supabase
+          .from('transactions_archive')
+          .select('id, member_id, company_id, item_id, quantity, unit_price_cents, logged_at, report_month')
+          .in('report_month', months)
+          .order('id')
+          .range(from, to), 'payments grid: transactions_archive'),
         supabase.from('member_payments').select('member_id, report_month, paid').in('report_month', months),
         supabase.from('company_payments').select('company_id, report_month, paid').in('report_month', months),
       ])
-      const firstErr = itemsRes.error || companiesRes.error || liveRes.error || archiveRes.error || memberPayRes.error || companyPayRes.error
+      const firstErr = itemsRes.error || companiesRes.error || memberPayRes.error || companyPayRes.error
       if (firstErr) throw new Error(firstErr.message)
 
       const priceMap = new Map((itemsRes.data ?? []).map(i => [i.id, i.price_cents]))
@@ -132,7 +146,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // so each transaction counts once (it used to be summed twice).
       const grid = derivePaidGrid({
         months,
-        rows: mergeLiveAndArchive(liveRes.data ?? [], archiveRes.data ?? []).map(t => ({
+        rows: mergeLiveAndArchive(live, archive).map(t => ({
           member_id: t.member_id,
           company_id: t.company_id,
           month: t.month,
@@ -152,11 +166,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     }
 
-    // GET — one member's months.
+    // GET – one member's months.
     const memberId = memberIdParam
 
     // The member's company billing mode: when the company pays, the member is not
-    // billed individually — surfaced so the UI can label it rather than let the
+    // billed individually – surfaced so the UI can label it rather than let the
     // admin toggle a non-existent personal debt.
     const { data: member, error: memberErr } = await supabase
       .from('members')
@@ -179,15 +193,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const priceMap = new Map((items ?? []).map(i => [i.id, i.price_cents]))
 
     // Live (current-month) transactions + archived transactions for this member.
-    const [{ data: live, error: liveErr }, { data: archived, error: archErr }] = await Promise.all([
-      supabase.from('transactions').select('id, item_id, quantity, unit_price_cents, logged_at').eq('member_id', memberId),
-      supabase.from('transactions_archive').select('id, item_id, quantity, unit_price_cents, report_month').eq('member_id', memberId),
+    // Paged for the same reason as the grid above: one person's archive grows for
+    // as long as they are on the campus, and the archive is never pruned.
+    const [live, archived] = await Promise.all([
+      fetchAllRows((from, to) => supabase
+        .from('transactions')
+        .select('id, item_id, quantity, unit_price_cents, logged_at')
+        .eq('member_id', memberId)
+        .order('id')
+        .range(from, to), 'member payments: transactions'),
+      fetchAllRows((from, to) => supabase
+        .from('transactions_archive')
+        .select('id, item_id, quantity, unit_price_cents, report_month')
+        .eq('member_id', memberId)
+        .order('id')
+        .range(from, to), 'member payments: transactions_archive'),
     ])
-    if (liveErr) throw new Error(liveErr.message)
-    if (archErr) throw new Error(archErr.message)
 
     const byMonth = new Map<string, number>()
-    for (const t of mergeLiveAndArchive(live ?? [], archived ?? [])) {
+    for (const t of mergeLiveAndArchive(live, archived)) {
       byMonth.set(t.month, (byMonth.get(t.month) ?? 0) + amountOf(t, priceMap))
     }
 

@@ -44,4 +44,4 @@ console.log('Deleting members...')
 await sql('DELETE FROM members')
 console.log('  ✓ members cleared')
 
-console.log('\nDone. DB is clean — add fresh members through the UI.')
+console.log('\nDone. DB is clean – add fresh members through the UI.')

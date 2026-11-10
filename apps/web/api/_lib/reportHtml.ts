@@ -1,4 +1,4 @@
-// Self-contained HTML report template — inline styles, flows naturally across pages.
+// Self-contained HTML report template – inline styles, flows naturally across pages.
 // Rendered to PDF by Puppeteer.
 
 import { aggregateLines, type DocumentLine } from './lines'
@@ -152,7 +152,7 @@ function vatAndPaymentHtml(inv: InvoiceRender, accent: string): string {
 function consolidatedItems(entries: EnrichedTransaction[]): string {
   const map: Record<string, number> = {}
   for (const e of entries) map[e.item_name] = (map[e.item_name] ?? 0) + e.quantity
-  // Item names are user-controlled — escape before inlining into the PDF HTML.
+  // Item names are user-controlled – escape before inlining into the PDF HTML.
   return Object.entries(map).map(([name, qty]) => `${qty}× ${escapeHtml(name)}`).join(' · ')
 }
 
@@ -214,7 +214,7 @@ const PRINT_CSS = `<style>
 
 // ── Per-member monthly statement (Phase 2 feature E) ──────────────────────────
 // A warm, table-based HTML email sent to each member who consumed that month.
-// Contains only that member's own consumption — never another member's or the
+// Contains only that member's own consumption – never another member's or the
 // company total. Uses Arial (Outlook-safe) rather than the Inter used in-app.
 export function buildMemberStatementHtml(
   memberName: string,
@@ -420,8 +420,8 @@ export function buildCompanyDocumentHtml(
     accent?: string
     intro?: string
     invoice?: InvoiceRender
-    // 'items' (default): the company pays — the full amount by item, no names.
-    // 'people': the company's people pay for themselves — an overview per person.
+    // 'items' (default): the company pays – the full amount by item, no names.
+    // 'people': the company's people pay for themselves – an overview per person.
     layout?: 'items' | 'people'
     // The company asked for the per-person list (migration 041). An invoice then
     // carries it as a separate attachment; a statement, which has no attachments,
@@ -528,7 +528,7 @@ export function buildEmailConfirmationHtml(
   const accent = opts.accent || '#D97706'
   const firstName = memberName.trim().split(/\s+/)[0] || memberName
   // confirmUrl is a server-built URL (origin + signed token), not user copy, but
-  // it lands in href/text attributes — escape it defensively all the same.
+  // it lands in href/text attributes – escape it defensively all the same.
   const safeUrl = escapeHtml(confirmUrl)
 
   return `<!DOCTYPE html>
@@ -592,7 +592,7 @@ export function buildEmailConfirmationHtml(
 
 // ── Company report email (admin + CEO) ───────────────────────────────────────
 // The month-end email body (PDF + Excel are attached separately by report.ts).
-// Table-based layout — required for Outlook (Word renderer ignores div/CSS).
+// Table-based layout – required for Outlook (Word renderer ignores div/CSS).
 export function buildCompanyEmailHtml(
   summaries: CompanySummary[],
   transactions: EnrichedTransaction[],

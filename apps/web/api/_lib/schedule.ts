@@ -1,11 +1,11 @@
-// Report scheduling logic — pure and unit-testable (no network/DB).
+// Report scheduling logic – pure and unit-testable (no network/DB).
 //
 // The monthly report always covers the PREVIOUS, fully-closed calendar month,
 // evaluated in Europe/Berlin. The admin's `auto_report_day` is the day of the
 // *following* month on which that closed month is sent (default: the 1st). The
 // daily cron re-evaluates this every night; because the run ledger
 // (`report_runs`, keyed by report_month) skips an already-completed month, a
-// missed day is simply retried on the next fire — automatic catch-up with no
+// missed day is simply retried on the next fire – automatic catch-up with no
 // risk of a double-send.
 
 export interface BerlinDate {

@@ -1,6 +1,6 @@
 // The admin navigation, and which entries the demo leaves out.
 //
-// Kept out of Sidebar.tsx so that file only exports a component — required for
+// Kept out of Sidebar.tsx so that file only exports a component – required for
 // React Fast Refresh, the same reason theme-context.ts sits beside theme.tsx.
 
 export type PageId = 'dashboard' | 'log' | 'documents' | 'companies' | 'members' | 'items' | 'settings'

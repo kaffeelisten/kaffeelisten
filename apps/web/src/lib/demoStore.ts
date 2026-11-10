@@ -3,18 +3,18 @@
 // WHY. The demo is one deployment shared by everyone who opens the link, on a
 // database that also serves previews. If a visitor's "save" reached it, the next
 // visitor would arrive to renamed companies, a changed report recipient and a
-// month ticked as paid — and whoever is being shown the product would be shown
+// month ticked as paid – and whoever is being shown the product would be shown
 // someone else's mess. So the server refuses every write (demoWriteBlocked).
 //
 // Refusing alone would make the demo feel broken: greyed-out controls and error
 // toasts demonstrate nothing. Instead the admin API client routes writes here,
 // and reads come back with these edits laid over the server's data. The product
-// behaves exactly as it does on a campus instance — it just forgets when the
+// behaves exactly as it does on a campus instance – it just forgets when the
 // visitor closes the tab, and nobody else ever sees it.
 //
 // Scope and limits, deliberately:
 //   * localStorage, so it is per browser and per device and survives a reload.
-//   * Every read and write is wrapped — private windows and blocked site data
+//   * Every read and write is wrapped – private windows and blocked site data
 //     throw on access, and a demo must not break because storage is unavailable.
 //   * No merging with anything. This is a preview layer, never a source of truth.
 
@@ -69,7 +69,7 @@ export function demoEditCount(): number {
   return updates + creates + Object.keys(j.singletons).length + Object.keys(j.paid).length
 }
 
-/** Discard the visitor's edits. The demo's own reset — it owns nothing else. */
+/** Discard the visitor's edits. The demo's own reset – it owns nothing else. */
 export function resetDemoStore(): void {
   try {
     localStorage.removeItem(KEY)
