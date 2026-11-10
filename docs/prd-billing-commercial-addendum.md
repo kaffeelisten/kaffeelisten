@@ -2,7 +2,7 @@
 
 **Product:** Kaffeelisten
 **Attachment to:** `docs/prd.md`
-**Status:** Draft for client scope confirmation — legal/tax review pending
+**Status:** Draft for client scope confirmation – legal/tax review pending
 **Date:** 2026-07-06
 **Prepared for:** ITC1 / Kaffeelisten stakeholders
 
@@ -29,13 +29,13 @@ proposes a **post-v1 phase**, subject to legal, tax, and acceptance confirmation
 
 ### 1.1 The one reframing that governs this whole document
 
-The attached template is **ITC Innovations Technologie Campus GmbH's own invoice** — issuer *ITC
+The attached template is **ITC Innovations Technologie Campus GmbH's own invoice** – issuer *ITC
 Innovations Technologie Campus GmbH*, HRB Nr. 2194, **USt-IdNr DE207285819**, charging **19 % USt**,
 payable to **ITC1's own Sparkasse Deggendorf account**, with ITC1's own invoice-number sequence
 (`K-06-01`).
 
 Therefore the coffee invoices are legally **issued by ITC1**, not by the developers. Kaffeelisten is
-only *tooling that generates ITC1's document* from issuer data ITC1 configures — exactly like ITC1
+only *tooling that generates ITC1's document* from issuer data ITC1 configures – exactly like ITC1
 using Lexoffice, sevDesk, or DATEV. **The vendor of an invoicing tool is not the invoice issuer.**
 
 Two things that must never be conflated:
@@ -52,7 +52,7 @@ Consequences that hold everywhere below:
   ID, IBAN, and invoice numbers are always ITC1's, taken from the template PDF.
 - Member money flows to **ITC1's** IBAN shown on the invoice. The app never touches payments.
 - Hosting the app on a developer-owned domain does **not** make the developer the issuer
-  (hosting ≠ issuing) — but it does make the developer a **data processor**, which is why the AVV
+  (hosting ≠ issuing) – but it does make the developer a **data processor**, which is why the AVV
   in §12 is the real missing legal instrument, more than the "can we issue invoices" question.
 
 ---
@@ -69,7 +69,7 @@ Consequences that hold everywhere below:
 
 ---
 
-## 3. Product Scope — invoicing via the tool (ITC1 as issuer)
+## 3. Product Scope – invoicing via the tool (ITC1 as issuer)
 
 ### 3.1 Billing modes (per company)
 
@@ -111,7 +111,7 @@ adviser confirming the wording/VAT/number format (§12). Whether they are labell
 - Configure ITC1's issuer block (legal name, address, USt-IdNr, IBAN/BIC, number format, terms) once,
   so every monthly email is a valid ITC1 invoice with prominent payment/transfer details.
 - Have every monthly document receive a unique, never-reused number, so records are auditable.
-- Receive the existing monthly Excel/report — now carrying document numbers — as one complete billing archive.
+- Receive the existing monthly Excel/report – now carrying document numbers – as one complete billing archive.
 - Re-send safely and traceably, without creating duplicate invoice numbers.
 - Generate invoices only after the month is closed.
 - Mark, per person and recent month, whether dues were paid.
@@ -124,7 +124,7 @@ adviser confirming the wording/VAT/number format (§12). Whether they are labell
 
 ## 5. Functional Requirements
 
-### P0 — Billing MVP
+### P0 – Billing MVP
 
 **Admin settings: invoice toggle turns "Report Format" into "Invoice Format"** *(reuse `app_settings`,
 `api/admin/settings.ts`, `src/pages/admin/SettingsPage.tsx`)*
@@ -133,7 +133,7 @@ adviser confirming the wording/VAT/number format (§12). Whether they are labell
   is reused as-is. When `issue_invoices` is on **and** the required legal fields are filled, that section
   relabels to **"Invoice Format"** and gains the **ITC1 issuer block**:
   - legal issuer name, address, **USt-IdNr**, receiving **IBAN + BIC** (mandatory),
-    invoice-number prefix/format, payment-terms text — pre-fillable from the template PDF.
+    invoice-number prefix/format, payment-terms text – pre-fillable from the template PDF.
 - The monthly member email then renders as an invoice/statement whose body prominently shows the member's
   expenses **and** where/how to transfer the funds (ITC1 IBAN/BIC + terms). No per-user PDF.
 - **UX:** the issuer block only appears when the toggle is on; mandatory fields validated (IBAN/BIC
@@ -157,14 +157,14 @@ adviser confirming the wording/VAT/number format (§12). Whether they are labell
 - Numbers unique and never reused. Repeat runs re-send the same already-issued documents unless the
   admin explicitly voids/reissues.
 
-**Document delivery — the email body is the document (no per-user PDF)** *(reuse `sendMemberStatements`
+**Document delivery – the email body is the document (no per-user PDF)** *(reuse `sendMemberStatements`
 and `buildMemberStatementHtml` / `buildCompanyEmailHtml` from `apps/web/api/_lib/report.ts` + `reportHtml.ts`)*
 - The monthly HTML email itself is the statement/invoice: full item breakdown, totals, document number,
-  and — when invoice mode is on — the ITC1 issuer block + prominent payment/transfer details.
+  and – when invoice mode is on – the ITC1 issuer block + prominent payment/transfer details.
 - `individual` mode → one email per member (own consumption only); `company_paid` → one email to the
   company billing contact covering all members.
 - **Per-user PDF generation and a PDF ZIP are explicitly out of scope** (they were the cost/scale risk;
-  see §8). A German invoice is format-neutral (§ 14 UStG) — the email body suffices, and small monthly
+  see §8). A German invoice is format-neutral (§ 14 UStG) – the email body suffices, and small monthly
   totals typically qualify as a *Kleinbetragsrechnung* (§ 33 UStDV). PDF/ZIP can be revisited later only
   if ITC1's tax adviser requires it.
 
@@ -185,10 +185,10 @@ and `buildMemberStatementHtml` / `buildCompanyEmailHtml` from `apps/web/api/_lib
 **Data protection**
 - Member-facing flow must not show work emails or billing contacts.
 - Personal documents include only the recipient's own data (unless the recipient is the company
-  billing contact). Retention rules (§12) confirmed before launch — invoices likely need ~10-year
+  billing contact). Retention rules (§12) confirmed before launch – invoices likely need ~10-year
   retention (§ 147 AO / § 14b UStG), longer than the rolling transaction archive.
 
-### P1 — After MVP
+### P1 – After MVP
 - Re-download the monthly Excel archive from a secure admin-only route.
 - Void + reissue a correction document.
 - Separate templates for member invoices, company invoices, ITC1 archive emails.
@@ -266,13 +266,13 @@ billing_documents
   created_at timestamptz not null default now()
 ```
 
-Note: delivery is the email body (no per-user PDF/ZIP), so there is nothing large to store — the
+Note: delivery is the email body (no per-user PDF/ZIP), so there is nothing large to store – the
 immutable ledger (`billing_documents`) plus the transaction archive are the audit trail. The only stored
 artifact is the existing monthly Excel/report; its retention is the §12 question.
 
 ---
 
-## 8-9. Platform cost and infrastructure ownership — moved
+## 8-9. Platform cost and infrastructure ownership – moved
 
 > These sections were commercial rather than engineering and have moved to the private
 > handbook (`kaffeelisten/playbook`):
@@ -283,20 +283,20 @@ artifact is the existing monthly Excel/report; its retention is the §12 questio
 > Both July conclusions were later overridden. The free tiers do not carry production:
 > Supabase free pauses after 7 days idle and takes no backups, and Vercel's free tier forbids
 > commercial use, so the recommended setup is ~EUR 45/month. Ownership was settled on
-> 5 November 2026 — the developers own and operate the accounts and ITC1 funds them.
+> 5 November 2026 – the developers own and operate the accounts and ITC1 funds them.
 
 ## 10. Implementation Notes
 
 The existing monthly-report pipeline is highly reusable; this is an extension, not a rebuild:
 
-- `apps/web/api/_lib/report.ts` — `fetchAndEnrich`, `computeSummary` (company→member→tx totals from
+- `apps/web/api/_lib/report.ts` – `fetchAndEnrich`, `computeSummary` (company→member→tx totals from
   `items.price_cents`), `sendMemberStatements` + `sendEmail` (Resend + idempotency), `generateExcel`
   (ExcelJS, for the ITC1 archive), `report_runs` ledger pattern (migration 019).
-- `apps/web/api/_lib/reportHtml.ts` — `buildMemberStatementHtml` / `buildCompanyEmailHtml`: extend these
+- `apps/web/api/_lib/reportHtml.ts` – `buildMemberStatementHtml` / `buildCompanyEmailHtml`: extend these
   to render the issuer block + payment/transfer details when invoice mode is on.
-- `apps/web/api/admin/settings.ts` + `src/pages/admin/SettingsPage.tsx` — the **Report Format** section
+- `apps/web/api/admin/settings.ts` + `src/pages/admin/SettingsPage.tsx` – the **Report Format** section
   that relabels to **Invoice Format**; toggle/validation/template patterns.
-- `app_settings` singleton (migrations 010/013) — home for the invoice toggle + issuer block.
+- `app_settings` singleton (migrations 010/013) – home for the invoice toggle + issuer block.
 
 New, isolated so the report path stays intact: company billing fields, the issuer block, the
 `billing_documents` / `billing_runs` ledger with stable numbering, the invoice-mode email rendering, the
@@ -304,18 +304,18 @@ document number added to the existing Excel archive, and paid/unpaid tracking. N
 
 Because this reuses existing infrastructure and drops per-user PDFs, it is **much lighter** than a
 from-scratch "billing MVP." Effort should be re-estimated against actual reuse once §9's ownership
-decision is settled — not quoted up front as a large bespoke build (see §11 for why that framing matters).
+decision is settled – not quoted up front as a large bespoke build (see §11 for why that framing matters).
 
 ---
 
-## 11-12. Compensation, legal posture and approvals — moved
+## 11-12. Compensation, legal posture and approvals – moved
 
 > These sections were commercial and legal rather than engineering and have moved to the
 > private handbook (`kaffeelisten/playbook`), in `04-legal/05-commercial-history.md`:
 >
-> - **§11 Compensation and legal posture** — the one-time handover payment, the
+> - **§11 Compensation and legal posture** – the one-time handover payment, the
 >   section 16b residence-permit constraints and the tax treatment.
-> - **§12 Required inputs, approvals and open questions** — what is still needed from ITC1
+> - **§12 Required inputs, approvals and open questions** – what is still needed from ITC1
 >   and from the developers, and the outstanding legal instruments.
 >
 > The one still-blocking engineering constraint is unchanged and repeated here so it cannot
@@ -330,7 +330,7 @@ The billing MVP is accepted when:
 - every active company has a billing mode; `company_paid` companies cannot be saved without a billing
   contact email;
 - the ITC1 issuer block is configured and every generated document shows **ITC1's** issuer details,
-  VAT line, and IBAN — never a developer's;
+  VAT line, and IBAN – never a developer's;
 - individual-mode members with consumption receive their own monthly email; company-paid contacts
   receive one company email;
 - each monthly email prominently shows the recipient's expenses and, in invoice mode, where/how to

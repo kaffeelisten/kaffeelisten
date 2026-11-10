@@ -29,7 +29,7 @@ jobs:
           if [ ${#missing[@]} -ne 0 ]; then
             echo "::error::Missing repository secrets: ${missing[*]}."
             echo "::error::These are set when production goes live, and must match the values"
-            echo "::error::deployed to the Vercel project — a mismatch is rejected by the API."
+            echo "::error::deployed to the Vercel project – a mismatch is rejected by the API."
             exit 1
           fi
 

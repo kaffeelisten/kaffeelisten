@@ -1,4 +1,4 @@
-// POST/GET /api/admin/auth?action=<action> — consolidated admin auth router.
+// POST/GET /api/admin/auth?action=<action> – consolidated admin auth router.
 //
 // The Vercel Hobby plan caps a deployment at 12 Serverless Functions, and each
 // file under api/ is one function. The PIN/session endpoints are small and
@@ -65,12 +65,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// POST verify — validates the PIN and, on success, issues the session cookie.
+// POST verify – validates the PIN and, on success, issues the session cookie.
 //
 // The PIN is checked BEFORE the rate limit is consumed: the durable limiter only
 // counts *failed* attempts, and a correct PIN always succeeds (and clears the
 // counter). This is what keeps a brute-force lock from also locking out the real
-// admin — a locked key blocks further wrong guesses, never the right one.
+// admin – a locked key blocks further wrong guesses, never the right one.
 async function verify(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
 
@@ -83,7 +83,7 @@ async function verify(req: VercelRequest, res: VercelResponse) {
       res.setHeader('Set-Cookie', issueSessionCookie())
       return res.status(200).json({ ok: true })
     }
-    // Wrong PIN — count it. consumeRateLimit returns false once this attempt
+    // Wrong PIN – count it. consumeRateLimit returns false once this attempt
     // trips (or is already past) the cap; surface that as 429 so the client can
     // show a throttle message instead of another "wrong PIN".
     const allowed = await consumeRateLimit(rlKey)
@@ -98,7 +98,7 @@ async function verify(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// POST change — rotates the PIN. Requires an active session AND the current PIN,
+// POST change – rotates the PIN. Requires an active session AND the current PIN,
 // so a stolen session alone can't change the credential.
 async function change(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -144,13 +144,13 @@ async function change(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// POST reset — `code` is either the one-time email code (verified + consumed in
+// POST reset – `code` is either the one-time email code (verified + consumed in
 // the DB) or the ADMIN_RECOVERY_PIN env backstop. On success stores the new PIN
 // and issues a session cookie. See docs/phase-2-production.md §C.
 async function reset(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Durable limit — throttles brute force of the 6-digit reset code AND the
+  // Durable limit – throttles brute force of the 6-digit reset code AND the
   // ADMIN_RECOVERY_PIN backstop across instances.
   const rlKey = `reset:${clientKey(req.headers)}`
   if (!(await consumeRateLimit(rlKey))) {
@@ -177,7 +177,7 @@ async function reset(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Code fehlt.' })
     }
 
-    // Env recovery backstop — bypasses the email code when email is down.
+    // Env recovery backstop – bypasses the email code when email is down.
     const recoveryPin = process.env.ADMIN_RECOVERY_PIN
     if (recoveryPin && code === recoveryPin) {
       const { error } = await supabase.rpc('set_admin_pin', { p_pin: newPin })
@@ -208,19 +208,19 @@ async function reset(req: VercelRequest, res: VercelResponse) {
 }
 
 // Cryptographically-secure 6-digit code (Math.random is not suitable for a
-// security token — it's predictable and low-entropy).
+// security token – it's predictable and low-entropy).
 function sixDigitCode(): string {
   return String(randomInt(0, 1_000_000)).padStart(6, '0')
 }
 
-// POST request-reset — recovery path reachable from the /admin login page (no
-// auth — you're locked out). If the address is a known admin, a one-time 6-digit
+// POST request-reset – recovery path reachable from the /admin login page (no
+// auth – you're locked out). If the address is a known admin, a one-time 6-digit
 // code (15-min TTL, hash stored) is emailed to THAT address only. The response
 // is always generic so the endpoint can't enumerate admins.
 async function requestReset(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Tight limit — this sends email and issues a recovery code.
+  // Tight limit – this sends email and issues a recovery code.
   if (!(await consumeRateLimit(`reset-req:${clientKey(req.headers)}`, { max: 5, windowSecs: 600, lockSecs: 900 }))) {
     return res.status(429).json({ error: 'Zu viele Anfragen. Bitte später erneut versuchen.' })
   }
@@ -276,9 +276,9 @@ async function requestReset(req: VercelRequest, res: VercelResponse) {
   <div style="max-width:460px;margin:0 auto;background:#fff;border:1px solid #E7E5E4;border-radius:12px;padding:28px;">
     <p style="margin:0 0 6px;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:#B45309;">Kaffeelisten · Administration</p>
     <h1 style="margin:0 0 16px;font-size:20px;color:#1C1917;">Dein Code zum Zurücksetzen der PIN</h1>
-    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#57534E;">Du hast auf der Admin-Anmeldeseite eine PIN-Zurücksetzung angefordert. Gib diesen Code dort ein und <strong style="color:#1C1917;">lege anschließend sofort eine neue PIN fest</strong> — aus Sicherheitsgründen ist der Code danach ungültig. Er läuft in ${RESET_TTL_MINUTES} Minuten ab.</p>
+    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#57534E;">Du hast auf der Admin-Anmeldeseite eine PIN-Zurücksetzung angefordert. Gib diesen Code dort ein und <strong style="color:#1C1917;">lege anschließend sofort eine neue PIN fest</strong> – aus Sicherheitsgründen ist der Code danach ungültig. Er läuft in ${RESET_TTL_MINUTES} Minuten ab.</p>
     <div style="text-align:center;font-size:34px;font-weight:800;letter-spacing:10px;color:#1C1917;background:#F5F5F4;border-radius:10px;padding:18px 0;font-variant-numeric:tabular-nums;">${code}</div>
-    <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#A8A29E;">Wenn du das nicht angefordert hast, ignoriere diese E-Mail — deine PIN bleibt unverändert.</p>
+    <p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:#A8A29E;">Wenn du das nicht angefordert hast, ignoriere diese E-Mail – deine PIN bleibt unverändert.</p>
   </div>
 </body></html>`,
           })
@@ -288,7 +288,7 @@ async function requestReset(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Always the same generic response — no admin enumeration.
+    // Always the same generic response – no admin enumeration.
     return res.status(200).json({ ok: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
@@ -297,7 +297,7 @@ async function requestReset(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// GET meta — public, returns only the expected PIN length so the login keypad
+// GET meta – public, returns only the expected PIN length so the login keypad
 // renders the right number of dots. Never returns any hash or token.
 async function meta(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
@@ -319,7 +319,7 @@ async function meta(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// POST logout — clears the admin session cookie. No auth required: clearing an
+// POST logout – clears the admin session cookie. No auth required: clearing an
 // already-invalid cookie is harmless.
 function logout(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })

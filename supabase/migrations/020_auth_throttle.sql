@@ -1,7 +1,7 @@
 -- Migration 020: durable, cross-instance rate limiting for admin auth.
 --
 -- The previous limiter lived in per-instance serverless memory, so it did almost
--- nothing against a distributed brute force of the 6-digit PIN — and only
+-- nothing against a distributed brute force of the 6-digit PIN – and only
 -- /verify-pin used it, while /api/admin/data, settings, theme, preview and
 -- send-report verified the PIN with no throttle at all. This moves the counter
 -- into the database so every function and every instance shares one view.
@@ -22,7 +22,7 @@ comment on table auth_throttle is
 alter table auth_throttle enable row level security;   -- no policies → anon/authenticated denied
 grant select, insert, update, delete on public.auth_throttle to service_role;
 
--- pin_rate_consume — records one attempt for a key and returns whether it is
+-- pin_rate_consume – records one attempt for a key and returns whether it is
 -- allowed to proceed. Locks the key for p_lock_secs once attempts exceed p_max
 -- within the p_window_secs window. Row-locked to avoid lost updates under
 -- concurrent attempts.
@@ -76,7 +76,7 @@ begin
 end;
 $$;
 
--- pin_rate_reset — clears a key after a successful auth so honest users are never
+-- pin_rate_reset – clears a key after a successful auth so honest users are never
 -- progressively throttled.
 create or replace function public.pin_rate_reset(p_key text)
 returns void

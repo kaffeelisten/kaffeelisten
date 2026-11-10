@@ -4,17 +4,17 @@
 -- behaviour is preserved until the admin changes anything from the Settings page.
 --
 --   Scheduling
---     auto_report_enabled  — master on/off for the month-end cron send
---     auto_report_day      — day of month to send; NULL = last day of month
+--     auto_report_enabled  – master on/off for the month-end cron send
+--     auto_report_day      – day of month to send; NULL = last day of month
 --
 --   Format (NULL text = use the built-in default copy)
---     report_accent        — hex accent colour used in the email headers
---     report_subject       — company report email subject ({monat} placeholder)
---     report_intro         — company report intro paragraph ({monat})
---     report_include_pdf   — attach the PDF to the company report
---     report_include_excel — attach the Excel workbook to the company report
---     member_subject       — member statement subject ({monat})
---     member_intro         — member statement intro line ({monat}, {name})
+--     report_accent        – hex accent colour used in the email headers
+--     report_subject       – company report email subject ({monat} placeholder)
+--     report_intro         – company report intro paragraph ({monat})
+--     report_include_pdf   – attach the PDF to the company report
+--     report_include_excel – attach the Excel workbook to the company report
+--     member_subject       – member statement subject ({monat})
+--     member_intro         – member statement intro line ({monat}, {name})
 --
 -- Service-role only, same as the rest of app_settings (migration 010).
 

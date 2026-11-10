@@ -169,7 +169,7 @@ export default function ItemsPage({ onToast, onMenuClick }: Props) {
         </span>
       ),
     },
-    { key: 'revenue', label: 'Umsatz', align: 'right', mono: true, sortValue: r => r.revenueMonth, render: r => (r.revenueMonth > 0 ? formatEuro(r.revenueMonth) : <span className="text-fg-subtle">—</span>) },
+    { key: 'revenue', label: 'Umsatz', align: 'right', mono: true, sortValue: r => r.revenueMonth, render: r => (r.revenueMonth > 0 ? formatEuro(r.revenueMonth) : <span className="text-fg-subtle">–</span>) },
     { key: 'active', label: 'Status', sortValue: r => (r.active ? 1 : 0), render: r => <Badge kind={r.active ? 'active' : 'inactive'}>{r.active ? 'Aktiv' : 'Inaktiv'}</Badge> },
     {
       key: 'actions',

@@ -1,7 +1,7 @@
 // Whether the demo's hand-drawn hints are showing, and how to flip it.
 //
 // Separate from CoachMarks.tsx because a component file that also exports
-// helpers breaks react-refresh/only-export-components — the same split as
+// helpers breaks react-refresh/only-export-components – the same split as
 // adminNav.ts beside Sidebar.tsx and theme-context.ts beside theme.tsx.
 //
 // The toggle (the start screen's footer) and the overlay are in different parts
@@ -14,7 +14,7 @@ const STORAGE_KEY = 'kaffeelisten.demo.hints'
 // Versioned: when the rule for retiring a hint changes, everyone who already
 // carries the old record would otherwise keep a hint hidden under a rule that
 // no longer exists. v1 retired the start-screen hint on the mere click of the
-// admin link, which is also the only way to reach the login — so one look cost
+// admin link, which is also the only way to reach the login – so one look cost
 // you the hint for good.
 const DONE_KEY = 'kaffeelisten.demo.hints.done.v2'
 const EVENT = 'kaffeelisten:hints'
@@ -24,7 +24,7 @@ export function hintsEnabled(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) !== 'off'
   } catch {
-    // Blocked site data. Showing them is the safer default — the visitor can
+    // Blocked site data. Showing them is the safer default – the visitor can
     // still turn them off for this page view.
     return true
   }
@@ -75,7 +75,7 @@ export function retireHint(id: string): void {
  * Subscribe to the toggle and to retirement, including from another tab.
  *
  * One hook for both because `hintRetired` is read during render and a retire
- * leaves `hintsEnabled` unchanged — a hook that only tracked the boolean would
+ * leaves `hintsEnabled` unchanged – a hook that only tracked the boolean would
  * not re-render, and the hint the visitor just used would sit there until the
  * next navigation.
  */

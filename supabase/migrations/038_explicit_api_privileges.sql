@@ -8,7 +8,7 @@
 -- functions are private to postgres. None of that is in a migration. A fresh
 -- Supabase project (the staging project, a branch, a disaster-recovery rebuild)
 -- keeps Supabase's defaults instead, and a schema built from 001-037 there let
--- `anon` — i.e. anyone holding the public key shipped in the web bundle —
+-- `anon` – i.e. anyone holding the public key shipped in the web bundle –
 -- EXECUTE set_admin_pin, verify_admin_pin, prune_reported_transactions,
 -- next_billing_document_number and ensure_house_member, and INSERT/UPDATE/DELETE
 -- most tables. Compared against production on 2026-09-16 with

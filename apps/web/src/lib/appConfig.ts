@@ -3,7 +3,7 @@
 // The member flow already needed the per-order cap; the admin area now also
 // needs to know whether this deployment is the public demo, so that it can hide
 // what the demo switches off instead of rendering controls whose endpoints
-// answer 410. The interface is a convenience — the server is the control.
+// answer 410. The interface is a convenience – the server is the control.
 
 import { useEffect, useState } from 'react'
 
@@ -28,7 +28,7 @@ let pending: Promise<AppConfig> | null = null
  * renders the real values on its FIRST frame.
  *
  * Without this the demo's login screen painted the plain keypad and only then
- * dropped in the "Demo — PIN …" panel, which read as a glitch on the one screen
+ * dropped in the "Demo – PIN …" panel, which read as a glitch on the one screen
  * every visitor sees first. main.tsx starts the fetch before React mounts, so by
  * the time /admin renders this is usually already filled in.
  */
@@ -58,7 +58,7 @@ export function loadAppConfig(): Promise<AppConfig> {
 /**
  * Is this the demo, right now, without awaiting?
  *
- * For call sites that cannot be async — the admin API client decides whether a
+ * For call sites that cannot be async – the admin API client decides whether a
  * write goes to the server or to the visitor's own browser before it has a
  * promise to await. main.tsx starts the fetch before React mounts and the admin
  * area is only reachable after a login round-trip, so this is resolved by then.
@@ -79,7 +79,7 @@ export function resetAppConfigCache(): void {
  * The runtime config, plus whether it is still being fetched.
  *
  * `loading` exists so a screen whose layout depends on the config can hold the
- * space instead of letting content appear late — see AdminLogin/PinKeypad.
+ * space instead of letting content appear late – see AdminLogin/PinKeypad.
  */
 export function useAppConfig(): AppConfig & { loading: boolean } {
   const [config, setConfig] = useState<AppConfig | null>(resolved)

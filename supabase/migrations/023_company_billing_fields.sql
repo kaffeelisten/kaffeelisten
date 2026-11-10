@@ -5,10 +5,10 @@
 -- contact who receives the company-level document when the company pays for all
 -- of its members.
 --
---   billing_mode          'individual' — each member is billed on their own
+--   billing_mode          'individual' – each member is billed on their own
 --                                        monthly document (the default, unchanged
 --                                        behaviour);
---                         'company_paid' — one document goes to the company
+--                         'company_paid' – one document goes to the company
 --                                        billing contact covering all members.
 --   billing_contact_name  display name of the person who receives the company bill
 --   billing_contact_email required when billing_mode = 'company_paid' (enforced in

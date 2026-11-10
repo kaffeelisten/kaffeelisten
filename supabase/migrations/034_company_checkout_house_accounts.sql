@@ -16,7 +16,7 @@
 -- WHAT THIS ENFORCES
 --   • members.kind        'person' (default) | 'house'
 --   • a person still MUST have a work email (the migration 011 guarantee), now as
---     a check constraint; only a house account may have none — it has no inbox
+--     a check constraint; only a house account may have none – it has no inbox
 --   • at most one house account per company
 --   • companies.checkout_mode 'member' (default) | 'company'
 --   • house accounts are invisible to the anonymous member flow
@@ -29,7 +29,7 @@
 -- api/_lib/documentMatrix.ts and enforced again in api/admin/data.ts, because
 -- this repository has no SQL test harness.
 --
--- DEPLOY ORDER: purely additive for existing callers — log_order and
+-- DEPLOY ORDER: purely additive for existing callers – log_order and
 -- register_member keep their signatures and grants, and no existing company is in
 -- 'company' mode. Apply before deploying the code that reads members.kind and
 -- companies.checkout_mode.

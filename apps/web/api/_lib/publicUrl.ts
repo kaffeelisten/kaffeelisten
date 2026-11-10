@@ -1,7 +1,7 @@
 // The deployment's own public origin.
 //
-// Anything a recipient opens later — the logo in a report email, a confirmation
-// link — has to be an absolute URL, and until now those were hardcoded to the
+// Anything a recipient opens later – the logo in a report email, a confirmation
+// link – has to be an absolute URL, and until now those were hardcoded to the
 // apex `https://kaffeelisten.de`. That is wrong in two directions:
 //
 //   * each campus runs its own instance (itc1.kaffeelisten.de), and its emails

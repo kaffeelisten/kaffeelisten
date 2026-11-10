@@ -1,10 +1,10 @@
--- Migration 019: report reliability — run ledger + safe prune.
+-- Migration 019: report reliability – run ledger + safe prune.
 --
 -- Two data-integrity fixes for the monthly report:
---   1. report_runs — a per-month ledger so a completed month isn't sent/archived
+--   1. report_runs – a per-month ledger so a completed month isn't sent/archived
 --      twice on a retry or accidental re-invocation (idempotency at the run level;
 --      Resend idempotency keys handle the per-email layer).
---   2. prune_reported_transactions — deletes only live transactions that have
+--   2. prune_reported_transactions – deletes only live transactions that have
 --      actually been archived, so a missed/never-reported month can never be
 --      silently deleted by the rolling prune.
 --

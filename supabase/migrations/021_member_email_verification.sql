@@ -2,12 +2,12 @@
 -- Proof-of-ownership for member work emails. A member receives a one-time
 -- confirmation link; clicking it marks their email verified. Mirrors the bcrypt
 -- token pattern used for PIN reset (migration 012): the clear token is emailed
--- once and never stored — only a pgcrypto/bcrypt hash plus a TTL is persisted.
+-- once and never stored – only a pgcrypto/bcrypt hash plus a TTL is persisted.
 --
 -- Security model: the public confirmation page never talks to the DB directly;
 -- it calls the /api/confirm-email serverless function, which uses the
 -- service-role key. So EXECUTE on both functions is revoked from PUBLIC / anon /
--- authenticated and granted to service_role only — the token surface stays
+-- authenticated and granted to service_role only – the token surface stays
 -- closed. work_email and these columns remain hidden from anon by the
 -- column-level grant in migration 015.
 

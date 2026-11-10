@@ -4,7 +4,7 @@
 
 /**
  * Apply `fn` to every item with at most `limit` calls in flight, returning the
- * results in input order. A rejection rejects the whole map, like Promise.all —
+ * results in input order. A rejection rejects the whole map, like Promise.all –
  * callers that must not fail per item should catch inside `fn`.
  */
 export async function mapWithConcurrency<T, R>(

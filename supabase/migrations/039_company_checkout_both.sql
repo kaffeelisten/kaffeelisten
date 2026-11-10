@@ -1,4 +1,4 @@
--- Migration 039: mixed checkout — named people AND a shared company account.
+-- Migration 039: mixed checkout – named people AND a shared company account.
 --
 -- deploy: pre
 --

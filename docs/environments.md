@@ -8,7 +8,7 @@ procedure.
 
 | | Production | Staging |
 | --- | --- | --- |
-| Supabase project | `kaffeelisten` (`fdnfdscpefxqvtggbbbr`), eu-west-1 | `voyager-56k` (`opqyzcdwboxlugllgzxf`), eu-north-1 — **shared**, see below |
+| Supabase project | `kaffeelisten` (`fdnfdscpefxqvtggbbbr`), eu-west-1 | `voyager-56k` (`opqyzcdwboxlugllgzxf`), eu-north-1 – **shared**, see below |
 | Used by | Vercel **Production** (`kaffeelisten.de`) | Vercel **Preview** (every PR), Vercel **Development**, local runs |
 | Data | Real ITC1 data | Disposable. An invented campus from `supabase/seeds/003_demo_campus.sql` (committed; no real company or person), or a private roster from `supabase/seeds/staging_roster.local.sql` (gitignored) |
 | Mail | Delivered | Guarded: only `MAIL_ALLOWLIST` recipients (default `example.com`), all redirected to `MAIL_SINK` (`delivered@resend.dev`), subject prefixed `[STAGING]` |
@@ -22,7 +22,7 @@ the Supabase–Vercel integration uses.
 ### Why staging shares the Voyager project
 
 The free plan allows **two active projects per account**, and the account runs
-more than two. Both Kaffeelisten projects were paused on 5 Nov 2026 — which is
+more than two. Both Kaffeelisten projects were paused on 5 Nov 2026 – which is
 what took the preview deployment's database, admin login and seeded data down at
 once, since every one of them goes through Postgres.
 
@@ -52,7 +52,7 @@ grant execute on function public.increment_visitor() to anon, authenticated;
 ```
 
 That block is also the tail of Voyager's own `supabase/0001_anchor.sql`, which is
-idempotent, so re-running that file does the same job. Verify afterwards — the
+idempotent, so re-running that file does the same job. Verify afterwards – the
 failure mode is a guestbook that silently returns nothing, not an error:
 
 ```sql
@@ -73,9 +73,9 @@ Production is untouched by all of this and stays on its own project.
    into production at all. CI builds the schema from migrations with **no seed**
    and runs the SQL guards on it (`supabase/tests/00_bare_schema.test.sql`).
 3. **Every migration from 030 on starts with a phase tag.**
-   - `-- deploy: pre` — backwards-compatible with the code currently live; applied
+   - `-- deploy: pre` – backwards-compatible with the code currently live; applied
      before or together with the new code.
-   - `-- deploy: post` — only works once the new code is live (for example a
+   - `-- deploy: post` – only works once the new code is live (for example a
      revoke the old code still needs). **It goes in its own follow-up PR**,
      merged after the release that makes it safe. The migrator applies pending
      files strictly in number order, so a post-deploy file cannot sit before
@@ -151,7 +151,7 @@ node scripts/db/seed-staging.mjs --project-ref opqyzcdwboxlugllgzxf supabase/see
 
 A staging database that picked up migrations from an abandoned PR is rebuilt by
 dropping the Kaffeelisten tables and re-running the two commands above. Staging
-holds nothing worth keeping — but the project is shared now, so **do not delete
+holds nothing worth keeping – but the project is shared now, so **do not delete
 the project** and do not `drop schema public cascade`: that would take Voyager's
 guestbook with it.
 
@@ -167,13 +167,13 @@ DEMO_ADMIN_PIN=123456
 ```
 
 Then `npm run dev` is the demo: read-only API, the hand-drawn hints, the
-published PIN and no client branding. **Take them out again afterwards** — with
+published PIN and no client branding. **Take them out again afterwards** – with
 `DEMO_MODE` set, every admin write from your local app is refused, which is
 confusing if you have forgotten why.
 
 ### If `/api/admin/*` 404s locally
 
-`apps/web/dev-api.mts` is **gitignored** — a personal shim, not shipped — so each
+`apps/web/dev-api.mts` is **gitignored** – a personal shim, not shipped – so each
 checkout has its own copy and they drift. An older copy resolves only exact files
 (`api/<path>.ts`), which stopped working for the whole admin area the moment the
 ten admin routes moved behind `api/admin/[...path].ts`: every `/api/admin/*` call
@@ -182,7 +182,7 @@ ten admin routes moved behind `api/admin/[...path].ts`: every `/api/admin/*` cal
 The fix is to teach `resolveHandlerFile` Vercel's catch-all convention: when no
 exact file matches, walk up the path looking for a `[...param].ts` in the
 directory, and hand the captured segments to the handler as `req.query.<param>`
-(an array) — which is exactly what Vercel does. Without that, nothing in the
+(an array) – which is exactly what Vercel does. Without that, nothing in the
 admin area can be verified locally.
 
 ## Safety nets in the code
@@ -226,7 +226,7 @@ Names only. Values live in Vercel, GitHub and the gitignored
 | `CHROMIUM_PATH` | not set | not set | local Chrome, for PDF rendering |
 
 **Resend plan and limits.** The monthly run sends all of a month's emails in one
-go — up to ~300 on that day for ITC1. The free tier stops at 100 per day and
+go – up to ~300 on that day for ITC1. The free tier stops at 100 per day and
 3 000 per month, and staging tests count against the same account. Production
 needs Resend Pro (50 000/month, no daily limit). A separate Resend account or team
 for staging keeps test runs from using production's quota. The API allows 10
@@ -244,7 +244,7 @@ deployments behind Vercel deployment protection need a protection bypass for the
 webhook, or use a stable staging domain.
 
 GitHub: repository secret `SUPABASE_ACCESS_TOKEN`, repository variable
-`STAGING_PROJECT_REF` (a variable, or a secret — both work), and an Environment `production` holding its own
+`STAGING_PROJECT_REF` (a variable, or a secret – both work), and an Environment `production` holding its own
 `SUPABASE_ACCESS_TOKEN` secret (add a required reviewer there if production
 migrations should wait for approval).
 

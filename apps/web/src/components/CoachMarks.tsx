@@ -15,7 +15,7 @@
 // is on their first visit.
 //
 // WHAT KEEPS IT FROM BECOMING CLUTTER, three rules the hard way:
-//   * a mark only earns its place if the thing it points at is unguessable —
+//   * a mark only earns its place if the thing it points at is unguessable –
 //     an arrow over the one big button on an otherwise empty screen is ink
 //     spent telling somebody what they already knew;
 //   * a mark retires the moment the visitor uses the control (`retireHint`),
@@ -97,7 +97,7 @@ export default function CoachMarks({ marks }: { marks: CoachMark[] }) {
 
   // Let the screen land before drawing on it. Arriving together with the
   // interface, the ink reads as part of it; arriving a beat later it reads as
-  // somebody leaning in — which is the whole idea, and is also what keeps two
+  // somebody leaning in – which is the whole idea, and is also what keeps two
   // marks from hitting the eye at the same instant as the content.
   useEffect(() => {
     const t = setTimeout(() => setSettled(true), SETTLE_MS)
@@ -142,7 +142,7 @@ function Mark({ mark: m, width }: { mark: CoachMark; width: number }) {
   const [side, setSide] = useState<NonNullable<CoachMark['caption']>>(m.caption ?? 'below')
 
   // A caption is placed relative to its drawing, and the drawing is placed
-  // relative to the control it points at — so on a narrower window the text can
+  // relative to the control it points at – so on a narrower window the text can
   // walk off the edge while the arrow itself is still perfectly aimed. The
   // overlay clips (it must, or a mark would add a scrollbar to the page), which
   // means the sentence simply loses its end. Measure once the text is laid out
@@ -153,7 +153,7 @@ function Mark({ mark: m, width }: { mark: CoachMark; width: number }) {
     if (!el) return
     const preferred = m.caption ?? 'below'
     // On a resize, put it back where it was asked to go and judge again from
-    // there — otherwise a window that grows keeps a caption flipped for a
+    // there – otherwise a window that grows keeps a caption flipped for a
     // shortage of room that no longer exists.
     if (measuredAt.current !== width) {
       measuredAt.current = width

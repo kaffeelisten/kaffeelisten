@@ -68,9 +68,9 @@ async function collect() {
   const studio = await http(`http://127.0.0.1:${p.studio}`)
   add('Studio', studio.code > 0 && studio.code < 500, `${studio.code}`, `Nothing on :${p.studio}.`)
   const mail = await http(`http://127.0.0.1:${p.mail}`)
-  add('Mail catcher', mail.code === 200, `${mail.code} — every email lands here`, `Nothing on :${p.mail}.`)
+  add('Mail catcher', mail.code === 200, `${mail.code} – every email lands here`, `Nothing on :${p.mail}.`)
   const app = await http('http://127.0.0.1:5173')
-  add('App (vite)', app.code === 200, app.code === 0 ? 'not running' : `${app.code}`, 'npm run dev — optional for a backend-only check.')
+  add('App (vite)', app.code === 200, app.code === 0 ? 'not running' : `${app.code}`, 'npm run dev – optional for a backend-only check.')
 
   // --- schema ---------------------------------------------------------------
   const applied = Number(psql('select count(*) from supabase_migrations.schema_migrations') ?? -1)
@@ -139,7 +139,7 @@ async function once() {
 if (watch) {
   for (;;) {
     process.stdout.write('\x1Bc')
-    console.log(`  kaffeelisten doctor — ${new Date().toLocaleTimeString()}  (ctrl-c to stop)`)
+    console.log(`  kaffeelisten doctor – ${new Date().toLocaleTimeString()}  (ctrl-c to stop)`)
     await once()
     await new Promise((r) => setTimeout(r, 5000))
   }

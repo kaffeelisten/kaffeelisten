@@ -13,7 +13,7 @@
 --
 -- DEPLOY ORDER: apply 030 and 031 BEFORE deploying the report.ts that writes
 -- these columns. Deployed first, that code's archive upsert fails on unknown
--- columns and aborts the monthly run after the reports were already emailed —
+-- columns and aborts the monthly run after the reports were already emailed –
 -- the month would be sent but never archived. (Migration 039, shipped in its own
 -- follow-up PR, is the opposite: it must be applied AFTER this code is live.)
 --

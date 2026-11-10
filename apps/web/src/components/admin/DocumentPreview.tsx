@@ -107,7 +107,7 @@ export default function DocumentPreview({ request, withAttachments, onError }: P
 
   const emailView = (
     <div className="flex flex-col gap-3">
-      <p className="text-sm"><span className="text-fg-muted">Betreff:</span> <span className="text-fg">{email?.subject || '—'}</span></p>
+      <p className="text-sm"><span className="text-fg-muted">Betreff:</span> <span className="text-fg">{email?.subject || '–'}</span></p>
       {!email ? loading('E-Mail wird geladen…') : (
         // No sandbox allowances: the document renders, but nothing in it can run.
         <iframe title="E-Mail-Vorschau" srcDoc={email.html} sandbox="" className="w-full h-[60vh] rounded-lg border border-border bg-white" />

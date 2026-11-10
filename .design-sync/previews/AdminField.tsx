@@ -21,7 +21,7 @@ export function Required() {
 export function WithHint() {
   return (
     <div style={{ width: 340 }}>
-      <AdminField label="Arbeits-E-Mail" type="email" hint="Optional — für den Monatsbericht." defaultValue="" placeholder="anna.mueller@firma.de" onChange={noop} />
+      <AdminField label="Arbeits-E-Mail" type="email" hint="Optional – für den Monatsbericht." defaultValue="" placeholder="anna.mueller@firma.de" onChange={noop} />
     </div>
   )
 }

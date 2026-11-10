@@ -7,7 +7,7 @@ interface Props {
 }
 
 /**
- * Month selection for the live-data pages. Visible at every width — the previous
+ * Month selection for the live-data pages. Visible at every width – the previous
  * selector was hidden below the md breakpoint, so on a phone the month could not
  * be changed at all.
  */

@@ -13,7 +13,7 @@ create extension if not exists "pgcrypto";   -- already enabled; idempotent
 
 -- ── verify_admin_pin ─────────────────────────────────────────────────────────
 -- True only when a PIN hash is set AND the supplied PIN matches it. Returns
--- false when no PIN has been set yet (admin_pin_hash IS NULL) — the caller then
+-- false when no PIN has been set yet (admin_pin_hash IS NULL) – the caller then
 -- falls back to the ADMIN_PIN env bootstrap.
 create or replace function verify_admin_pin(p_pin text)
 returns boolean

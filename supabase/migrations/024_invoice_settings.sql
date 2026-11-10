@@ -2,7 +2,7 @@
 --
 -- The monthly member/company email can be rendered as a legal invoice instead of
 -- an informational statement. The invoice is ALWAYS issued by ITC1 (ITC
--- Innovations Technologie Campus GmbH) — the app is only tooling that renders
+-- Innovations Technologie Campus GmbH) – the app is only tooling that renders
 -- ITC1's document, exactly like Lexoffice/sevDesk. The developers never appear as
 -- issuer. See docs/prd-billing-commercial-addendum.md §1.1.
 --
@@ -20,7 +20,7 @@
 --     issuer_vat_id         ITC1's USt-IdNr, e.g. "DE207285819"
 --     issuer_iban           ITC1's RECEIVING account (never a developer's)
 --     issuer_bic
---     invoice_number_prefix e.g. "K" or "KL-" — the running number is appended
+--     invoice_number_prefix e.g. "K" or "KL-" – the running number is appended
 --     invoice_payment_terms e.g. "Zahlung ohne Abzug innerhalb 14 Tagen"
 --     invoice_vat_rate      VAT percent shown on the document (default 19)
 --

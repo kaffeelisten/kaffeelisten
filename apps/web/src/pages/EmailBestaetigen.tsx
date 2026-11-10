@@ -1,4 +1,4 @@
-// Public landing page for the member email-confirmation link — route:
+// Public landing page for the member email-confirmation link – route:
 // /email-bestaetigen?mid=<id>&token=<token>. On mount it calls /api/confirm-email
 // once and shows the outcome. No login, no data beyond the click.
 
@@ -16,7 +16,7 @@ export default function EmailBestaetigen() {
   const ran = useRef(false)
 
   useEffect(() => {
-    // Confirm exactly once — the token is single-use, so a re-run (e.g. React
+    // Confirm exactly once – the token is single-use, so a re-run (e.g. React
     // StrictMode double-invoke in dev) would report the second call as expired.
     if (ran.current) return
     ran.current = true

@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest'
 // object-level grants. This test replays every migration's GRANT/REVOKE for
 // service_role in filename order and asserts the effective privileges cover what
 // the API does. If you add a table the admin/report path writes, add its grant
-// in a migration and extend REQUIRED below — CI will hold you to it.
+// in a migration and extend REQUIRED below – CI will hold you to it.
 
 const MIGRATIONS_DIR = join(dirname(fileURLToPath(import.meta.url)), '../../../supabase/migrations')
 
@@ -25,21 +25,21 @@ const REQUIRED: Record<string, Priv[]> = {
   members: ['select', 'insert', 'update'],
   companies: ['select', 'insert', 'update'],
   items: ['select', 'insert', 'update'],
-  // Invoice ledger (migration 025) — the billing run reads, inserts and updates
+  // Invoice ledger (migration 025) – the billing run reads, inserts and updates
   // (void/mark-paid) these through the service-role client.
   billing_runs: ['select', 'insert', 'update'],
   billing_documents: ['select', 'insert', 'update'],
-  // Per-member payment ledger (migration 027) — the admin Employees tab reads,
+  // Per-member payment ledger (migration 027) – the admin Employees tab reads,
   // inserts and updates (paid toggle) these through the service-role client.
   member_payments: ['select', 'insert', 'update'],
-  // Per-company payment ledger (migration 035) — the company paid tick in the
+  // Per-company payment ledger (migration 035) – the company paid tick in the
   // Mitarbeitende tab reads, inserts and updates through the service-role client.
   company_payments: ['select', 'insert', 'update'],
-  // Delivery ledger (migration 037) — the monthly run appends, the admin reads.
+  // Delivery ledger (migration 037) – the monthly run appends, the admin reads.
   document_deliveries: ['select', 'insert'],
-  // Run progress (migration 040) — the monthly run writes progress on its run row.
+  // Run progress (migration 040) – the monthly run writes progress on its run row.
   report_runs: ['select', 'insert', 'update'],
-  // Delivery events (migration 040) — the Resend webhook appends, the admin reads.
+  // Delivery events (migration 040) – the Resend webhook appends, the admin reads.
   email_delivery_events: ['select', 'insert'],
 }
 
@@ -70,7 +70,7 @@ const MUST_REVOKE_EXPLICITLY: Record<string, Priv[]> = {
  * Replay grant/revoke statements in migration order and return the effective
  * set of privileges service_role holds per table, plus every privilege whose
  * most recent statement was an explicit revoke. Column-level grants
- * (`grant select (col, ...) on ...`) are ignored — they only ever target anon.
+ * (`grant select (col, ...) on ...`) are ignored – they only ever target anon.
  */
 function replayServiceRoleGrants(): { state: Map<string, Set<Priv>>; revoked: Map<string, Set<Priv>> } {
   const files = readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith('.sql')).sort()

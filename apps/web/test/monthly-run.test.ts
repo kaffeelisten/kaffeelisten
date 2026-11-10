@@ -2,7 +2,7 @@
 // in-memory database, a capturing email provider and a stub PDF renderer.
 //
 // It proves what the unit tests cannot: that the delivery plan is actually
-// executed — the right people get the right documents with both attachments —
+// executed – the right people get the right documents with both attachments –
 // and that the CEO archive really contains a copy of everything that went out.
 
 import JSZip from 'jszip'
@@ -95,7 +95,7 @@ function seed(settings: Record<string, unknown> = {}): FakeDb {
         { id: EFCO, name: 'EFCO', billing_mode: 'individual', billing_contact_name: 'Eva', billing_contact_email: 'billing@efco.de', member_document_copies_enabled: true, checkout_mode: 'member' },
         // The company pays.
         { id: FOURP, name: '4process', billing_mode: 'company_paid', billing_contact_name: 'Paul', billing_contact_email: 'billing@4process.de', member_document_copies_enabled: false, checkout_mode: 'member' },
-        // The company pays but nobody entered a contact — must be reported, not silently dropped.
+        // The company pays but nobody entered a contact – must be reported, not silently dropped.
         { id: GRAMM, name: 'Gramm', billing_mode: 'company_paid', billing_contact_name: null, billing_contact_email: null, member_document_copies_enabled: false, checkout_mode: 'member' },
       ],
       members: [

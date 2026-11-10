@@ -89,7 +89,7 @@ describe('on the demo', () => {
     expect(grid.summary[0]).toMatchObject({ paid: 1, outstanding_cents: 500 })
   })
 
-  it('reads still go to the server — only writes are local', async () => {
+  it('reads still go to the server – only writes are local', async () => {
     const fetchMock = vi.fn(async () => json({ items: [] }))
     globalThis.fetch = fetchMock as unknown as typeof fetch
     await adminApi.getItems()

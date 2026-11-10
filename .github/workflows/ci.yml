@@ -80,7 +80,7 @@ jobs:
     env:
       # Repository variables, not secrets: both ship inside the browser bundle,
       # so anyone can read them out of the deployed JavaScript. The anon key is
-      # the publishable key — it is guarded by RLS, not by being hidden. As
+      # the publishable key – it is guarded by RLS, not by being hidden. As
       # variables their values are visible in Settings, which is what makes a
       # wrong one findable instead of silently wrong.
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
@@ -100,7 +100,7 @@ jobs:
       # The job declares these as its environment, but they did not exist, so it
       # was building with empty strings. `vite build` never evaluates the runtime
       # guard in supabase.ts, so the job went green on a bundle that would throw
-      # on first load if it were served. CI does not deploy — Vercel does — so
+      # on first load if it were served. CI does not deploy – Vercel does – so
       # nothing broken shipped from here; what was broken is that the check was
       # not building what production builds.
       - name: Check the Supabase build config is present

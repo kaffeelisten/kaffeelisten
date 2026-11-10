@@ -1,5 +1,5 @@
-// The one rule for what a transaction cost. Every amount in the app — reports,
-// invoices, the paid grid, exports — must come through here.
+// The one rule for what a transaction cost. Every amount in the app – reports,
+// invoices, the paid grid, exports – must come through here.
 //
 // A row's own snapshot (unit_price_cents, written at checkout since migration 030
 // and carried into the archive by migration 031) always wins. Only rows logged
@@ -31,8 +31,8 @@ export type TransactionCore = PricedRow & { id: string }
 // Union of the live table and the archive with every transaction appearing ONCE.
 //
 // A reported month lives in BOTH tables: archiveTransactions copies it at report
-// time, but the live table is only pruned two months later. Summing both — as the
-// paid grid once did — counts every reported month twice. The archive copy wins,
+// time, but the live table is only pruned two months later. Summing both – as the
+// paid grid once did – counts every reported month twice. The archive copy wins,
 // because it carries the price and month as they were fixed at reporting time.
 export function mergeLiveAndArchive<
   L extends TransactionCore & { logged_at: string },

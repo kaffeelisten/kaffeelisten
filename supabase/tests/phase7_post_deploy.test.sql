@@ -8,7 +8,7 @@ begin
     raise exception '042: anon can DELETE from transactions_archive';
   end if;
   if not has_table_privilege('service_role', 'public.transactions_archive', 'INSERT') then
-    raise exception '042: revoke went too far — service_role can no longer archive';
+    raise exception '042: revoke went too far – service_role can no longer archive';
   end if;
   raise notice 'ok  042 archive DELETE revoked, INSERT kept';
 end $$;

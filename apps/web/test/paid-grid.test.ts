@@ -32,7 +32,7 @@ describe('derivePaidGrid', () => {
     expect(grid.members.bettina['2026-08'].amount_cents).toBe(50)
   })
 
-  it('rolls a paying company’s people — and its house account — into one company cell', () => {
+  it('rolls a paying company’s people – and its house account – into one company cell', () => {
     const grid = derivePaidGrid(input())
     expect(grid.companies['4p']['2026-08']).toEqual({ amount_cents: 600, paid: false })
     expect(grid.members.anna).toBeUndefined()

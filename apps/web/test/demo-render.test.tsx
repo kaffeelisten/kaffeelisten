@@ -2,7 +2,7 @@
 //
 // Renders the two components the demo changes. Typecheck and build do not catch
 // a broken JSX conditional or a prop that never reaches its control; this does.
-// Uses react-dom/client directly, as report-send-dialog.test.tsx does — there is
+// Uses react-dom/client directly, as report-send-dialog.test.tsx does – there is
 // no testing-library in this workspace.
 
 import { act, createElement } from 'react'
