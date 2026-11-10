@@ -134,8 +134,8 @@ when the stack is already up.
 | Studio | `http://127.0.0.1:54423` |
 | Mail catcher | `http://127.0.0.1:54424` |
 
-**Every email goes to the local mail catcher and nothing leaves the machine**, so the whole month-end run —
-report, member statements, company documents — can be exercised without sending anything or
+**Every email goes to the local mail catcher and nothing leaves the machine**, so the whole month-end run –
+report, member statements, company documents – can be exercised without sending anything or
 touching the shared Resend quota.
 
 **The ports are deliberately not Supabase's defaults.** The CLI uses 54321–54324 for every

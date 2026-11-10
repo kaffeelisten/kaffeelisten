@@ -32,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       status: result.status,
       memberStatements: result.memberStatements ?? null,
       // Who could not be sent a document and why, and how many went without a
-      // file — so the admin sees a partial result instead of a bare "success".
+      // file – so the admin sees a partial result instead of a bare "success".
       skipped: result.skipped ?? [],
       missingFiles: result.missingFiles ?? { pdf: 0, xlsx: 0 },
     })

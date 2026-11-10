@@ -2,7 +2,7 @@
 //
 // PIN verification lives in the database (bcrypt via pgcrypto, migration 012).
 // The clear PIN is only ever compared inside Postgres. `ADMIN_PIN` remains a
-// bootstrap fallback, used ONLY while no PIN hash has been set yet — once the
+// bootstrap fallback, used ONLY while no PIN hash has been set yet – once the
 // admin sets a real PIN from the dashboard, the env value stops working.
 
 import { createHmac, timingSafeEqual } from 'node:crypto'
@@ -45,7 +45,7 @@ export async function verifyAdminPin(pin: unknown): Promise<boolean> {
   // hash. Two reasons, both load-bearing: the PIN the demo publishes on its own
   // login screen has to be the PIN that works, and the demo's data is wiped and
   // reseeded (app_settings included), which would otherwise leave the only way
-  // in behind a hash nobody knows. Rotating it is refused as well — see
+  // in behind a hash nobody knows. Rotating it is refused as well – see
   // DEMO_DISABLED_AUTH_ACTIONS.
   const demoPin = demoAdminPin(process.env.DEMO_MODE, process.env.DEMO_ADMIN_PIN)
   if (demoPin) return pin === demoPin
@@ -58,7 +58,7 @@ export async function verifyAdminPin(pin: unknown): Promise<boolean> {
     return data === true
   }
 
-  // Bootstrap fallback — DB PIN not set yet.
+  // Bootstrap fallback – DB PIN not set yet.
   const envPin = process.env.ADMIN_PIN
   return !!envPin && pin === envPin
 }
@@ -78,7 +78,7 @@ export function clientKey(headers: Record<string, string | string[] | undefined>
  * Durable, cross-instance rate limiter backed by the auth_throttle table
  * (migration 020). Records one attempt for `key` and returns whether it is
  * allowed. Fails OPEN on infrastructure errors (returns true) so a throttle
- * outage — or a deploy that precedes the migration — never locks admins out;
+ * outage – or a deploy that precedes the migration – never locks admins out;
  * the PIN check still gates access. `key` is namespaced by the caller
  * (e.g. "verify:<ip>", "reset:<ip>", "admin:<ip>").
  */
@@ -121,7 +121,7 @@ export async function resetRateLimit(key: string): Promise<void> {
 // cookie; every other admin request is authenticated by that cookie, so the
 // clear PIN never has to be stored client-side or sent on each request. The
 // token is HMAC-signed with ADMIN_SESSION_SECRET (server-only) and carries an
-// expiry — it is not brute-forceable, so requireAdmin no longer rate-limits.
+// expiry – it is not brute-forceable, so requireAdmin no longer rate-limits.
 
 const SESSION_COOKIE = 'kl_admin'
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000 // 12h

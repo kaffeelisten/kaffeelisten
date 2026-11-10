@@ -2,9 +2,17 @@
 // monthly report uses, so runMonthlyReport can be exercised end to end without a
 // network, a database or an email provider.
 //
-// Supported: select/insert/upsert/update, the filters eq/in/gte/lt, order,
-// single/maybeSingle, and rpc() through a handler map. Anything else throws, so
-// a new query shape fails loudly here instead of silently returning nothing.
+// Supported: select/insert/upsert/update, the filters eq/in/gte/lt, order (any
+// number of keys), range, single/maybeSingle, and rpc() through a handler map.
+// Anything else throws, so a new query shape fails loudly here instead of
+// silently returning nothing.
+//
+// It also enforces MAX_ROWS on selects, exactly as PostgREST does. That is not
+// pedantry: an unbounded select silently returning its first page is the bug
+// Perch Scan reported on 6 November 2026, and it reached seven call sites
+// because the fake was more generous than the real thing.
+
+export const MAX_ROWS = 1000
 
 type Row = Record<string, unknown>
 type Filter = (row: Row) => boolean
@@ -19,7 +27,9 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
   private op: 'select' | 'insert' | 'upsert' | 'update' = 'select'
   private payload: Row | Row[] | null = null
   private upsertOpts: { onConflict?: string; ignoreDuplicates?: boolean } = {}
-  private orderBy: { col: string; asc: boolean } | null = null
+  private orderBy: { col: string; asc: boolean }[] = []
+  private rangeFrom: number | null = null
+  private rangeTo: number | null = null
   private columns: string[] | null = null   // null → all columns
   private selectAfterWrite = false
   private mode: 'many' | 'single' | 'maybeSingle' = 'many'
@@ -47,10 +57,13 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
   in(col: string, vs: unknown[]) { this.filters.push(r => vs.includes(r[col])); return this }
   gte(col: string, v: string) { this.filters.push(r => String(r[col]) >= v); return this }
   lt(col: string, v: string) { this.filters.push(r => String(r[col]) < v); return this }
+  // Several keys compose, like PostgREST: the first is primary, later ones break
+  // ties. Paging is only stable when the last key is unique.
   order(col: string, opts: { ascending?: boolean } = {}) {
-    this.orderBy = { col, asc: opts.ascending !== false }
+    this.orderBy.push({ col, asc: opts.ascending !== false })
     return this
   }
+  range(from: number, to: number) { this.rangeFrom = from; this.rangeTo = to; return this }
   single() { this.mode = 'single'; return this }
   maybeSingle() { this.mode = 'maybeSingle'; return this }
 
@@ -86,9 +99,22 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
       }
     }
 
-    if (this.orderBy) {
-      const { col, asc } = this.orderBy
-      result = [...result].sort((a, b) => (String(a[col]) < String(b[col]) ? -1 : 1) * (asc ? 1 : -1))
+    if (this.orderBy.length) {
+      result = [...result].sort((a, b) => {
+        for (const { col, asc } of this.orderBy) {
+          if (a[col] === b[col]) continue
+          return (String(a[col]) < String(b[col]) ? -1 : 1) * (asc ? 1 : -1)
+        }
+        return 0
+      })
+    }
+
+    // PostgREST never returns more than max_rows, whether or not a range was
+    // asked for. A caller that wants everything has to page.
+    if (this.op === 'select' && this.mode === 'many') {
+      const start = this.rangeFrom ?? 0
+      const span = this.rangeTo == null ? MAX_ROWS : Math.min(this.rangeTo - start + 1, MAX_ROWS)
+      result = result.slice(start, start + span)
     }
 
     const cols = this.columns

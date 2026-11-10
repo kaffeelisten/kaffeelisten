@@ -1,15 +1,15 @@
-# Design System — Kaffeelisten
+# Design System – Kaffeelisten
 
 Design tokens and component specifications. Used as the source for the Tailwind config and all UI implementation.
 
 ---
 
-## Theming — use semantic tokens, not literal colors
+## Theming – use semantic tokens, not literal colors
 
 The app is themable (Light / Dark / System, and a future brand palette). Colors
 are **semantic CSS variables** defined in `apps/web/src/index.css` and mapped into
 Tailwind (`apps/web/tailwind.config.ts`). **Always use the semantic Tailwind
-classes below — never `stone-*` / `amber-*` literals** (they don't adapt to dark
+classes below – never `stone-*` / `amber-*` literals** (they don't adapt to dark
 mode or a custom palette). Dark values live under `[data-mode="dark"]`; the light
 values equal the primitive palette so light mode is unchanged.
 
@@ -287,7 +287,7 @@ theme: {
 
 | Breakpoint | Width | Primary use |
 |---|---|---|
-| `sm` | 640px | — |
+| `sm` | 640px | – |
 | `md` | 768px | iPad portrait threshold |
 | `lg` | 1024px | iPad landscape, admin desktop |
 | `xl` | 1280px | Wide admin panel |

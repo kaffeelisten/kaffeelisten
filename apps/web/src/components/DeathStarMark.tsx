@@ -1,4 +1,4 @@
-// Inline Death Star line illustration — the brand mark for the "Imperium"
+// Inline Death Star line illustration – the brand mark for the "Imperium"
 // (Death Star) palette. Uses `stroke="currentColor"` so it adapts to the theme
 // when colored via a text-* token class, matching CappuccinoMark.
 

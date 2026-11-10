@@ -34,14 +34,14 @@ interface MemberForm {
   active: boolean
 }
 
-// Preserve the admin's casing verbatim — only trim and collapse internal
+// Preserve the admin's casing verbatim – only trim and collapse internal
 // whitespace. Force-title-casing corrupts international names (McDonald,
 // van der Berg, de la Cruz, O'Brien), and the admin knows the correct spelling.
 function normalizeName(s: string): string {
   return s.trim().replace(/\s+/g, ' ')
 }
 
-// Basic email shape check — the server/DB is the source of truth, this just
+// Basic email shape check – the server/DB is the source of truth, this just
 // catches obvious typos before save.
 function isValidEmail(s: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim())
@@ -161,7 +161,7 @@ export default function MembersPage({ onToast, onMenuClick }: Props) {
           id: m.id,
           name: m.name,
           company_id: m.company_id,
-          company_name: company?.name ?? '—',
+          company_name: company?.name ?? '–',
           company_pays: company?.billing_mode === 'company_paid',
           work_email: m.work_email ?? null,
           active: m.active,
@@ -326,7 +326,7 @@ export default function MembersPage({ onToast, onMenuClick }: Props) {
       byCompany.set(m.company_id, list)
     }
     // A company that checks out as a whole has no people, but its paid tick must
-    // still be reachable — it gets a header of its own while filters allow it.
+    // still be reachable – it gets a header of its own while filters allow it.
     const q = filterName.trim().toLowerCase()
     const sharedAccount = (c: AdminCompany) =>
       (c.checkout_mode === 'company' || c.checkout_mode === 'both') &&
@@ -407,7 +407,7 @@ export default function MembersPage({ onToast, onMenuClick }: Props) {
       render: r => {
         const cents = memberAmount(r)
         if (r.company_pays) return <span className="text-fg-muted">über Firma</span>
-        return cents > 0 ? euro(cents) : <span className="text-fg-subtle">—</span>
+        return cents > 0 ? euro(cents) : <span className="text-fg-subtle">–</span>
       },
     },
     {
@@ -626,7 +626,7 @@ export default function MembersPage({ onToast, onMenuClick }: Props) {
       <Modal
         open={!!payMember}
         onClose={() => setPayMember(null)}
-        title={payMember ? `Zahlungen — ${payMember.name}` : 'Zahlungen'}
+        title={payMember ? `Zahlungen – ${payMember.name}` : 'Zahlungen'}
         actions={<AdminButton variant="secondary" onClick={() => setPayMember(null)}>Schließen</AdminButton>}
       >
         <div className="flex flex-col mt-1">

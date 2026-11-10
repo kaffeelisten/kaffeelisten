@@ -1,4 +1,4 @@
-// What the demo hides in the interface, and — more importantly — what it must
+// What the demo hides in the interface, and – more importantly – what it must
 // never infer. The server is the control; these only cover the convenience
 // layer that keeps a visitor away from endpoints that answer 410.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

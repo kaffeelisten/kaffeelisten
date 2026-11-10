@@ -1,7 +1,7 @@
 // Sends a member the one-time "confirm your email" message and stores the
 // hashed token. Called on member create and on work-email change (auto), and by
 // the admin resend action. Failures are logged and swallowed so a mail outage
-// never blocks the underlying member CRUD write — the admin can always resend.
+// never blocks the underlying member CRUD write – the admin can always resend.
 
 import { randomBytes } from 'node:crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -34,7 +34,7 @@ export async function sendMemberConfirmation(
 
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) {
-    console.error('[confirmation] RESEND_API_KEY not set — skipping send')
+    console.error('[confirmation] RESEND_API_KEY not set – skipping send')
     return false
   }
 

@@ -54,13 +54,13 @@ export function toEntryRows(data: DashboardData): EntryRow[] {
       month: date.slice(0, 7),
       date,
       member_id: t.member_id,
-      member_name: isHouse ? 'Sammelkonto' : member?.name ?? '—',
+      member_name: isHouse ? 'Sammelkonto' : member?.name ?? '–',
       is_house: isHouse,
       work_email: member?.work_email ?? null,
       company_id: t.company_id,
-      company_name: companies.get(t.company_id) ?? '—',
+      company_name: companies.get(t.company_id) ?? '–',
       item_id: t.item_id,
-      item_name: item?.name ?? '—',
+      item_name: item?.name ?? '–',
       quantity: t.quantity,
       unit_price_cents: unit,
       total_cents: unit * t.quantity,
@@ -80,7 +80,7 @@ export interface MonthFigures {
 
 /**
  * Figures for a month. `throughDay` stops at that day of the month, so the month
- * in progress can be compared with the SAME days of the previous month — a
+ * in progress can be compared with the SAME days of the previous month – a
  * half-finished month against a whole one reads as a steep drop that isn't real.
  */
 export function monthFigures(rows: readonly EntryRow[], month: string, opts: { throughDay?: number } = {}): MonthFigures {

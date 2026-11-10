@@ -19,7 +19,7 @@ const data: DashboardData = {
   transactions: [
     { id: 't1', member_id: 'max-1', company_id: 'efco', item_id: 'cap', quantity: 2, unit_price_cents: 70, logged_at: '2026-08-10T08:00:00.000Z' },
     { id: 't2', member_id: 'max-2', company_id: 'pbi', item_id: 'esp', quantity: 1, unit_price_cents: null, logged_at: '2026-08-11T08:00:00.000Z' },
-    // 00:30 on 1 September in Berlin — a September entry, though UTC says August.
+    // 00:30 on 1 September in Berlin – a September entry, though UTC says August.
     { id: 't3', member_id: 'house', company_id: '4p', item_id: 'esp', quantity: 3, unit_price_cents: 50, logged_at: '2026-08-31T22:30:00.000Z' },
   ],
 }

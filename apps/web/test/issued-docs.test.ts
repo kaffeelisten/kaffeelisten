@@ -33,7 +33,7 @@ describe('archiveEntries', () => {
     expect(files.filter(f => f.name.endsWith('.pdf'))).toHaveLength(1)
   })
 
-  it('gives every member statement its own file — they used to overwrite each other', () => {
+  it('gives every member statement its own file – they used to overwrite each other', () => {
     const docs = [
       doc({ memberId: 'aaaaaaaa-1', recipientName: 'Anna' }),
       doc({ memberId: 'bbbbbbbb-2', recipientName: 'Ben' }),

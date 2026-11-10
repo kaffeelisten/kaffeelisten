@@ -39,7 +39,7 @@ function seed(): FakeDb {
       app_settings: [{
         id: 1, report_recipients: ['admin@itc1.de'], report_accent: '#D97706',
         member_statements_enabled: true, company_documents_enabled: true,
-        // Invoice mode is OFF and not authorised today — an already-issued invoice
+        // Invoice mode is OFF and not authorised today – an already-issued invoice
         // must still be reproducible.
         issue_invoices: false, invoice_mode_authorized: false,
         issuer_legal_name: 'ITC Innovations Technologie Campus GmbH', issuer_address: null,
@@ -113,7 +113,7 @@ describe('regenerateDelivery', () => {
     await expect(regenerateDelivery(INVOICE_DELIVERY)).resolves.toBeDefined()
   })
 
-  it('reproduces an information copy as one — no invoice, no IBAN', async () => {
+  it('reproduces an information copy as one – no invoice, no IBAN', async () => {
     const doc = await regenerateDelivery(INFO_DELIVERY)
     expect(doc.html).toMatch(/nur zur Information/)
     expect(doc.html).toContain('4process')
@@ -142,7 +142,7 @@ describe('resendDelivery', () => {
     })
   })
 
-  it('still re-sends an invoice, with its Excel, when the PDF cannot be rendered — and records that', async () => {
+  it('still re-sends an invoice, with its Excel, when the PDF cannot be rendered – and records that', async () => {
     const { id } = await resendDelivery(INVOICE_DELIVERY, async () => null)
     expect(state.sent[0].attachments!.map(a => a.filename)).toEqual(['Rechnung-K-000017.xlsx'])
     expect(state.db.tables.document_deliveries.find(d => d.id === id)).toMatchObject({ has_pdf: false, has_xlsx: true })

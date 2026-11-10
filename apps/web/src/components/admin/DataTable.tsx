@@ -11,7 +11,7 @@ export interface Column<T> {
   muted?: boolean
   render?: (row: T) => ReactNode
   // Presence makes the column sortable by clicking its header. Return the value
-  // to compare — the rendered cell is often a badge or a formatted string.
+  // to compare – the rendered cell is often a badge or a formatted string.
   sortValue?: (row: T) => string | number | null | undefined
 }
 

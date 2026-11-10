@@ -167,7 +167,7 @@ export async function generateExcel(
       ])
       styleBodyRow(row, rowIdx++, 5, { money: [5], center: [4] })
     })
-    const sub = ws2.addRow([`${company.company_name} — Gesamt`, '', '', company.total_entries, euros(company.total_cents)])
+    const sub = ws2.addRow([`${company.company_name} – Gesamt`, '', '', company.total_entries, euros(company.total_cents)])
     styleMoneyTotal(sub, 5, [5], [4])
     rowIdx++
   })
@@ -233,7 +233,7 @@ function addLineItemSheet(
 
 // ─── Per-recipient workbooks ──────────────────────────────────────────────────
 
-/** A person's own entries for the month — attached to their invoice, statement or info copy. */
+/** A person's own entries for the month – attached to their invoice, statement or info copy. */
 export async function generateMemberExcel(entries: EnrichedTransaction[]): Promise<Buffer> {
   const wb = newWorkbook()
   addLineItemSheet(wb, 'Meine Einträge', entries, { withPerson: false, withCompany: false })
@@ -399,7 +399,7 @@ export interface ManifestRow {
 
 /**
  * One row per document sent this month, in both invoice and statement mode.
- * A document whose PDF could not be rendered still appears — flagged — so the
+ * A document whose PDF could not be rendered still appears – flagged – so the
  * archive can never silently omit something that was actually delivered.
  */
 export async function generateManifestExcel(rows: ManifestRow[]): Promise<Buffer> {
@@ -423,7 +423,7 @@ export async function generateManifestExcel(rows: ManifestRow[]): Promise<Buffer
   rows.forEach((r, i) => {
     const row = ws.addRow([
       r.kindLabel,
-      r.documentNumber ?? '—',
+      r.documentNumber ?? '–',
       r.recipientName,
       r.recipientEmail,
       r.companyName,

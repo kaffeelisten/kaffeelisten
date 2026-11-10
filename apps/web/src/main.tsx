@@ -9,7 +9,7 @@ import { loadAppConfig } from './lib/appConfig'
 import './index.css'
 
 // Start the runtime-config fetch before React mounts, so screens that lay out
-// around it — the admin login's demo panel above all — have it on their first
+// around it – the admin login's demo panel above all – have it on their first
 // frame instead of shifting once it lands.
 void loadAppConfig()
 
@@ -32,7 +32,7 @@ createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       )}
     </ThemeProvider>
-    {/* Vercel Web Analytics — privacy-friendly page/visit metrics, no cookies.
+    {/* Vercel Web Analytics – privacy-friendly page/visit metrics, no cookies.
         Only sends beacons on Vercel-hosted deployments; a no-op locally. */}
     <Analytics />
   </StrictMode>,

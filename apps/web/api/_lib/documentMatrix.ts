@@ -1,4 +1,4 @@
-// Who receives which monthly document — the single, pure source of the routing
+// Who receives which monthly document – the single, pure source of the routing
 // rules. No IO: report.ts executes the plan this returns.
 //
 // The governing principle, in ITC1's words: whoever pays gets the invoice, the
@@ -79,9 +79,9 @@ export interface CompanyDelivery {
 }
 
 export type SkipReason =
-  | 'disabled'              // the relevant setting is off — intentional, not an error
+  | 'disabled'              // the relevant setting is off – intentional, not an error
   | 'no_email'              // a person with no reachable address
-  | 'no_billing_contact'    // a company with no contact email — cannot be delivered
+  | 'no_billing_contact'    // a company with no contact email – cannot be delivered
   | 'house_account'         // a company checkout account has no person to write to
   | 'unknown_company'       // consumption references a company that no longer exists
 

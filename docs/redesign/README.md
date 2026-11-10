@@ -11,7 +11,7 @@ project on claude.ai/design, then adopted into the app source here.
 | `PinInput` | `apps/web/src/components/admin/PinInput.tsx` | Blinking amber caret in the active slot, pop-in dots/digits, shake on invalid, revealed code in JetBrains Mono. |
 | `TemplateField` | `apps/web/src/components/admin/TemplateField.tsx` | Live `{token}` highlighting inside the field (mirror layer), pill insert-chips showing the raw token, elevated "Beispiel" card with highlighted substituted sample values. |
 
-All three keep their **existing props/API and German copy** — this is a visual and
+All three keep their **existing props/API and German copy** – this is a visual and
 interaction overhaul only. The day grid is still capped at 28 (matches the DB check
 constraint), and `TemplateField` still reads `PLACEHOLDERS` from
 `apps/web/src/lib/reportPlaceholders.ts`.

@@ -25,7 +25,7 @@ import { setHintsEnabled, useHintsEnabled } from '../lib/coachHints'
 type Company = Pick<Database['public']['Tables']['companies']['Row'], 'id' | 'name' | 'active' | 'checkout_mode'>
 const COMPANY_PUBLIC_COLS = 'id, name, active, checkout_mode' as const
 // The anonymous member flow may only read the non-PII columns of members
-// (work_email is admin-only — migration 015). Keep this shape in sync with the
+// (work_email is admin-only – migration 015). Keep this shape in sync with the
 // column-level SELECT grant.
 type Member = Pick<Database['public']['Tables']['members']['Row'], 'id' | 'name' | 'company_id' | 'active'>
 const MEMBER_PUBLIC_COLS = 'id, name, company_id, active' as const
@@ -34,7 +34,7 @@ type Step = 'start' | 'company' | 'member' | 'item' | 'confirm' | 'success'
 
 type CartEntry = { item: Item; quantity: number }
 
-// Basic email shape check — the DB (work_email NOT NULL) is the source of truth.
+// Basic email shape check – the DB (work_email NOT NULL) is the source of truth.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -91,7 +91,7 @@ function getLetterColor(name: string): string {
   return '#78716C'
 }
 
-// localStorage-backed "Meine Firma" shortcut — only surfaces when ≥90% of
+// localStorage-backed "Meine Firma" shortcut – only surfaces when ≥90% of
 // last 10 choices are the same company (self-suppresses on shared iPads).
 const HISTORY_KEY = 'kl_company_history'
 const HISTORY_MAX = 10
@@ -150,7 +150,7 @@ function getDisplayName(fullName: string, otherNames: string[]): string {
     })
     if (!conflict) return candidate
   }
-  return fullName // identical full name — nothing to abbreviate further
+  return fullName // identical full name – nothing to abbreviate further
 }
 
 export default function MemberFlow() {
@@ -175,7 +175,7 @@ export default function MemberFlow() {
   const [activeCategory, setActiveCategory] = useState<string>('coffee')
   const [submitting, setSubmitting] = useState(false)
   // Transaction ids of the order just written, so "Rückgängig" can delete them
-  // (anon has no direct DELETE — undo goes through the undo_order RPC).
+  // (anon has no direct DELETE – undo goes through the undo_order RPC).
   const [lastOrderIds, setLastOrderIds] = useState<string[]>([])
   const [undoing, setUndoing] = useState(false)
 
@@ -320,7 +320,7 @@ export default function MemberFlow() {
     setStep('success')
   }
 
-  // "Rückgängig" — delete the rows this order just created (only possible within
+  // "Rückgängig" – delete the rows this order just created (only possible within
   // the undo window; anon can't DELETE directly, so it goes through undo_order).
   const handleUndo = useCallback(async () => {
     if (undoing) return
@@ -330,7 +330,7 @@ export default function MemberFlow() {
     setUndoing(false)
     if (err) {
       // The order stays saved; make that clear rather than pretending it's gone.
-      setError('Rückgängig machen fehlgeschlagen — der Eintrag wurde gespeichert.')
+      setError('Rückgängig machen fehlgeschlagen – der Eintrag wurde gespeichert.')
       reset()
       return
     }
@@ -404,7 +404,7 @@ export default function MemberFlow() {
 
   if (step === 'start') {
     // One mark, not two. The start screen holds a single large button labelled
-    // "Eintrag starten" and nothing else — an arrow explaining it told the
+    // "Eintrag starten" and nothing else – an arrow explaining it told the
     // visitor what they already knew, and two hints at once on a screen this
     // sparse is the reason the overlay read as clutter. What is genuinely
     // unguessable here is that the small word in the footer leads to a working
@@ -421,7 +421,7 @@ export default function MemberFlow() {
         // Datenschutz; this angle keeps the tail up in the empty space and
         // brings only the head down, to stop just above the word.
         shape: 'loop',
-        text: 'Admin-Bereich — die PIN steht dort',
+        text: 'Admin-Bereich – die PIN steht dort',
         at: { bottom: '28px', left: 'calc(50% + 54px)' },
         width: 118,
         rotate: 16,
@@ -459,7 +459,7 @@ export default function MemberFlow() {
             On a campus the first is the client's name; on the demo it is the
             hints switch, because a client's name has no business on a public
             demo and the switch had nowhere better to live. The admin link is
-            called what it is — it used to read B4Y3RW4LD on a campus, the
+            called what it is – it used to read B4Y3RW4LD on a campus, the
             hackathon this was built at, which tells a member nothing. */}
         <p className="absolute bottom-6 left-0 right-0 text-center text-[12px] text-fg-subtle uppercase tracking-[0.06em]">
           {demo ? (

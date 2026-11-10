@@ -230,7 +230,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ({ transactions, monthLabel, reportMonth } = sampleData())
     }
     const [yearStr] = reportMonth.split('-')
-    // In an iframe cid: images don't resolve — inline the logo as a data URI.
+    // In an iframe cid: images don't resolve – inline the logo as a data URI.
     const logoSrc = `data:image/png;base64,${EMAIL_LOGO_PNG_BASE64}`
     const summaries = computeSummary(transactions)
 

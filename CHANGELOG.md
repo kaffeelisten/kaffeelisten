@@ -9,10 +9,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/paginate-transaction-reads
+
+#### Fixed
+- **Every amount was capped at the first 1,000 transactions.** PostgREST returns at most `max_rows` (1000) and does not raise an error when it hits that ceiling, so seven unbounded reads of `transactions` and `transactions_archive` summed a first page as though it were the whole month. At 30–80 people logging a couple of items a day a month is several thousand rows, so this was wrong from the first real month of use. The worst case was the **month-end report**, which is the invoice: a busy month was billed as a quiet one. `deactivateInactiveMembers` was the second: it saw only the newest 1,000 transactions, so anyone whose latest activity fell outside that page looked inactive and **was deactivated**. The paid grid, the admin dashboard, the CSV/Excel/PDF export and the per-person payment view were understating in the same way. All seven now page through `api/_lib/paged.ts`, ordered by a unique key so pages cannot overlap or skip. Reported by Gianna Gonzales of Perch Scan on 6 November 2026, against the paid grid.
+- **The test double now enforces the cap it used to ignore.** `test/support/fakeSupabase.ts` returned every row it held, so an unbounded select passed in tests and truncated in production – which is how this reached seven call sites. It now applies `MAX_ROWS`, supports `range` and composes several `order` keys, and `test/row-cap.test.ts` runs a 1,500-transaction month end to end.
+
+#### Changed
+- **En dashes throughout.** The em dash (U+2014) is no longer used anywhere in this repository – prose, code comments, UI copy and documentation all use an en dash (`–`, U+2013).
+
+
 ### fix/demo-footer-slots
 
 #### Changed
-- **The start screen's footer carries three things, not four.** *GitHub* is gone from the demo's footer, and the admin link is called **Administration** on a campus instance too — it used to read *B4Y3RW4LD*, the hackathon this was built at, which tells a member standing at the coffee machine nothing. The hints switch shortens to **Hinweise aus** / **Hinweise ein**. Every instance now shows the same three slots: who it belongs to, the way into the admin area, and the privacy notice.
+- **The start screen's footer carries three things, not four.** *GitHub* is gone from the demo's footer, and the admin link is called **Administration** on a campus instance too – it used to read *B4Y3RW4LD*, the hackathon this was built at, which tells a member standing at the coffee machine nothing. The hints switch shortens to **Hinweise aus** / **Hinweise ein**. Every instance now shows the same three slots: who it belongs to, the way into the admin area, and the privacy notice.
 
 ### fix/demo-first-roster
 
@@ -22,11 +32,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### feat/demo-client
 
 #### Added
-- **The demo lets you in, and keeps letting the next person in.** `DEMO_MODE` deployments authenticate the admin area against the `DEMO_ADMIN_PIN` that the login screen publishes, instead of the PIN hash in the database — so the PIN shown is the PIN that works, and it survives the data resets that wipe settings. Changing or resetting it is refused by the server (`410`), because one visitor rotating the PIN would lock out everyone after them. Settings says so in place of the *PIN ändern* button.
+- **The demo lets you in, and keeps letting the next person in.** `DEMO_MODE` deployments authenticate the admin area against the `DEMO_ADMIN_PIN` that the login screen publishes, instead of the PIN hash in the database – so the PIN shown is the PIN that works, and it survives the data resets that wipe settings. Changing or resetting it is refused by the server (`410`), because one visitor rotating the PIN would lock out everyone after them. Settings says so in place of the *PIN ändern* button.
 - **An invented demo campus** (`supabase/seeds/003_demo_campus.sql`): 18 made-up companies, ~130 made-up people on `.example` addresses, a live current month and two closed months behind it, with payment state already filled in. No real company and no real person appears, and the months are derived from the current date, so the demo never goes stale.
 
 #### Added
-- **Hand-drawn hints on the demo.** A pencil arrow with a handwritten caption points at the one thing a first-time visitor cannot guess on each screen: that the admin area is behind a small word in the start screen's footer, and that the wordmark above the keypad is the way back out. Each one appears a beat after the screen and retires for good once the visitor uses the control it points at. The footer slot that used to read *ITC1 Deggendorf* is now the switch that hides them — switching them back on brings the retired ones with it — and the choice is remembered per browser. Captions are real text, so the browser's own translate reaches them and they invert in dark mode. Drawn from the arrow in `PROJECTS/15-Flipper` by `scripts/art/coach-marks.py`.
+- **Hand-drawn hints on the demo.** A pencil arrow with a handwritten caption points at the one thing a first-time visitor cannot guess on each screen: that the admin area is behind a small word in the start screen's footer, and that the wordmark above the keypad is the way back out. Each one appears a beat after the screen and retires for good once the visitor uses the control it points at. The footer slot that used to read *ITC1 Deggendorf* is now the switch that hides them – switching them back on brings the retired ones with it – and the choice is remembered per browser. Captions are real text, so the browser's own translate reaches them and they invert in dark mode. Drawn from the arrow in `PROJECTS/15-Flipper` by `scripts/art/coach-marks.py`.
 
 #### Changed
 - **The demo campus is smaller**: 12 companies and 71 people rather than 18 and 132, with thinner closed months (1,154 archived rows, down from 3,926). A demo is read at a glance, not scrolled.
@@ -35,41 +45,41 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **The demo no longer offers *Bericht senden*** on the Übersicht. The sidebar already hid its copy; this one would have hit an endpoint that answers 410.
 
 #### Fixed
-- **Mitarbeitende loaded nothing while the database was full of people.** The page fetched the roster and the paid grid in one `Promise.all`, so when `/api/admin/payments` failed the rejection took members, companies and items down with it and the screen said *Noch keine Mitarbeitenden*. The grid is now settled on its own and degrades to empty — the roster is the page, the ticks are an extra on it.
+- **Mitarbeitende loaded nothing while the database was full of people.** The page fetched the roster and the paid grid in one `Promise.all`, so when `/api/admin/payments` failed the rejection took members, companies and items down with it and the screen said *Noch keine Mitarbeitenden*. The grid is now settled on its own and degrades to empty – the roster is the page, the ticks are an extra on it.
 - **Kaffee is the first tab again.** Category order followed whatever order the database happened to return rows in, so the item step could open on *Getränke*. It is now an explicit order, coffee first.
 
 #### Changed
-- **The demo is explorable but not editable.** Every page, list and export is open; every write is refused by the server and kept in the visitor's own browser instead, so they can rename a company, change the report recipients, re-tick a paid month or switch theme and watch the product react — and the next visitor still arrives at a clean demo. Settings says so plainly and offers *Demo zurücksetzen*. Billing, payments and report progress are readable again as a result; only Dokumente stays out.
-- **The demo carries no client's branding.** No ITC1 logo in the sidebar, no *ITC1 Deggendorf* or *B4Y3RW4LD* on the start screen, and its own privacy notice describing what the demo actually does — invented data, nothing sent, edits local — instead of the campus notice naming ITC1 as controller.
+- **The demo is explorable but not editable.** Every page, list and export is open; every write is refused by the server and kept in the visitor's own browser instead, so they can rename a company, change the report recipients, re-tick a paid month or switch theme and watch the product react – and the next visitor still arrives at a clean demo. Settings says so plainly and offers *Demo zurücksetzen*. Billing, payments and report progress are readable again as a result; only Dokumente stays out.
+- **The demo carries no client's branding.** No ITC1 logo in the sidebar, no *ITC1 Deggendorf* or *B4Y3RW4LD* on the start screen, and its own privacy notice describing what the demo actually does – invented data, nothing sent, edits local – instead of the campus notice naming ITC1 as controller.
 - **The demo campus opens with Alex R. and Fares M.** at the first company.
 
 #### Changed
-- **Staging shares a Supabase project with another application**, because the free plan allows two active projects per account and both Kaffeelisten projects had been paused — which is what left the preview with no data and no way in. `Database - staging` now restores the co-tenant's API grants after every migration run (`scripts/db/restore-cotenant-grants.mjs`), since migration 038's blanket revoke strips them and the breakage is silent. A no-op once staging has a project to itself.
+- **Staging shares a Supabase project with another application**, because the free plan allows two active projects per account and both Kaffeelisten projects had been paused – which is what left the preview with no data and no way in. `Database - staging` now restores the co-tenant's API grants after every migration run (`scripts/db/restore-cotenant-grants.mjs`), since migration 038's blanket revoke strips them and the breakage is silent. A no-op once staging has a project to itself.
 
 #### Fixed
-- **The demo no longer asks a visitor to reset an admin e-mail they do not have.** Five wrong entries used to push the login screen into the e-mail recovery flow — on the demo that flow leads nowhere, so it is gone and the screen points back at the published PIN instead. *PIN vergessen?* is hidden there too.
+- **The demo no longer asks a visitor to reset an admin e-mail they do not have.** Five wrong entries used to push the login screen into the e-mail recovery flow – on the demo that flow leads nowhere, so it is gone and the screen points back at the published PIN instead. *PIN vergessen?* is hidden there too.
 - **The demo PIN appears with the login screen** rather than dropping in a moment later. The runtime config fetch now starts before React mounts, and the panel's space is held while it is in flight, so nothing shifts under the cursor.
 
 #### Added
-- **The demo looks like the demo.** On a deployment with `DEMO_MODE`, the admin area leaves out the pages it does not have (Dokumente) and the action it cannot perform (*Bericht senden*), and the login screen shows its own PIN with a single button to go straight in — a demo that hides its credential is a demo nobody gets into. A campus instance is completely unchanged: the PIN is never served, and every page is present.
+- **The demo looks like the demo.** On a deployment with `DEMO_MODE`, the admin area leaves out the pages it does not have (Dokumente) and the action it cannot perform (*Bericht senden*), and the login screen shows its own PIN with a single button to go straight in – a demo that hides its credential is a demo nobody gets into. A campus instance is completely unchanged: the PIN is never served, and every page is present.
 
 
 ### feat/demo-mode
 
 #### Added
-- **A demo mode for the public demo deployment.** With `DEMO_MODE=1` the deployment cannot send email to anyone, cannot run a month end, and refuses invoicing, documents, payments and the Resend webhook with a clear message. Everything a visitor needs to explore the product — the member flow, the admin lists, the report preview, themes and export — is untouched. The switches are enforced by the server, so nothing depends on the interface hiding a button.
+- **A demo mode for the public demo deployment.** With `DEMO_MODE=1` the deployment cannot send email to anyone, cannot run a month end, and refuses invoicing, documents, payments and the Resend webhook with a clear message. Everything a visitor needs to explore the product – the member flow, the admin lists, the report preview, themes and export – is untouched. The switches are enforced by the server, so nothing depends on the interface hiding a button.
 
 
 ### refactor/admin-catch-all
 
 #### Changed
-- **The admin API is one serverless function instead of ten.** Every URL is unchanged — `/api/admin/data`, `/api/admin/theme` and the rest all behave exactly as before — but the handlers now sit behind a single dispatcher. This takes the deployment from 15 functions to 6, under the 12 that a free Vercel team allows, which is what makes a public demo possible at all. It also means fewer cold starts on the month-end run.
+- **The admin API is one serverless function instead of ten.** Every URL is unchanged – `/api/admin/data`, `/api/admin/theme` and the rest all behave exactly as before – but the handlers now sit behind a single dispatcher. This takes the deployment from 15 functions to 6, under the 12 that a free Vercel team allows, which is what makes a public demo possible at all. It also means fewer cold starts on the month-end run.
 
 
 ### fix/apex-independent-urls
 
 #### Changed
-- **Emails now point at the instance that sent them.** The logo in the report email and the confirmation link fallback were hardcoded to `https://kaffeelisten.de`. They now come from `PUBLIC_BASE_URL`, so a campus instance on its own address links to itself. Unset, the behaviour is exactly as before — but it must be set before the apex moves to the landing page, or the logo breaks in every monthly report.
+- **Emails now point at the instance that sent them.** The logo in the report email and the confirmation link fallback were hardcoded to `https://kaffeelisten.de`. They now come from `PUBLIC_BASE_URL`, so a campus instance on its own address links to itself. Unset, the behaviour is exactly as before – but it must be set before the apex moves to the landing page, or the logo breaks in every monthly report.
 
 
 ### feat/phase-3-billing
@@ -114,7 +124,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### feat/payments-overview
 
 #### Changed
-- **Paid tracking is now scan-and-tick, not modal-per-person.** The _Bezahlt_ column (last three months of checkboxes per person) in _Mitarbeitende_ is **on by default** (requires migration `029`), and a summary strip above the list shows **„X von Y bezahlt"** per month with the euro amount still outstanding — so the admin sees coverage across everyone at a glance and ticks people off in place. The per-person _Zahlungen_ dialog stays as an optional detail view for full history; it can still be hidden entirely under _Einstellungen → Zahlungsübersicht_. „Firma zahlt" people are excluded from the counts and show a muted marker.
+- **Paid tracking is now scan-and-tick, not modal-per-person.** The _Bezahlt_ column (last three months of checkboxes per person) in _Mitarbeitende_ is **on by default** (requires migration `029`), and a summary strip above the list shows **„X von Y bezahlt"** per month with the euro amount still outstanding – so the admin sees coverage across everyone at a glance and ticks people off in place. The per-person _Zahlungen_ dialog stays as an optional detail view for full history; it can still be hidden entirely under _Einstellungen → Zahlungsübersicht_. „Firma zahlt" people are excluded from the counts and show a muted marker.
 
 
 ### feat/billing-invoice-mode
@@ -125,28 +135,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Optional invoice mode.** In _Einstellungen → Rechnungsstellung_ the admin can switch the monthly member emails from an informational statement to a proper **invoice issued by ITC1**. When enabled, the admin fills ITC1's issuer block (legal name, address, USt-IdNr, receiving IBAN/BIC, number prefix, payment terms, VAT rate); the email then shows a document number, a net/VAT/gross breakdown and a prominent "wohin überweisen" box. The developers never appear as issuer. Requires applying migrations `023`–`025`.
 - **Per-company billing mode.** A company can be set to _Firma zahlt_ (`company_paid`): one invoice goes to a company billing contact covering all its members, instead of billing each member. `company_paid` requires a billing contact email; _Einzeln_ (individual) is unchanged and remains the default.
 - **Invoice numbering + ledger.** Every issued document gets a unique, never-reused number (`<Präfix><laufende Nummer>`), recorded in a billing ledger. Re-running a month re-sends the same numbers instead of allocating new ones.
-- **Payment tracking.** A _Rechnungen — Zahlungsstatus_ card lists each month's documents with a per-recipient bezahlt/offen toggle.
+- **Payment tracking.** A _Rechnungen – Zahlungsstatus_ card lists each month's documents with a per-recipient bezahlt/offen toggle.
 - **Per-member payment tracking in _Mitarbeitende_.** Each person now has a _Zahlungen_ action opening a month-by-month bezahlt/offen view, working with or without invoice mode. Amounts are derived live from the current month plus the archive. People whose company covers the coffee (_Firma zahlt_) are shown as _von Firma übernommen_ rather than billed personally. Requires migration `027`.
 - **Inline paid grid in _Mitarbeitende_.** A _Bezahlt_ column shows the last three months as compact checkboxes per person (current month emphasized, the two prior greyed but still toggleable), so the admin can see and update who has paid at a glance without opening the modal. The window rolls forward automatically each month; _Firma zahlt_ members show a muted _Firma_ marker instead. The column is **off by default** and toggled on under _Einstellungen → Zahlungsübersicht_ (requires migration `028`); the per-person _Zahlungen_ modal stays available regardless.
 - **Vercel Web Analytics.** Privacy-friendly, cookieless page/visit metrics via `@vercel/analytics`; active only on Vercel-hosted deployments (a no-op locally). Enable Web Analytics in the Vercel project dashboard to collect data.
-- **Invoice/statement PDFs attached to every email + archive zips.** Each member and company email now carries its document as a PDF attachment. In invoice mode: when a company pays, its contact gets one invoice PDF; when each person pays, every member gets their own invoice PDF and the company contact receives a ZIP archive of all its members' invoices plus a ledger sheet. The Geschäftsführung (CEO) additionally receives a single global ZIP — the full invoice ledger (Excel) plus every invoice PDF and the summary report — in place of the plain report attachments. In report mode the CEO still gets the report as one PDF + one Excel. PDF generation is bounded per run (wall-clock deadline + count cap) and fail-soft: a slow or failed render never blocks the email or the month-end archive.
+- **Invoice/statement PDFs attached to every email + archive zips.** Each member and company email now carries its document as a PDF attachment. In invoice mode: when a company pays, its contact gets one invoice PDF; when each person pays, every member gets their own invoice PDF and the company contact receives a ZIP archive of all its members' invoices plus a ledger sheet. The Geschäftsführung (CEO) additionally receives a single global ZIP – the full invoice ledger (Excel) plus every invoice PDF and the summary report – in place of the plain report attachments. In report mode the CEO still gets the report as one PDF + one Excel. PDF generation is bounded per run (wall-clock deadline + count cap) and fail-soft: a slow or failed render never blocks the email or the month-end archive.
 - **Company editor redesign.** The company dialog now always shows the contact person (name + e-mail) and a compact _Wer zahlt?_ switch (_Firma zahlt_ / _Jede Person_), with inline copy explaining what each choice means. New companies default to _Firma zahlt_.
 
 #### Changed
 - **Supabase CLI config committed.** Added `supabase/config.toml` aligned to the linked project (Postgres 17), so `supabase link` no longer reports a config drift.
 
 #### Notes
-- Invoice mode is **off by default**; with it off, behaviour is unchanged (statements as before). Delivery is the email body — no per-user PDF is generated. See `docs/prd-billing-commercial-addendum.md`; invoice wording/VAT/retention are subject to confirmation by ITC1's tax adviser.
+- Invoice mode is **off by default**; with it off, behaviour is unchanged (statements as before). Delivery is the email body – no per-user PDF is generated. See `docs/prd-billing-commercial-addendum.md`; invoice wording/VAT/retention are subject to confirmation by ITC1's tax adviser.
 
 ### fix/service-role-write-grants
 
 #### Fixed
-- **Admin can create and edit members, companies and items again.** After the RLS lockdown moved all admin writes to the service-role API, saving any member, company or item in the admin panel failed with a server error — the `service_role` database role had never been granted `INSERT`/`UPDATE` on those tables (only `SELECT`). Reads were unaffected, so the breakage only showed on save. Requires applying migration `022` to the database.
+- **Admin can create and edit members, companies and items again.** After the RLS lockdown moved all admin writes to the service-role API, saving any member, company or item in the admin panel failed with a server error – the `service_role` database role had never been granted `INSERT`/`UPDATE` on those tables (only `SELECT`). Reads were unaffected, so the breakage only showed on save. Requires applying migration `022` to the database.
 
 ### feat/member-identity-validation
 
 #### Added
-- **Member email confirmation (proof of ownership).** When a member is added — or their work email is changed — Kaffeelisten now emails them a one-time confirmation link. Clicking it verifies the address on the new public page `/email-bestaetigen`. The admin _Mitarbeitende_ table shows a **Bestätigt / Ausstehend** badge per person and a per-row action to (re-)send the confirmation email. Unverified members still receive their monthly statement — they are only flagged, never skipped. See `docs/email-deliverability.md`.
+- **Member email confirmation (proof of ownership).** When a member is added – or their work email is changed – Kaffeelisten now emails them a one-time confirmation link. Clicking it verifies the address on the new public page `/email-bestaetigen`. The admin _Mitarbeitende_ table shows a **Bestätigt / Ausstehend** badge per person and a per-row action to (re-)send the confirmation email. Unverified members still receive their monthly statement – they are only flagged, never skipped. See `docs/email-deliverability.md`.
 
 #### Fixed
 - **International member names are no longer corrupted on save.** The admin member form force-title-cased every name, mangling names like _McDonald_, _van der Berg_, _de la Cruz_ and _O'Brien_. Names are now stored with the casing the admin typed (only surrounding/duplicate whitespace is trimmed).
@@ -164,7 +174,7 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 ### chore/v1-gate-deps-tests
 
 #### Security
-- **Upgraded vulnerable production dependencies.** `npm audit` fixes bring `tmp` (path traversal) and `ws` (memory disclosure / DoS) to patched versions. One moderate advisory remains in `exceljs`'s bundled `uuid`; it requires a `buf` argument we never pass, so it isn't reachable — left rather than downgrading `exceljs` to a breaking major.
+- **Upgraded vulnerable production dependencies.** `npm audit` fixes bring `tmp` (path traversal) and `ws` (memory disclosure / DoS) to patched versions. One moderate advisory remains in `exceljs`'s bundled `uuid`; it requires a `buf` argument we never pass, so it isn't reachable – left rather than downgrading `exceljs` to a breaking major.
 
 #### Fixed
 - **PDF report Chromium version aligned.** The report downloaded a **v131** Chromium pack while `@sparticuz/chromium-min` is pinned to **v147**; the mismatch could ship a binary the bundled `puppeteer-core` can't drive. The pack URL now matches the installed version.
@@ -178,18 +188,18 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - **Admin sessions now use a signed, HttpOnly cookie instead of the PIN held in `sessionStorage`.** After a successful PIN entry (or reset) the server sets a `Secure`, `SameSite=Strict`, `HttpOnly` cookie carrying an HMAC-signed, expiring token (new `ADMIN_SESSION_SECRET`); the clear PIN is no longer stored in the browser or sent on every admin request. Admin endpoints authenticate the cookie and fail closed (500) if the signing secret is unconfigured. Changing the PIN now requires both an active session and the current PIN. Added a `/api/admin/logout` endpoint and an **Abmelden** action in the admin sidebar.
 
 #### Fixed
-- **The automatic monthly report now only sends closed periods, in Europe/Berlin time.** Previously the cron reported the *current, still-open* month and evaluated the send day in the server's timezone — a configured send day fired mid-month against an incomplete period. The report now always covers the **previous, fully-closed month**, the send day is the day of the following month it goes out (evaluated in Europe/Berlin), and a missed day is retried automatically on the next nightly run (idempotent per month, no double-send).
+- **The automatic monthly report now only sends closed periods, in Europe/Berlin time.** Previously the cron reported the *current, still-open* month and evaluated the send day in the server's timezone – a configured send day fired mid-month against an incomplete period. The report now always covers the **previous, fully-closed month**, the send day is the day of the following month it goes out (evaluated in Europe/Berlin), and a missed day is retried automatically on the next nightly run (idempotent per month, no double-send).
 
 #### Changed
 - The automatic-send day picker now reflects the new model: the chosen day is the day of the *following* month on which the closed month is sent, and the default ("So früh wie möglich") is the 1st.
 
 #### Deploy note
-- Set **`ADMIN_SESSION_SECRET`** (a long random value) in Vercel before/with this deploy — admin endpoints fail closed without it. No database migration is required. Any admin logged in before the deploy is signed out once and re-enters their PIN.
+- Set **`ADMIN_SESSION_SECRET`** (a long random value) in Vercel before/with this deploy – admin endpoints fail closed without it. No database migration is required. Any admin logged in before the deploy is signed out once and re-enters their PIN.
 
 ### fix/admin-auth-hardening
 
 #### Security
-- **Admin PIN is no longer practically brute-forceable.** Rate limiting is now durable and cross-instance (a shared `auth_throttle` table + `pin_rate_consume`/`pin_rate_reset` RPCs, migration 020) instead of per-serverless-instance memory, and it is applied on **every** PIN-verifying endpoint via a single `requireAdmin` helper — previously only `/verify-pin` was throttled while `/api/admin/data`, `settings`, `theme`, `preview-report` and `send-report` had none. A correct PIN resets the counter so honest admins aren't progressively slowed. The reset/recovery endpoints (`request-pin-reset`, `reset-pin`, `change-pin`) are throttled too.
+- **Admin PIN is no longer practically brute-forceable.** Rate limiting is now durable and cross-instance (a shared `auth_throttle` table + `pin_rate_consume`/`pin_rate_reset` RPCs, migration 020) instead of per-serverless-instance memory, and it is applied on **every** PIN-verifying endpoint via a single `requireAdmin` helper – previously only `/verify-pin` was throttled while `/api/admin/data`, `settings`, `theme`, `preview-report` and `send-report` had none. A correct PIN resets the counter so honest admins aren't progressively slowed. The reset/recovery endpoints (`request-pin-reset`, `reset-pin`, `change-pin`) are throttled too.
 - **Removed the fail-open authentication path.** A transient database error while checking whether a PIN is set now throws (fails closed) instead of silently re-enabling the `ADMIN_PIN` env bootstrap.
 - **PIN-reset codes now use a cryptographically-secure RNG** (`crypto.randomInt`) instead of `Math.random()`, which is predictable and unsuitable for a security token.
 
@@ -205,7 +215,7 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 ### fix/report-security-reliability
 
 #### Security
-- **Fixed a stored-HTML/script injection in the PDF report (Critical).** User-controlled member, company and item names were inlined **unescaped** into the report HTML, which Puppeteer then rendered — a crafted name could inject markup/script and, because Chromium ran with web security relaxed, exfiltrate data or make server-side requests. All names are now HTML-escaped, the PDF is rendered with **JavaScript disabled** and **all network requests blocked**, `--disable-web-security` is dropped from the Chromium launch, and the report document carries a strict `Content-Security-Policy` (`default-src 'none'`). Defense in depth: even markup that slipped through could neither execute nor phone home.
+- **Fixed a stored-HTML/script injection in the PDF report (Critical).** User-controlled member, company and item names were inlined **unescaped** into the report HTML, which Puppeteer then rendered – a crafted name could inject markup/script and, because Chromium ran with web security relaxed, exfiltrate data or make server-side requests. All names are now HTML-escaped, the PDF is rendered with **JavaScript disabled** and **all network requests blocked**, `--disable-web-security` is dropped from the Chromium launch, and the report document carries a strict `Content-Security-Policy` (`default-src 'none'`). Defense in depth: even markup that slipped through could neither execute nor phone home.
 
 #### Fixed
 - **Report emails no longer report failure as success.** The company report and each member statement now check Resend's `{ error }` result (the SDK does not throw on API errors). A failed company send aborts the run **before** archiving/pruning, so a report that wasn't delivered can't quietly wipe the month's data. Member-statement failures are counted and surfaced instead of silently swallowed.
@@ -214,14 +224,14 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - **A PDF-generation failure no longer sinks the whole report.** If the PDF can't be built, the report still goes out with the Excel attachment / email only, instead of aborting.
 
 #### Deploy note
-- Apply **migration 019** (report_runs table + prune RPC) before/with this deploy — it's additive and safe to apply anytime, but the report run needs it.
+- Apply **migration 019** (report_runs table + prune RPC) before/with this deploy – it's additive and safe to apply anytime, but the report run needs it.
 
 ### fix/rls-lockdown
 
 #### Security
-- **The public (anon) Supabase key can no longer read personal data or write catalogue data.** Previously the key shipped in the browser bundle had table-wide `SELECT` on members (including `work_email`) and transactions, plus `INSERT`/`UPDATE` on companies, members and items — so anyone with the key could read every member's work email and every transaction and corrupt the catalogue. Migration 015 revokes all of that. The anonymous member flow keeps only what it needs: reading active companies/items, reading the non-PII columns (`id, name, company_id, active`) of active members, and inserting its own member row and transactions.
+- **The public (anon) Supabase key can no longer read personal data or write catalogue data.** Previously the key shipped in the browser bundle had table-wide `SELECT` on members (including `work_email`) and transactions, plus `INSERT`/`UPDATE` on companies, members and items – so anyone with the key could read every member's work email and every transaction and corrupt the catalogue. Migration 015 revokes all of that. The anonymous member flow keeps only what it needs: reading active companies/items, reading the non-PII columns (`id, name, company_id, active`) of active members, and inserting its own member row and transactions.
 - **All admin data access now runs server-side through a PIN-protected, service-role API** (`/api/admin/data`). The admin dashboard and the Companies/Items/Members pages no longer query Supabase with the anon key; reads (including work emails) and all catalogue writes are authenticated server-side. Admin writes are now validated on the server (name/price/category/email bounds, company existence). This makes the privacy notice's "only campus admins have access" statement actually enforced by the database.
-- **Anonymous writes are now validated server-side.** Logging and self-registration go through `SECURITY DEFINER` RPCs (`log_order`, `register_member`; migration 017) instead of raw table inserts. The server derives the company and timestamp (no longer trusted from the client), rejects unknown/inactive members and items, bounds each quantity, and enforces the per-order cap — so quantities/timestamps/relationships can no longer be forged and inactive items can't be charged. Migration 018 then removes the direct anon `INSERT` grants, leaving the RPCs as the only write path.
+- **Anonymous writes are now validated server-side.** Logging and self-registration go through `SECURITY DEFINER` RPCs (`log_order`, `register_member`; migration 017) instead of raw table inserts. The server derives the company and timestamp (no longer trusted from the client), rejects unknown/inactive members and items, bounds each quantity, and enforces the per-order cap – so quantities/timestamps/relationships can no longer be forged and inactive items can't be charged. Migration 018 then removes the direct anon `INSERT` grants, leaving the RPCs as the only write path.
 
 #### Fixed
 - **Duplicate orders via „Bestätigen“ → „Rückgängig“ → „Bestätigen“.** The success screen's undo returned to the confirm step but the order had already been written, so re-confirming logged it a second time. „Bestätigen“ now writes the order once through the validated RPC and only then shows „Gespeichert“ (so success is never shown before the data is saved), and „Rückgängig“ genuinely deletes the just-logged rows via `undo_order`. Re-confirming after an undo therefore can't duplicate.
@@ -240,79 +250,79 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 
 ### feat/admin-settings
 
-#### Changed (Admin form primitives — visual & interaction redesign)
+#### Changed (Admin form primitives – visual & interaction redesign)
 - **Send-day picker (`DayGridPicker`)** now shows a plain-language summary line ("Versand am 1. jedes Monats" / "…letzten Tag des Monats"), tactile rounded day cells with a solid-amber selected state, and a distinct "Letzter Tag des Monats" row with a calendar glyph and a confirmation check.
 - **PIN entry (`PinInput`)** now has a blinking caret in the active slot, dots/digits that pop in as you type, a shake on a wrong PIN, and revealed reset-codes rendered in **JetBrains Mono**.
 - **Template fields (`TemplateField`)** now highlight `{platzhalter}` tokens live *inside* the field as amber chips, show the raw token on each insert-chip, and render the "Beispiel" preview in an elevated card with the substituted sample values highlighted.
-- JetBrains Mono is now loaded for monospaced/numeric text (revealed PINs, code columns) — matching the design system's `--font-mono` stack.
+- JetBrains Mono is now loaded for monospaced/numeric text (revealed PINs, code columns) – matching the design system's `--font-mono` stack.
 
-#### Changed (Datenschutzerklärung — production-ready revision)
+#### Changed (Datenschutzerklärung – production-ready revision)
 - The `/datenschutz` page is now more comprehensive and precise for the production deployment: the Arbeits-E-Mail is correctly described as **required** (was "freiwillig"), matching the mandatory self-registration field.
 - Added sections for the **verantwortliche Stelle** (ITC1 GmbH), **Empfänger & Auftragsverarbeiter** (Supabase, Vercel, Resend, incl. non-EU transfer / SCC note), and full **Betroffenenrechte** (Art. 15–21 + Beschwerde beim BayLDA).
 - Corrected the localStorage disclosure (last-used company **and** light/dark preference) and clarified stammdaten vs. 90-day archive retention. Stand updated to Juli 2026.
 
 #### Fixed
 - **PIN reset now recognizes server admins from `ADMIN_EMAIL` even after custom report recipients are configured**, so those admins still receive their one-time recovery code.
-- **"Namen hinzufügen" (member self-registration) inputs were white in dark mode** — the Vorname/Nachname/Arbeits-E-Mail fields had no background and fell back to the browser default. They now use the themed inset (`bg-surface-2`, focus lifts to `bg-surface`) like the other form fields.
+- **"Namen hinzufügen" (member self-registration) inputs were white in dark mode** – the Vorname/Nachname/Arbeits-E-Mail fields had no background and fell back to the browser default. They now use the themed inset (`bg-surface-2`, focus lifts to `bg-surface`) like the other form fields.
 
 #### Changed
-- Member self-registration ("Namen hinzufügen") now requires **Vorname, Nachname and Arbeits-E-Mail** (with email-format validation) — matching the admin-side member form, so every self-added member is reachable for the monthly statement.
+- Member self-registration ("Namen hinzufügen") now requires **Vorname, Nachname and Arbeits-E-Mail** (with email-format validation) – matching the admin-side member form, so every self-added member is reachable for the monthly statement.
 
-#### Added (theming foundation — dark mode)
+#### Added (theming foundation – dark mode)
 - **The whole app now supports Light / Dark / System.** Colors are driven by semantic CSS-variable tokens (`--bg`, `--surface`, `--fg`, `--accent`, …) mapped into Tailwind; a `ThemeProvider` resolves the mode, persists a per-device choice, and follows the OS in "System".
 - **Appearance mode is a single global admin setting** (Settings → Erscheinungsbild → Standard-Modus): „Hell"/„Dunkel" force that appearance for everyone (members and admins); „System" follows each device's OS. There is no per-device switcher.
 - The app logo and the landing/empty illustrations now recolor with the theme (inlined as `currentColor` SVGs instead of static `<img>`s).
-- **Admin "Erscheinungsbild" settings:** set the app's default mode (Hell/Dunkel/System) and pick a **brand palette** — three presets (Standard-Amber, ITC1, Wald) plus **three custom palettes**, each with its own light and dark accent colour. Selecting/editing previews instantly; "Speichern" applies it app-wide (member flow + admin) for everyone. Stored in a new public `app_theme` table.
-- **Report and statement emails now use the brand-palette accent** (light variant — email dark-mode is unreliable). The separate accent picker in "Berichts-Format" is removed; the email accent follows the palette under "Erscheinungsbild".
+- **Admin "Erscheinungsbild" settings:** set the app's default mode (Hell/Dunkel/System) and pick a **brand palette** – three presets (Standard-Amber, ITC1, Wald) plus **three custom palettes**, each with its own light and dark accent colour. Selecting/editing previews instantly; "Speichern" applies it app-wide (member flow + admin) for everyone. Stored in a new public `app_theme` table.
+- **Report and statement emails now use the brand-palette accent** (light variant – email dark-mode is unreliable). The separate accent picker in "Berichts-Format" is removed; the email accent follows the palette under "Erscheinungsbild".
 - The **browser tab favicon and theme-colour now follow the active brand palette** (generated at runtime from the accent). The installed PWA home-screen icon stays static.
-- Light mode is visually unchanged — the light token values equal the previous stone/amber palette.
+- Light mode is visually unchanged – the light token values equal the previous stone/amber palette.
 
 #### Changed (Report-Format & Automatic-dispatch redesign)
 - **Send day is now a calendar-style grid** (1–28 + „Letzter Tag des Monats") instead of a dropdown.
 - **Subject/intro fields gained placeholder chips and a live example:** click `{monat}` / `{jahr}` / `{name}` / `{gesamt}` to insert them at the cursor, with a "Beispiel:" line showing the resolved text as you type. New `{jahr}` and `{gesamt}` placeholders (member total) are supported.
-- **Fixed:** report previews (and a real send with a blank field) no longer show the literal word "null" — an empty subject/intro now correctly falls back to the built-in default.
+- **Fixed:** report previews (and a real send with a blank field) no longer show the literal word "null" – an empty subject/intro now correctly falls back to the built-in default.
 
 #### Changed (PIN recovery moved to the login page)
 - **Self-service PIN reset is now on the `/admin` login screen**, not inside Settings. After 5 failed PIN attempts the keypad locks and the recovery flow opens (also reachable anytime via a "PIN vergessen?" link).
-- Recovery now asks for **your** admin email and sends the one-time code **only to that address** (if it's on the admin list), instead of broadcasting to all recipients — so a locked-out admin can regain access even when they didn't receive a shared PIN. The email instructs setting a fresh PIN immediately; entering the code + a new PIN logs you straight in.
+- Recovery now asks for **your** admin email and sends the one-time code **only to that address** (if it's on the admin list), instead of broadcasting to all recipients – so a locked-out admin can regain access even when they didn't receive a shared PIN. The email instructs setting a fresh PIN immediately; entering the code + a new PIN logs you straight in.
 - The `ADMIN_RECOVERY_PIN` server backstop still works in the same code field when email is unavailable.
 - Removed the now-redundant "PIN zurücksetzen" flow from the Settings page (it keeps "PIN ändern" for logged-in changes).
 
 #### Added (report scheduling, format & preview)
-- **Automatic report schedule control** — a Settings card to turn the month-end automatic send on/off and choose the send day (a specific 1.–28. or the last day of the month). The cron now runs daily and the function enforces the chosen day.
-- **Light report-format customization** — accent colour, email subject and intro text (with `{monat}` / `{name}` placeholders), and per-report attachment toggles (attach PDF and/or Excel to the company report), applied to both the company report and the member statement
-- **Report preview** — "Vorschau" opens the company report (admin + CEO) and the member statement rendered exactly as they'll be sent, reflecting your current unsaved edits; uses this month's real data or a small sample when the month is empty
+- **Automatic report schedule control** – a Settings card to turn the month-end automatic send on/off and choose the send day (a specific 1.–28. or the last day of the month). The cron now runs daily and the function enforces the chosen day.
+- **Light report-format customization** – accent colour, email subject and intro text (with `{monat}` / `{name}` placeholders), and per-report attachment toggles (attach PDF and/or Excel to the company report), applied to both the company report and the member statement
+- **Report preview** – "Vorschau" opens the company report (admin + CEO) and the member statement rendered exactly as they'll be sent, reflecting your current unsaved edits; uses this month's real data or a small sample when the month is empty
 - Report recipients now also show the `ADMIN_EMAIL` env fallback as read-only "Server" chips so you can see who currently receives reports before configuring your own list
 
 #### Database
-- Migration 013 — `app_settings` gains `auto_report_enabled`, `auto_report_day`, `report_accent`, `report_subject`, `report_intro`, `report_include_pdf`, `report_include_excel`, `member_subject`, `member_intro` (all with safe defaults)
+- Migration 013 – `app_settings` gains `auto_report_enabled`, `auto_report_day`, `report_accent`, `report_subject`, `report_intro`, `report_include_pdf`, `report_include_excel`, `member_subject`, `member_intro` (all with safe defaults)
 
 #### Added
-- **Admin Settings page** (replaces the placeholder): manage report recipients (add/remove with inline validation and an empty-state warning), the CEO/Geschäftsführung CC address and its toggle, and the per-member monthly-statement toggle — all saved together via a "Speichern" bar
+- **Admin Settings page** (replaces the placeholder): manage report recipients (add/remove with inline validation and an empty-state warning), the CEO/Geschäftsführung CC address and its toggle, and the per-member monthly-statement toggle – all saved together via a "Speichern" bar
 - **6-digit admin PIN with self-service change & reset**:
-  - "PIN ändern" — verify the current PIN and set a new 6-digit PIN (segmented PIN entry, confirm field)
-  - "PIN zurücksetzen" — two-step flow: email a one-time code to the report recipients + CEO, or use the server-side emergency recovery PIN, then set a new PIN
+  - "PIN ändern" – verify the current PIN and set a new 6-digit PIN (segmented PIN entry, confirm field)
+  - "PIN zurücksetzen" – two-step flow: email a one-time code to the report recipients + CEO, or use the server-side emergency recovery PIN, then set a new PIN
   - The login keypad now renders the PIN length reported by the server (6 by default) instead of a fixed 4 digits
-- **CEO copied on every monthly report** — the configured CEO address is CC'd on both the manual send and the month-end cron when the toggle is on
-- **Per-member monthly statement email** — each person who consumed that month and has a work e-mail receives their own warm, itemized statement (date, item, quantity, unit price, amount, total) in addition to the company report; can be turned off in Settings
+- **CEO copied on every monthly report** – the configured CEO address is CC'd on both the manual send and the month-end cron when the toggle is on
+- **Per-member monthly statement email** – each person who consumed that month and has a work e-mail receives their own warm, itemized statement (date, item, quantity, unit price, amount, total) in addition to the company report; can be turned off in Settings
 
 #### Changed
 - Report recipients now come from the Settings page (`app_settings.report_recipients`); `ADMIN_EMAIL` is used only as a bootstrap fallback when the list is empty
 - `/api/send-report` and `/api/admin/verify-pin` now authenticate against the hashed PIN in the database, falling back to `ADMIN_PIN` only until a PIN is set from the dashboard
 
 #### Database
-- Migration 012 — `pgcrypto`-backed, service-role-only functions for verifying/setting the PIN and for issuing/consuming one-time PIN-reset codes (hashes only; clear PIN/codes are never stored)
+- Migration 012 – `pgcrypto`-backed, service-role-only functions for verifying/setting the PIN and for issuing/consuming one-time PIN-reset codes (hashes only; clear PIN/codes are never stored)
 
 
 ### feat/itc1-production-prep
 
 #### Added
 - Mandatory fields when adding a member: Vorname, Nachname, Arbeits-E-Mail and Unternehmen are now all required (with email-format validation), so every member is reachable for the upcoming per-member monthly statement
-- `docs/phase-2-production.md` — the plan for moving off the hackathon demo onto an ITC1 production deployment (data reset, 6-digit PIN management, CEO report CC, per-member statements, expanded admin settings), with a migration runbook
+- `docs/phase-2-production.md` – the plan for moving off the hackathon demo onto an ITC1 production deployment (data reset, 6-digit PIN management, CEO report CC, per-member statements, expanded admin settings), with a migration runbook
 
 #### Database (not user-visible until features ship)
-- `app_settings` table (migration 010) — single-row admin config: hashed 6-digit PIN, email-based PIN reset token, report recipients, CEO CC, and feature toggles; service-role only
-- `members.work_email` becomes mandatory (migration 011, guarded — apply after the demo data is cleared)
+- `app_settings` table (migration 010) – single-row admin config: hashed 6-digit PIN, email-based PIN reset token, report recipients, CEO CC, and feature toggles; service-role only
+- `members.work_email` becomes mandatory (migration 011, guarded – apply after the demo data is cleared)
 - `supabase/maintenance/clear_demo_data.sql` to wipe demo data and `supabase/seed_production.template.sql` to seed the real campus data (run manually)
 
 
@@ -320,20 +330,20 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 
 #### Added
 - Admin form primitives so the design system covers inputs (previously every form used ad-hoc markup):
-  - `AdminField` — labelled text/number/email input with `form` and compact `filter` variants, optional leading icon, hint/error text, and a required-field asterisk
-  - `AdminSelect` — labelled select with the same `form`/`filter` variants and `options` prop
-  - `Toggle` — accessible on/off switch (replaces the bare active/inactive checkboxes)
-  - `Toast` — extracted the bottom-right notification into a reusable component (`success`/`error`)
-  - `EmptyState` — extracted the empty-table illustration block into a reusable component
+  - `AdminField` – labelled text/number/email input with `form` and compact `filter` variants, optional leading icon, hint/error text, and a required-field asterisk
+  - `AdminSelect` – labelled select with the same `form`/`filter` variants and `options` prop
+  - `Toggle` – accessible on/off switch (replaces the bare active/inactive checkboxes)
+  - `Toast` – extracted the bottom-right notification into a reusable component (`success`/`error`)
+  - `EmptyState` – extracted the empty-table illustration block into a reusable component
 
 #### Changed
-- Admin pages (Übersicht/Einträge log, Unternehmen, Mitarbeitende, Items) now build their filter bars and modal forms from the new primitives — visually unchanged, with active/inactive now shown as a toggle and required fields marked with an asterisk
+- Admin pages (Übersicht/Einträge log, Unternehmen, Mitarbeitende, Items) now build their filter bars and modal forms from the new primitives – visually unchanged, with active/inactive now shown as a toggle and required fields marked with an asterisk
 
 
 ### hotfix/unified-logo
 
 #### Added
-- `apps/web/public/logo.svg`: amber rounded-square app icon built from the same cappuccino-with-steam paths (white stroke) — used only where a solid-background icon is required (favicon, PWA install)
+- `apps/web/public/logo.svg`: amber rounded-square app icon built from the same cappuccino-with-steam paths (white stroke) – used only where a solid-background icon is required (favicon, PWA install)
 - `tools/generate-icons.mjs`: renders `logo.svg` via Puppeteer + local Chrome to produce correctly sized PWA PNGs
 
 #### Changed
@@ -341,14 +351,14 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - `pwa-192x192.png` / `pwa-512x512.png`: regenerated from `logo.svg`
 - `index.html`: added `<link rel="apple-touch-icon">` pointing at `pwa-192x192.png` for iOS home-screen installs
 - `vite.config.ts`: fixed `includeAssets` to reference files that actually exist on disk
-- PDF report header: cappuccino-with-steam SVG paths inlined directly in the amber band with `stroke="white"` — the illustration appears as-is beside the "Kaffeelisten" wordmark, no square background
+- PDF report header: cappuccino-with-steam SVG paths inlined directly in the amber band with `stroke="white"` – the illustration appears as-is beside the "Kaffeelisten" wordmark, no square background
 - Email HTML: cappuccino-with-steam SVG embedded as a `data:image/svg+xml;base64` `<img>` in the email body (stone-700 stroke on white background, above the summary table); SVG inline tags are stripped by major email clients so base64 `<img>` is used instead
 
 
 ### feat/gdpr-notice
 
 #### Added
-- `/datenschutz` — German GDPR notice page explaining what data is collected, why, retention period (90 days), who has access (admin only), how to request deletion, and confirmation that no tracking cookies or analytics are used
+- `/datenschutz` – German GDPR notice page explaining what data is collected, why, retention period (90 days), who has access (admin only), how to request deletion, and confirmation that no tracking cookies or analytics are used
 - Start screen footer: "Datenschutz" link opens `/datenschutz`; built on the same `FlowShell` wrapper with amber accent styling and a back-to-home chevron
 
 
@@ -358,10 +368,10 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - `supabase/seeds/002_demo_data.sql`: full ITC1 Deggendorf demo dataset
   - **28 companies**: 20 Gewerbepark established tenants (4process AG, ADLINK Technology, B-plus GmbH, fivefingergames, Level51, Medtronic, TÜV NORD Diagnostics, etc.) + 8 Gründerzentrum startups (Career Captain, Quimedo, MOVEMASTER, The Blockchain Academy, etc.)
   - **239 members**: 10–12 per established company, 2–5 per startup; realistic German names with `vorname.nachname@company-domain` work emails
-  - **12 items**: Filterkaffee, Espresso, Cappuccino, Latte Macchiato, Wasser, Cola, Radler, Apfelsaft, Donut, Croissant, Brezel, Müsliriegel — with correct categories and prices
+  - **12 items**: Filterkaffee, Espresso, Cappuccino, Latte Macchiato, Wasser, Cola, Radler, Apfelsaft, Donut, Croissant, Brezel, Müsliriegel – with correct categories and prices
   - **391 transactions**: May 2026 (7 working days); 78 % member attendance; first transaction per member always coffee; morning-biased timestamps
 - Company selector: colored letter-band chevrons for faster visual scanning when scrolling through a long company list
-- "Meine Firma" shortcut: appears on the start/company screen when 90 %+ of recent on-device selections (localStorage) are the same company — one tap skips the company step entirely
+- "Meine Firma" shortcut: appears on the start/company screen when 90 %+ of recent on-device selections (localStorage) are the same company – one tap skips the company step entirely
 
 #### Fixed
 - TÜV NORD Diagnostics GmbH: corrected garbled `Ü` encoding in the database (was stored as mojibake from the initial seed run)
@@ -391,8 +401,8 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 ### feat/send-report-pdf-mobile ([PR #7](https://github.com/arudaev/kaffeelisten/pull/7))
 
 #### Added
-- `/api/send-report` — PIN-protected POST endpoint; accepts `month` body param; generates PDF + Excel, sends both via Resend, archives to `transactions_archive`
-- `/api/cron/monthly-report` — Vercel Cron wrapper (schedule `0 22 28-31 * *`); verifies `Authorization: Bearer {CRON_SECRET}`; last-day-of-month guard prevents false fires
+- `/api/send-report` – PIN-protected POST endpoint; accepts `month` body param; generates PDF + Excel, sends both via Resend, archives to `transactions_archive`
+- `/api/cron/monthly-report` – Vercel Cron wrapper (schedule `0 22 28-31 * *`); verifies `Authorization: Bearer {CRON_SECRET}`; last-day-of-month guard prevents false fires
 - PDF report: flat amber-600 header, white KPI strip (entries, total, consumers, companies), company overview table, per-company member breakdown; generated via puppeteer + `@sparticuz/chromium-min`
 - Excel report (`.xlsx`, 3 sheets): `Zusammenfassung` (company totals), `Pro Unternehmen` (member breakdown with subtotals), `Alle Einträge` (full log); brand-styled headers via `exceljs`
 - Email body includes summary metrics and per-company breakdown; attachments named `kaffeelisten-YYYY-MM.pdf/.xlsx`
@@ -404,7 +414,7 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - Vercel Cron was checking `x-cron-secret` but Vercel sends `Authorization: Bearer`; corrected
 - Excel headers were unstyled because `eachCell` skips not-yet-created cells; switched to explicit `addRow()` + index-based styling
 - Excel file triggered "repair" dialog in desktop Excel due to missing `bgColor` on fill definitions; added
-- Replaced `xlsx` (SheetJS community — no cell styling) with `exceljs` for brand-styled workbooks
+- Replaced `xlsx` (SheetJS community – no cell styling) with `exceljs` for brand-styled workbooks
 - Member item grid collapses to 1 col mobile / 2 col tablet; member name grid starts at 1 col on mobile
 - FlowShell padding reduced on narrow screens; start screen hero and SuccessScreen scale down on mobile
 
@@ -415,9 +425,9 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - Admin Items page: full table (name, category, unit, price, status badge) with add/edit modal and toggle-active; name search, category filter, status filter, sort by name/price/category
 - Admin Companies page: full table with add/edit modal and toggle-active; status filter, name A→Z/Z→A sort
 - Admin Members page: full table with company join, add/edit modal, toggle-active; name search, company filter, status filter, sort by name or company
-- Log page: client-side filter bar — company dropdown, name search, item dropdown, date sort direction toggle; results count shown live
-- Log page: CSV export — UTF-8 BOM CSV, semicolon-delimited, German decimal format
-- Sidebar: distinct icons for Unternehmen (building) and Mitarbeitende (users) — previously both used the report icon
+- Log page: client-side filter bar – company dropdown, name search, item dropdown, date sort direction toggle; results count shown live
+- Log page: CSV export – UTF-8 BOM CSV, semicolon-delimited, German decimal format
+- Sidebar: distinct icons for Unternehmen (building) and Mitarbeitende (users) – previously both used the report icon
 - Supabase migration 005: anon `INSERT`/`UPDATE` grants and RLS policies for companies, members, items
 
 #### Fixed
@@ -431,27 +441,27 @@ _First production release for the ITC1 Deggendorf campus. Consolidates all devel
 - Full member-facing UI from design bundle: warm stone/amber palette, Bavarian motifs, SVG illustrations
 - PWA manifest with correct `lang: "de"`, theme colour, and icon set (192×192, 512×512, maskable)
 - Favicon and apple-touch-icon in `apps/web/public/`
-- `apps/web/vercel.json` SPA rewrite rule — fixes 404 on hard refresh to any non-root route
+- `apps/web/vercel.json` SPA rewrite rule – fixes 404 on hard refresh to any non-root route
 - Admin dashboard: transaction log table, company-level summary cards, PIN keypad
 - Supabase migration 002: explicit `GRANT SELECT/INSERT` for anon and authenticated roles (PostgREST requires this in addition to RLS policies)
-- Supabase migration 003: `anon_read_transactions` SELECT policy — admin dashboard was always showing zero entries without it
-- Supabase migration 004: `anon INSERT` on members + `anon_insert_members` RLS policy — required for member self-registration
+- Supabase migration 003: `anon_read_transactions` SELECT policy – admin dashboard was always showing zero entries without it
+- Supabase migration 004: `anon INSERT` on members + `anon_insert_members` RLS policy – required for member self-registration
 - Member self-registration in the name-selection step: inline modal, name standardised as "Vorname N." with automatic disambiguation to more letters when the same initial already exists in the company roster
 - Multi-item cart in the item step: each `ItemCard` has inline `−`/`+` quantity controls; all items are batch-inserted as separate transaction rows on confirm
 - PRD open question 2 resolved: members log multiple items per session
 
 #### Fixed
-- Back button on the item step now clears cart and resets member selection — previously left stale state that caused the confirm screen to render incorrectly
+- Back button on the item step now clears cart and resets member selection – previously left stale state that caused the confirm screen to render incorrectly
 - ESLint config (`apps/web/.eslintrc.cjs`) was deleted by the design-implementation commit; restored to fix `npm run lint` in CI
 - PWA manifest `lang` defaulted to `"en"`; set to `"de"` to suppress browser auto-translation
 
 ---
 
-## [0.1.0] — Initial scaffold (2026-05-08)
+## [0.1.0] – Initial scaffold (2026-05-08)
 
 ### Added
 - Initial repo scaffold with Vite + React + TypeScript + Tailwind
-- npm workspaces monorepo — root `package.json` proxies `dev`, `build`, `lint`, `typecheck` to `apps/web`
+- npm workspaces monorepo – root `package.json` proxies `dev`, `build`, `lint`, `typecheck` to `apps/web`
 - Supabase schema: companies, members, items, transactions, transactions_archive
 - Row-Level Security policies and GRANT statements for anon/authenticated roles
 - Dev seed data for ITC1 campus (companies, members, items)

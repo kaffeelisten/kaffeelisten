@@ -2,13 +2,13 @@
 //
 // Vercel counts every file under api/ as its own function, and the Hobby plan
 // allows twelve per deployment. Ten separate admin routes put the application
-// at fifteen, which meant it could not build on a free team at all — so the
+// at fifteen, which meant it could not build on a free team at all – so the
 // public demo was impossible and any instance needed a paid plan before it
 // could serve a single request.
 //
 // The handlers themselves are unchanged. They moved to api/_lib/admin (an
 // underscore directory is not a route) and this file dispatches to them by the
-// first path segment, so every client URL — /api/admin/data, /api/admin/theme —
+// first path segment, so every client URL – /api/admin/data, /api/admin/theme –
 // is exactly what it was.
 //
 // Adding an admin endpoint means adding a module there and a line to ROUTES.
@@ -64,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const route = key ? ROUTES[key] : undefined
 
   if (!route) {
-    // Never echo the requested path back — it is attacker-controlled input.
+    // Never echo the requested path back – it is attacker-controlled input.
     return res.status(404).json({ error: 'Unknown admin endpoint' })
   }
 

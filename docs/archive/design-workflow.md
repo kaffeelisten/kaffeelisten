@@ -1,7 +1,7 @@
-# Design Workflow — Kaffeelisten (archived)
+# Design Workflow – Kaffeelisten (archived)
 
 > **Archived (2026-07):** hackathon-era, one-time setup guide for the initial
-> claude.ai/design session. It no longer reflects how the app is built — the UI is
+> claude.ai/design session. It no longer reflects how the app is built – the UI is
 > now developed in code against [`../design-system.md`](../design-system.md) and its
 > semantic token system. Kept for historical reference only.
 
@@ -11,7 +11,7 @@ Use this workflow when creating or iterating on the Kaffeelisten UI.
 
 ## When to run this
 
-**Block 1 of the hackathon sprint — in parallel with infra setup (14:00–16:00, Fri May 8).**
+**Block 1 of the hackathon sprint – in parallel with infra setup (14:00–16:00, Fri May 8).**
 
 Do not wait until after the member flow is built. The design system needs to exist before components are written, so the output directly informs the Tailwind config and component structure. One person sets up Supabase/Vercel while the other runs this session.
 
@@ -19,17 +19,17 @@ Do not wait until after the member flow is built. The design system needs to exi
 
 **Company name and blurb:**
 ```
-Kaffeelisten — digital coffee and snack consumption logger for ITC1 Deggendorf 
+Kaffeelisten – digital coffee and snack consumption logger for ITC1 Deggendorf 
 campus. A PWA used on a wall-mounted iPad and any browser. Two surfaces: 
-(1) member logging flow — company → member → item → confirm, completed in under 
-15 seconds, zero friction; (2) admin panel — monthly transaction report, PIN-
+(1) member logging flow – company → member → item → confirm, completed in under 
+15 seconds, zero friction; (2) admin panel – monthly transaction report, PIN-
 protected, professional internal tool. Warm, minimal, readable. Bavarian Wald 
 and campus atmosphere. German-first UI copy. Coffee as a playful motif.
 ```
 
 **notes:**
 ```
-Design tokens are pre-specified in docs/design-system.md — use those as the 
+Design tokens are pre-specified in docs/design-system.md – use those as the 
 starting point. Stone/amber/white palette. Inter font. Member flow needs large 
 tap targets (min 44px) and min 18px text for wall-mount readability. Admin panel 
 uses standard product text sizes. One-line SVG illustrations for spot art. 
@@ -58,7 +58,7 @@ Choose the direction that best combines warm minimalism, German-campus professio
 
 Generate the member-facing screen set before the admin panel. It is the primary surface and the pitch demo centerpiece.
 
-Run the "Member flow — full screen set" prompt.
+Run the "Member flow – full screen set" prompt.
 
 Review checklist:
 - [ ] Company tiles are large enough to tap without precision
@@ -74,7 +74,7 @@ Review checklist:
 
 ## Step 3: Admin panel
 
-Run the "Admin panel — full screen set" prompt.
+Run the "Admin panel – full screen set" prompt.
 
 Review checklist:
 - [ ] Dashboard summary cards give a clear month-to-date picture at a glance
@@ -90,12 +90,12 @@ Review checklist:
 
 Run the "Landing page (pitch surface)" prompt.
 
-This screen is for the hackathon pitch — it should sell the product story to mentors and judges in 30 seconds.
+This screen is for the hackathon pitch – it should sell the product story to mentors and judges in 30 seconds.
 
 Review checklist:
-- [ ] Problem is stated in the hero — a person who sees this immediately understands what pain it solves
+- [ ] Problem is stated in the hero – a person who sees this immediately understands what pain it solves
 - [ ] Solution is shown visually (3-step flow)
-- [ ] Custom SVG illustration in the hero — not a stock image
+- [ ] Custom SVG illustration in the hero – not a stock image
 - [ ] Tech stack section is honest and concise (free tier, low maintenance)
 - [ ] "Zukunft" section teases the roadmap without over-promising
 - [ ] German copy is pitch-quality (Fares to review)
@@ -142,7 +142,7 @@ assets/generated/
   illustrations/           Spot illustration SVGs
 ```
 
-Use clear version numbers. Do not overwrite an existing export — increment the version.
+Use clear version numbers. Do not overwrite an existing export – increment the version.
 
 ---
 
@@ -152,4 +152,4 @@ Use clear version numbers. Do not overwrite an existing export — increment the
 - If something feels wrong, identify the specific rule it breaks (from design-foundation.md) before changing anything.
 - German copy changes must be reviewed by Fares before export.
 - Do not add new screens during the hackathon sprint unless a P0 requirement is uncovered.
-- Quality over quantity — one strong member flow beats five mediocre screens.
+- Quality over quantity – one strong member flow beats five mediocre screens.

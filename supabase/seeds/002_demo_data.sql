@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Kaffeelisten — ITC1 Deggendorf demo seed data
+-- Kaffeelisten – ITC1 Deggendorf demo seed data
 -- File: supabase/seeds/002_demo_data.sql
 --
 -- Run this against the Supabase project to populate realistic demo data.
@@ -8,7 +8,7 @@
 -- Companies:    28  (20 Gewerbepark established + 8 Gründerzentrum startups)
 -- Members:    ~239  (10–12 per established company, 2–5 per startup)
 -- Items:        12  (4 coffee, 4 drinks, 4 snacks/food)
--- Transactions: ~350 (May 2026 — 7 working days, 1–3 per member, first always coffee)
+-- Transactions: ~350 (May 2026 – 7 working days, 1–3 per member, first always coffee)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -25,7 +25,7 @@ DELETE FROM companies;
 --   Gewerbepark (established): 01–20  |  Gründerzentrum (startups): 21–28
 
 INSERT INTO companies (id, name, active) VALUES
-  -- Gewerbepark — established tenants
+  -- Gewerbepark – established tenants
   ('00000000-0000-0000-0002-000000000001', '4process AG',                    true),
   ('00000000-0000-0000-0002-000000000002', 'ADLINK Technology GmbH',         true),
   ('00000000-0000-0000-0002-000000000003', 'bildschnitt TV',                 true),
@@ -46,7 +46,7 @@ INSERT INTO companies (id, name, active) VALUES
   ('00000000-0000-0000-0002-000000000018', 'Pellucere Technologies GmbH',    true),
   ('00000000-0000-0000-0002-000000000019', 'TG alpha GmbH',                  true),
   ('00000000-0000-0000-0002-000000000020', 'TÜV NORD Diagnostics GmbH',      true),
-  -- Gründerzentrum — startups
+  -- Gründerzentrum – startups
   ('00000000-0000-0000-0002-000000000021', 'Career Captain GmbH',            true),
   ('00000000-0000-0000-0002-000000000022', 'malmachen GbR',                  true),
   ('00000000-0000-0000-0002-000000000023', 'PBI Planung Bau Innovation GmbH',true),
@@ -84,7 +84,7 @@ INSERT INTO items (id, name, unit_label, price_cents, category, active) VALUES
 -- Deterministic via setseed(0.271828).
 -- Established companies (idx 1–20): 10–12 members each.
 -- Startups (idx 21–28): 2–5 members each.
--- Emails: lowercase(first).(last)@domain — umlauts transliterated.
+-- Emails: lowercase(first).(last)@domain – umlauts transliterated.
 
 DO $$
 DECLARE
@@ -133,7 +133,7 @@ DECLARE
     'careercaptain.de',      'malmachen.de',          'pbi-deggendorf.de',    'dalion.de',
     'movemaster.de',         'quimedo.de',            'sm-theresia.de',       'blockchain-academy.de'
   ];
-  -- 20 male + 20 female first names — common German, no umlauts for clean emails
+  -- 20 male + 20 female first names – common German, no umlauts for clean emails
   v_m text[] := ARRAY[
     'Alexander','Andreas','Christian','Daniel','Felix',
     'Florian','Jan','Jonas','Klaus','Lukas',
@@ -146,7 +146,7 @@ DECLARE
     'Lisa','Maria','Marie','Miriam','Nina',
     'Sandra','Sarah','Sophie','Stephanie','Lena'
   ];
-  -- 35 surnames — no umlauts so emails stay clean
+  -- 35 surnames – no umlauts so emails stay clean
   v_s text[] := ARRAY[
     'Bauer','Berger','Braun','Fischer','Franke',
     'Hartmann','Herrmann','Hoffmann','Huber','Klein',
@@ -209,7 +209,7 @@ DECLARE
     '00000000-0000-0000-0001-000000000012'::uuid    -- Müsliriegel
   ];
   v_days  date[] := ARRAY[
-    '2026-05-01'::date,   -- Fr  (Tag der Arbeit — light attendance)
+    '2026-05-01'::date,   -- Fr  (Tag der Arbeit – light attendance)
     '2026-05-04'::date,   -- Mo
     '2026-05-05'::date,   -- Di
     '2026-05-06'::date,   -- Mi

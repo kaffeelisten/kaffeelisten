@@ -1,15 +1,15 @@
-# claude.ai/design — prompts
+# claude.ai/design – prompts
 
 > **Status (2026-07):** The original Phase 2 screens (Settings page, PIN flows,
 > 6-digit login, member statement email) were designed via claude.ai/design and
-> have **shipped** — see [`phase-2-design-brief.md`](phase-2-design-brief.md) for
+> have **shipped** – see [`phase-2-design-brief.md`](phase-2-design-brief.md) for
 > what was delivered. The historical prompt is kept at the bottom for reference.
 > The app is now built directly in code against the semantic token system in
 > [`../design-system.md`](../design-system.md); a claude.ai/design pass is optional.
 
 ---
 
-## Current prompt — appearance & themable Settings (if you want a design pass)
+## Current prompt – appearance & themable Settings (if you want a design pass)
 
 Use this only if you want fresh visual exploration of the newer surfaces. The app
 already implements all of it; this is for iterating on look, not net-new screens.
@@ -36,11 +36,11 @@ already implements all of it; this is for iterating on look, not net-new screens
 > German copy, no emojis, money as `€ 4,80`. Use the semantic tokens (surfaces,
 > borders, accent) so everything works in light and dark. Extend the existing
 > component vocabulary (cards, labelled inputs, toggles, segmented controls, chips,
-> preview cards) — don't reinvent it.
+> preview cards) – don't reinvent it.
 
 ---
 
-## Historical prompt (Phase 2 — already shipped)
+## Historical prompt (Phase 2 – already shipped)
 
 > Design the **admin Settings page** for **Kaffeelisten**, a warm, minimal
 > German-language PWA that replaces the paper coffee-consumption sheet at the ITC1
@@ -50,6 +50,6 @@ already implements all of it; this is for iterating on look, not net-new screens
 >
 > Settings cards: **Berichts-Empfänger** (removable chips + validated add; empty
 > state), **Geschäftsführung (CEO)** (email + "in CC" toggle), **Mitglieder-
-> Monatsbericht** (toggle), **Sicherheit — Admin-PIN** (6-stellig; ändern / zurücksetzen),
+> Monatsbericht** (toggle), **Sicherheit – Admin-PIN** (6-stellig; ändern / zurücksetzen),
 > **Bericht-Status** (read-only). Plus: PIN-ändern modal, 2-step PIN-reset flow,
 > 6-digit login keypad with error-shake, and the per-member statement email.

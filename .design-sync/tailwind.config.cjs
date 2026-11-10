@@ -20,7 +20,7 @@ module.exports = {
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
       colors: {
-        // Semantic, theme-driven tokens — mirrors apps/web/tailwind.config.ts.
+        // Semantic, theme-driven tokens – mirrors apps/web/tailwind.config.ts.
         // The channel-triplet CSS vars ship via .design-sync/tailwind.css.
         bg: token('bg'),
         surface: {

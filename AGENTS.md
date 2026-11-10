@@ -1,4 +1,4 @@
-# AGENTS.md — Kaffeelisten
+# AGENTS.md – Kaffeelisten
 
 Canonical context file for every coding agent (Codex, Claude Code, others). `CLAUDE.md` imports this file; edit rules here, not there. Read this before touching any file.
 
@@ -12,7 +12,7 @@ Originally built for the Kaffeelisten Challenge ITC1 at the B4Y3RW4LD Hackathon 
 
 - **Frontend:** React 18 + Vite + TypeScript, Tailwind CSS
 - **PWA:** vite-plugin-pwa (Workbox)
-- **Database:** Supabase (PostgreSQL) — separate **production** and **staging** projects, see `docs/environments.md`
+- **Database:** Supabase (PostgreSQL) – separate **production** and **staging** projects, see `docs/environments.md`
 - **Hosting:** Vercel (Pro team `arudaev-projects`, project `kaffeelisten`)
 - **Email:** Resend. The free tier (100/day, 3 000/mo) cannot carry a monthly run of ~300 emails; production needs Pro (no daily limit). See `docs/environments.md`.
 - **Cron:** Vercel Cron Jobs (fires monthly report if admin forgets)
@@ -20,9 +20,9 @@ Originally built for the Kaffeelisten Challenge ITC1 at the B4Y3RW4LD Hackathon 
 ## Repo layout
 
 ```
-apps/web/         React PWA — all frontend code lives here
+apps/web/         React PWA – all frontend code lives here
 supabase/         SQL migrations and seed
-docs/             PRD, design docs, roadmap — read before designing
+docs/             PRD, design docs, roadmap – read before designing
 .github/          CI workflow and issue templates
 ```
 
@@ -35,15 +35,28 @@ docs/             PRD, design docs, roadmap — read before designing
 - Serverless functions live in `apps/web/api/` and are deployed by Vercel automatically.
 - The monthly report logic lives in `apps/web/api/_lib/report.ts`; `api/send-report.ts` (manual) and `api/cron/monthly-report.ts` (cron) are thin entry points.
 - Admin PIN is checked server-side only, never exposed to the client bundle.
+- **Never read a table without paging it.** PostgREST stops at `max_rows` (1000) and does
+  not error, so an unbounded `select` on a table that grows returns a first page that code
+  then sums as if it were everything. Use `fetchAllRows` from `api/_lib/paged.ts`, and give
+  the query a unique last sort key so pages do not overlap.
+- **Never type an em dash (U+2014). Use an en dash (`–`, U+2013).** Everywhere: prose,
+  comments, UI copy, commit messages, changelog entries. **Applied migrations are the exception**
+  and are never swept: `supabase/migrations/` and `supabase/tests/` are a record of what ran
+  against production, several of them carry text inside `COMMENT ON … IS '…'` literals, and an
+  immutable file does not get retyped for punctuation. Everything else contains no U+2014, which
+  is what makes the rule checkable:
+  ```bash
+  python -c "import io,subprocess as s; f=s.run(['git','ls-files'],capture_output=True,text=True).stdout.split(); print([x for x in f if chr(0x2014) in io.open(x,encoding='utf-8',errors='ignore').read()])"
+  ```
 
 ## Data model (simplified)
 
 ```sql
-companies   — id, name, active
-members     — id, company_id, name, active
-items       — id, name, unit_label, price_cents, active
-transactions — id, member_id, company_id, item_id, quantity, logged_at
-transactions_archive — same + archived_at, report_month
+companies   – id, name, active
+members     – id, company_id, name, active
+items       – id, name, unit_label, price_cents, active
+transactions – id, member_id, company_id, item_id, quantity, logged_at
+transactions_archive – same + archived_at, report_month
 ```
 
 Full schema: `supabase/migrations/001_initial_schema.sql`
@@ -56,7 +69,7 @@ No login. No account. The flow must complete in under 15 seconds on an iPad.
 
 ## Admin panel
 
-Route: `/admin` — PIN-protected (server-side check via Vercel function).
+Route: `/admin` – PIN-protected (server-side check via Vercel function).
 
 Admin can:
 - View all current-month transactions (table, filterable)
@@ -70,7 +83,7 @@ The visual language is warm, minimal, and grounded in the B4Y3RW4LD / Bavarian W
 
 Key points:
 - German-first UI copy. English only for dev-facing labels and comments.
-- Coffee motifs, one-line SVG illustrations, Bavarian warmth — but professional.
+- Coffee motifs, one-line SVG illustrations, Bavarian warmth – but professional.
 - No emojis in UI.
 - Tailwind color tokens must match the design system defined in `docs/design-system.md`.
 
@@ -80,9 +93,9 @@ Key points:
 - Do not use `any` types in TypeScript.
 - Do not add payment processing (card, SEPA debit, online payment). Billing documents exist, but **invoice mode is legally gated**: it must never be enabled in production until ITC1 gives written authority (`invoice_mode_authorized` + authority note). See `docs/prd-billing-commercial-addendum.md`.
 - Do not build for multiple locations (single ITC1 campus only in v1).
-- Do not use lorem ipsum in UI copy — use realistic German copy.
+- Do not use lorem ipsum in UI copy – use realistic German copy.
 - Do not expose `ADMIN_PIN` or `RESEND_API_KEY` in the client bundle.
-- Do not delete `transactions` records — always archive first, then clear. Never delete from `transactions_archive`; history is kept indefinitely.
+- Do not delete `transactions` records – always archive first, then clear. Never delete from `transactions_archive`; history is kept indefinitely.
 
 
 ## Environments and database migrations
@@ -102,11 +115,11 @@ Full procedure: `docs/environments.md`. The rules every agent follows:
 ### Branching pattern
 
 ```
-main              — production-ready, protected
-hotfix/<slug>     — urgent fixes that go directly to main (e.g. hotfix/ci-working-directory)
-feat/<slug>       — new features (e.g. feat/member-flow)
-fix/<slug>        — non-urgent bug fixes
-chore/<slug>      — tooling, deps, CI, docs (e.g. chore/update-deps)
+main              – production-ready, protected
+hotfix/<slug>     – urgent fixes that go directly to main (e.g. hotfix/ci-working-directory)
+feat/<slug>       – new features (e.g. feat/member-flow)
+fix/<slug>        – non-urgent bug fixes
+chore/<slug>      – tooling, deps, CI, docs (e.g. chore/update-deps)
 ```
 
 Always branch off `main`. Open a PR; never push directly to `main`. Now that the hackathon sprint is over, `main` is treated as production: PRs should be reviewed before merge, and the CI gate must pass. Reserve direct-to-`main` hotfixes for genuine production emergencies, and open a follow-up PR documenting the fix.
@@ -116,7 +129,7 @@ Always branch off `main`. Open a PR; never push directly to `main`. Now that the
 ```
 <type>(<scope>): <short imperative summary>
 
-[optional body — WHY, not WHAT]
+[optional body – WHY, not WHAT]
 ```
 
 Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `ci`  
@@ -135,13 +148,13 @@ chore(deps): bump vite to 5.3
 
 ### Agent workflow
 
-1. **Read first** — always read `AGENTS.md` and the relevant source files before editing.
-2. **Branch** — create a branch with the right prefix before any code change.
-3. **Small commits** — one logical change per commit; commit as soon as a unit of work is done.
-4. **Update CHANGELOG** — before the final commit on every `feat/*`, `fix/*`, or `hotfix/*` branch, add an entry to `CHANGELOG.md` under `[Unreleased]`. List every user-visible addition, fix, or breaking change introduced on that branch. Do not document internal refactors or CI tweaks unless they affect behaviour.
-5. **Check CI** — after pushing, use the authenticated `gh` CLI (`gh run list`, `gh run view --log-failed`) and inspect failures before declaring the task done. Do **not** use the `GITHUB_TOKEN` in `apps/web/.env.local`: it is expired and returns HTTP 401.
-6. **No direct `main` pushes** — open a PR; the CI gate must pass.
-7. **No generated secrets in commits** — `apps/web/.env.local` is gitignored; secrets live there only.
+1. **Read first** – always read `AGENTS.md` and the relevant source files before editing.
+2. **Branch** – create a branch with the right prefix before any code change.
+3. **Small commits** – one logical change per commit; commit as soon as a unit of work is done.
+4. **Update CHANGELOG** – before the final commit on every `feat/*`, `fix/*`, or `hotfix/*` branch, add an entry to `CHANGELOG.md` under `[Unreleased]`. List every user-visible addition, fix, or breaking change introduced on that branch. Do not document internal refactors or CI tweaks unless they affect behaviour.
+5. **Check CI** – after pushing, use the authenticated `gh` CLI (`gh run list`, `gh run view --log-failed`) and inspect failures before declaring the task done. Do **not** use the `GITHUB_TOKEN` in `apps/web/.env.local`: it is expired and returns HTTP 401.
+6. **No direct `main` pushes** – open a PR; the CI gate must pass.
+7. **No generated secrets in commits** – `apps/web/.env.local` is gitignored; secrets live there only.
 8. **Before every commit** run `npm run typecheck`, `npm run typecheck:api`, `npm run lint`, `npm test`, `npm run build` and, when SQL changed, `scripts/test-migrations.sh`.
 
 > **Monorepo note:** This is an npm workspaces repo. Run `npm install` / `npm ci` from the **repo root**, not from `apps/web`. The root `package.json` proxies all scripts (`dev`, `build`, `lint`, `typecheck`) to the workspace. `package-lock.json` lives at the root.
@@ -154,15 +167,15 @@ chore(deps): bump vite to 5.3
 
 When a teammate's agent session starts on a fresh clone:
 
-1. Copy `apps/web/.env.example` to `apps/web/.env.local` and fill in the real values (share via a secure channel — never commit them).
-2. The agent reads `apps/web/.env.local` via the shell automatically — no extra setup needed.
+1. Copy `apps/web/.env.example` to `apps/web/.env.local` and fill in the real values (share via a secure channel – never commit them).
+2. The agent reads `apps/web/.env.local` via the shell automatically – no extra setup needed.
 3. Keys the agent actively uses:
-   - `GITHUB_TOKEN` — **expired (HTTP 401); do not use.** Inspect workflow runs with the authenticated `gh` CLI instead.
-   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — frontend Supabase client (also needed for `vite build` in CI via repo secrets).
-   - `SUPABASE_SERVICE_ROLE_KEY` — only needed if running migration scripts or the report API locally.
-   - `VERCEL_TOKEN` — Vercel CLI (`vercel env`, `vercel dev`, deploy inspection) with `--scope arudaev-projects`.
-   - `SUPABASE_ACCESS_TOKEN` — Supabase Management API: `node scripts/db/migrate.mjs --project-ref <staging ref>` applies migrations to staging; `scripts/db/drift.mjs` compares schemas read-only. The migrator refuses production outside GitHub Actions.
-   - `STAGING_SUPABASE_*` / `PROD_SUPABASE_*` — project URLs and keys. Local runs use the staging values only.
+   - `GITHUB_TOKEN` – **expired (HTTP 401); do not use.** Inspect workflow runs with the authenticated `gh` CLI instead.
+   - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` – frontend Supabase client (also needed for `vite build` in CI via repo secrets).
+   - `SUPABASE_SERVICE_ROLE_KEY` – only needed if running migration scripts or the report API locally.
+   - `VERCEL_TOKEN` – Vercel CLI (`vercel env`, `vercel dev`, deploy inspection) with `--scope arudaev-projects`.
+   - `SUPABASE_ACCESS_TOKEN` – Supabase Management API: `node scripts/db/migrate.mjs --project-ref <staging ref>` applies migrations to staging; `scripts/db/drift.mjs` compares schemas read-only. The migrator refuses production outside GitHub Actions.
+   - `STAGING_SUPABASE_*` / `PROD_SUPABASE_*` – project URLs and keys. Local runs use the staging values only.
 4. The agent must **never** commit `.env.local`, print secret values in responses, or embed them in source files.
 
 ## Useful references

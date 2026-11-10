@@ -1,4 +1,4 @@
-# Phase 2 — ITC1 Production Prep
+# Phase 2 – ITC1 Production Prep
 
 **Status:** planning + scaffolding (branch `feat/itc1-production-prep`)
 **Goal:** move Kaffeelisten off the hackathon footing and onto a maintained
@@ -10,9 +10,9 @@ internal product for the ITC1 Deggendorf campus, ready for an internal demo.
 > its singleton row (`pin_length = 6`, toggles on, `report_recipients = []`,
 > `ceo_email = null`); `members.work_email` is now NOT NULL (present in PostgREST's
 > `required` list); and all data tables (companies, members, items, transactions,
-> transactions_archive) are empty — the demo data is cleared and the DB is ready
+> transactions_archive) are empty – the demo data is cleared and the DB is ready
 > for the real ITC1 seed. **Report recipients now live in `app_settings`, not env**
-> — the `ADMIN_EMAIL` env value is only a bootstrap fallback until the recipient
+> – the `ADMIN_EMAIL` env value is only a bootstrap fallback until the recipient
 > list is filled in from the Settings page (workstream D + F).
 >
 > **Update:** workstreams C–F have since shipped on `feat/admin-settings`, and
@@ -48,7 +48,7 @@ ITC1 asked for more control inside their own product:
 
 | # | What's missing today | What we'll do | Where |
 |---|---|---|---|
-| A | DB is full of demo data + fake prices | Reset script + production seed template | `supabase/maintenance/`, `supabase/seed_production.template.sql` — **Done on this branch** |
+| A | DB is full of demo data + fake prices | Reset script + production seed template | `supabase/maintenance/`, `supabase/seed_production.template.sql` – **Done on this branch** |
 | B | "Add member" only requires first name | All identity fields mandatory (form + DB constraint) | `MembersPage.tsx` **Done**, migration `011` **Done** (apply after reset) |
 | C | PIN is a fixed 4-digit env var, dev-only | 6-digit PIN, hashed in DB, change + reset (email + env backstop) | `app_settings` + PIN functions (migrations `010`/`012` **Done**), API endpoints + keypad **Done on `feat/admin-settings`** |
 | D | Report goes to admin only; recipients hard-coded | CEO CC + editable recipient list, managed in dashboard | `app_settings` **Done**, report logic + Settings UI **Done on `feat/admin-settings`** |
@@ -59,10 +59,10 @@ ITC1 asked for more control inside their own product:
 
 ## 3. Data model changes
 
-### `app_settings` (migration `010_app_settings.sql` — Done)
+### `app_settings` (migration `010_app_settings.sql` – Done)
 
 A **singleton** table (`id = 1` enforced) that moves admin config out of env vars.
-Holds secrets, so it is **service-role only** — RLS is enabled with **no anon
+Holds secrets, so it is **service-role only** – RLS is enabled with **no anon
 policy and no anon grant**. The browser bundle can never read or write it; all
 access goes through the PIN-protected serverless functions using the service-role
 key.
@@ -77,29 +77,29 @@ key.
 | `ceo_email`, `cc_ceo_on_reports` | CEO CC'd on every report when enabled |
 | `member_statements_enabled` | toggle for per-member statements (feature E) |
 
-### `members.work_email` NOT NULL (migration `011_member_fields_required.sql` — Done, apply after reset)
+### `members.work_email` NOT NULL (migration `011_member_fields_required.sql` – Done, apply after reset)
 
 Per-member statements (feature E) require a reachable address, so `work_email`
 becomes mandatory. The migration **guards** against existing NULLs and raises a
-clear error rather than failing on the raw constraint — so it must be applied
+clear error rather than failing on the raw constraint – so it must be applied
 **after** the demo data is cleared or all emails are backfilled (see §7).
 
 ---
 
 ## 4. Workstreams
 
-### A. Data reset & production seed — Done on this branch
+### A. Data reset & production seed – Done on this branch
 
-- `supabase/maintenance/clear_demo_data.sql` — truncates `companies`, `members`,
+- `supabase/maintenance/clear_demo_data.sql` – truncates `companies`, `members`,
   `items`, `transactions`, `transactions_archive` (keeps schema + `app_settings`).
   Destructive; wrapped in a transaction with a post-condition check.
-- `supabase/seed_production.template.sql` — placeholder scaffold to fill with the
+- `supabase/seed_production.template.sql` – placeholder scaffold to fill with the
   real ITC1 companies, members, items + **real prices** (in cents). Joins members
   to companies by name so no UUID juggling.
 - The legacy `supabase/seed.sql` and `supabase/seeds/002_demo_data.sql` remain in
   the repo as dev fixtures but **must not** be run against production.
 
-> ⚠️ The reset has **not** been run against the live Supabase project — it is
+> ⚠️ The reset has **not** been run against the live Supabase project – it is
 > destructive and irreversible. Run it (Studio SQL editor or `psql -f`) once the
 > real data is ready, after exporting anything worth keeping.
 
@@ -111,7 +111,7 @@ clear error rather than failing on the raw constraint — so it must be applied
   bypassed via the REST API. Consider the same treatment for companies/items if
   the demo shows a need.
 
-### C. 6-digit PIN — change + reset
+### C. 6-digit PIN – change + reset
 
 **Storage:** DB (`app_settings.admin_pin_hash`), bcrypt via pgcrypto. Never
 returned to the client. `ADMIN_PIN` env becomes a bootstrap fallback only (used
@@ -120,7 +120,7 @@ when `admin_pin_hash` is NULL).
 **Front end:** `PinKeypad.tsx` currently hard-codes `MAX = 4`. Make the length a
 prop (default 6) and render the dot/keypad layout from it. `AdminLogin.tsx` reads
 the expected length (exposed by a tiny public `GET /api/admin/pin-meta`, or simply
-hard-code 6 — length is not a secret).
+hard-code 6 – length is not a secret).
 
 **New serverless endpoints** (all in `apps/web/api/admin/`, service-role,
 PIN-checked unless noted):
@@ -129,7 +129,7 @@ PIN-checked unless noted):
 |---|---|---|---|
 | `verify-pin` (update existing) | POST | none (it *is* the auth) | compare against `admin_pin_hash` via `crypt()`; fall back to `ADMIN_PIN` env when hash is NULL |
 | `change-pin` | POST | current PIN | validate new PIN is 6 digits, write `crypt()` hash, set `pin_updated_at` |
-| `request-pin-reset` | POST | none | takes an **email**; if it is on the admin list (`ADMIN_EMAIL`, configured recipients, or CEO), generate a one-time code, store its hash + 15-min expiry, and email it **only to that address** (generic response — no enumeration) |
+| `request-pin-reset` | POST | none | takes an **email**; if it is on the admin list (`ADMIN_EMAIL`, configured recipients, or CEO), generate a one-time code, store its hash + 15-min expiry, and email it **only to that address** (generic response – no enumeration) |
 | `reset-pin` | POST | reset code **or** `ADMIN_RECOVERY_PIN` env | verify code/expiry (or env recovery PIN), set new PIN hash, clear the token |
 
 > **Recovery is reachable from the `/admin` login page** (not Settings): after 5
@@ -150,8 +150,8 @@ and time-boxed; never log PINs or codes.
   `ADMIN_EMAIL.split(',')`. Change it to read `app_settings`:
   - `to` = `report_recipients` (fall back to `ADMIN_EMAIL` env if empty)
   - `cc` = `[ceo_email]` when `cc_ceo_on_reports` and `ceo_email` is set
-- The CEO is CC'd on **every** report — both the admin-triggered send and the
-  month-end cron — because both call `runMonthlyReport()`.
+- The CEO is CC'd on **every** report – both the admin-triggered send and the
+  month-end cron – because both call `runMonthlyReport()`.
 - Managed from the Settings page (feature F): recipients list, CEO email, CC toggle.
 
 ### E. Per-member monthly statements (augments the company report)
@@ -165,7 +165,7 @@ statement.
   1. group enriched transactions by `member_id`
   2. for each member with a `work_email`, render a personal statement (reuse the
      warm email layout in `report.ts`; new `buildMemberStatementHtml()` in
-     `reportHtml.ts`) — itemized lines + total for the month
+     `reportHtml.ts`) – itemized lines + total for the month
   3. send via Resend `to: [member.work_email]`
 - **Volume:** ~one email per active member per month. Even at the full ITC1 roster
   this is well under Resend's free 3 000/month. Send sequentially or in small
@@ -173,7 +173,7 @@ statement.
   failures (log + continue) so one bad address doesn't abort the run.
 - **Privacy:** a member's statement contains only their own consumption, never
   another member's or the company total.
-- **No member auth** is introduced — this is a one-way email only, consistent with
+- **No member auth** is introduced – this is a one-way email only, consistent with
   the PRD's zero-friction non-goal.
 
 ### F. Expanded admin Settings page
@@ -192,35 +192,35 @@ PIN-checked; **never** returns `admin_pin_hash` or reset token):
 ## 5. New / changed surface area (summary)
 
 ```
-supabase/migrations/010_app_settings.sql            (new — Done)
-supabase/migrations/011_member_fields_required.sql  (new — Done; apply after reset)
-supabase/maintenance/clear_demo_data.sql            (new — Done; run manually)
-supabase/seed_production.template.sql               (new — Done; fill with real data)
+supabase/migrations/010_app_settings.sql            (new – Done)
+supabase/migrations/011_member_fields_required.sql  (new – Done; apply after reset)
+supabase/maintenance/clear_demo_data.sql            (new – Done; run manually)
+supabase/seed_production.template.sql               (new – Done; fill with real data)
 
-apps/web/src/pages/admin/MembersPage.tsx            (changed — Done; mandatory fields)
-apps/web/src/lib/database.types.ts                  (changed — Done; app_settings type)
-apps/web/.env.example                               (changed — Done; ADMIN_RECOVERY_PIN, 6-digit notes)
+apps/web/src/pages/admin/MembersPage.tsx            (changed – Done; mandatory fields)
+apps/web/src/lib/database.types.ts                  (changed – Done; app_settings type)
+apps/web/.env.example                               (changed – Done; ADMIN_RECOVERY_PIN, 6-digit notes)
 
-supabase/migrations/012_pin_functions.sql           (new — Done; applied to prod; PIN/reset RPC)
-supabase/migrations/013_report_config.sql           (new — Done; apply to prod; scheduling + format)
-apps/web/api/admin/preview-report.ts                 (new — Done; company + member preview)
-apps/web/api/cron/monthly-report.ts                 (change — Done; reads enabled + day from settings)
-apps/web/vercel.json                                (change — Done; cron now daily; function guards day)
-apps/web/api/_lib/adminAuth.ts                       (new — Done; verifyAdminPin + service client)
-apps/web/api/admin/verify-pin.ts                    (change — Done; DB hash + fallback)
-apps/web/api/admin/pin-meta.ts                      (new — Done; public PIN length)
-apps/web/api/admin/change-pin.ts                    (new — Done)
-apps/web/api/admin/request-pin-reset.ts             (new — Done)
-apps/web/api/admin/reset-pin.ts                     (new — Done)
-apps/web/api/admin/settings.ts                      (new — Done)
-apps/web/api/send-report.ts                         (change — Done; DB-hash auth)
-apps/web/api/_lib/report.ts                         (change — Done; CC + member statements)
-apps/web/api/_lib/reportHtml.ts                     (change — Done; member statement template)
-apps/web/src/components/admin/PinKeypad.tsx         (change — Done; length prop, default 6)
-apps/web/src/components/admin/PinInput.tsx          (new — Done; segmented PIN entry)
-apps/web/src/pages/AdminLogin.tsx                   (change — Done; fetch pin-meta length)
-apps/web/src/pages/admin/SettingsPage.tsx           (new — Done; the Settings page)
-apps/web/src/pages/AdminDashboard.tsx               (change — Done; mounts SettingsPage)
+supabase/migrations/012_pin_functions.sql           (new – Done; applied to prod; PIN/reset RPC)
+supabase/migrations/013_report_config.sql           (new – Done; apply to prod; scheduling + format)
+apps/web/api/admin/preview-report.ts                 (new – Done; company + member preview)
+apps/web/api/cron/monthly-report.ts                 (change – Done; reads enabled + day from settings)
+apps/web/vercel.json                                (change – Done; cron now daily; function guards day)
+apps/web/api/_lib/adminAuth.ts                       (new – Done; verifyAdminPin + service client)
+apps/web/api/admin/verify-pin.ts                    (change – Done; DB hash + fallback)
+apps/web/api/admin/pin-meta.ts                      (new – Done; public PIN length)
+apps/web/api/admin/change-pin.ts                    (new – Done)
+apps/web/api/admin/request-pin-reset.ts             (new – Done)
+apps/web/api/admin/reset-pin.ts                     (new – Done)
+apps/web/api/admin/settings.ts                      (new – Done)
+apps/web/api/send-report.ts                         (change – Done; DB-hash auth)
+apps/web/api/_lib/report.ts                         (change – Done; CC + member statements)
+apps/web/api/_lib/reportHtml.ts                     (change – Done; member statement template)
+apps/web/src/components/admin/PinKeypad.tsx         (change – Done; length prop, default 6)
+apps/web/src/components/admin/PinInput.tsx          (new – Done; segmented PIN entry)
+apps/web/src/pages/AdminLogin.tsx                   (change – Done; fetch pin-meta length)
+apps/web/src/pages/admin/SettingsPage.tsx           (new – Done; the Settings page)
+apps/web/src/pages/AdminDashboard.tsx               (change – Done; mounts SettingsPage)
 ```
 
 ---
@@ -242,20 +242,20 @@ are unchanged.
 
 Run in this exact order against the live Supabase project:
 
-1. **Apply migration `010_app_settings.sql`** — safe anytime; creates the settings
+1. **Apply migration `010_app_settings.sql`** – safe anytime; creates the settings
    table and seeds the singleton row. The app keeps working via env fallbacks.
 2. **Export** any archive data worth keeping (`transactions_archive` → CSV).
-3. **Run `supabase/maintenance/clear_demo_data.sql`** — wipes demo data; config in
+3. **Run `supabase/maintenance/clear_demo_data.sql`** – wipes demo data; config in
    `app_settings` survives.
-4. **Seed real data** — fill in `seed_production.template.sql` (real companies,
+4. **Seed real data** – fill in `seed_production.template.sql` (real companies,
    members + emails, items + **real prices**) and run it. Keep the filled-in copy
    out of git (`seed_production.local.sql`, gitignored) if it contains real names.
-5. **Apply migration `011_member_fields_required.sql`** — now that no NULL
+5. **Apply migration `011_member_fields_required.sql`** – now that no NULL
    `work_email` rows remain, locks the constraint.
 6. **Set the admin PIN** from the dashboard once feature C ships (until then the
    `ADMIN_PIN` env value is in effect).
 
-> Steps 3–5 are destructive / data-dependent and are intentionally **manual** —
+> Steps 3–5 are destructive / data-dependent and are intentionally **manual** –
 > they are not auto-run by CI or deploys.
 
 ---
@@ -265,7 +265,7 @@ Run in this exact order against the live Supabase project:
 Needed from the ITC1 side before steps 3–4 above:
 
 - [ ] Real company list (names, which are active)
-- [ ] Real member list per company (name + **work email** — now mandatory)
+- [ ] Real member list per company (name + **work email** – now mandatory)
 - [ ] Real item catalogue with **real prices** (cents) and units
 - [ ] CEO email address for report CC
 - [ ] Confirm the initial 6-digit PIN (or set it in-dashboard after C ships)
@@ -284,13 +284,13 @@ Needed from the ITC1 side before steps 3–4 above:
 - [x] This plan
 
 **Done on `feat/admin-settings`**
-- [x] C — 6-digit PIN: keypad length prop + `pin-meta`, `verify-pin` DB hash, `change-pin`, reset (email code + `ADMIN_RECOVERY_PIN` backstop), migration `012` PIN functions
-- [x] D — CEO CC + recipient list wired into the report (`fetchReportSettings` → `sendEmail` to/cc)
-- [x] E — per-member monthly statements (`sendMemberStatements` + `buildMemberStatementHtml`, gated on the toggle)
-- [x] F — real admin Settings page (`pages/admin/SettingsPage.tsx`), backed by `GET/PUT /api/admin/settings`
+- [x] C – 6-digit PIN: keypad length prop + `pin-meta`, `verify-pin` DB hash, `change-pin`, reset (email code + `ADMIN_RECOVERY_PIN` backstop), migration `012` PIN functions
+- [x] D – CEO CC + recipient list wired into the report (`fetchReportSettings` → `sendEmail` to/cc)
+- [x] E – per-member monthly statements (`sendMemberStatements` + `buildMemberStatementHtml`, gated on the toggle)
+- [x] F – real admin Settings page (`pages/admin/SettingsPage.tsx`), backed by `GET/PUT /api/admin/settings`
 
 **Also shipped on `feat/admin-settings`**
-- [x] Automatic-send scheduling (enable/disable + day of month) — cron reads it from `app_settings`
+- [x] Automatic-send scheduling (enable/disable + day of month) – cron reads it from `app_settings`
 - [x] Light report-format customization (accent, subject, intro, PDF/Excel attachment toggles)
 - [x] In-dashboard report preview (company + member), reflecting unsaved edits
 

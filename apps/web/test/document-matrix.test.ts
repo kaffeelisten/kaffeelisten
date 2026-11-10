@@ -35,7 +35,7 @@ const ALL_ON: MatrixSettings = {
 
 const companies = (...cs: MatrixCompany[]) => new Map(cs.map(c => [c.id, c]))
 
-describe('individual company — each person pays', () => {
+describe('individual company – each person pays', () => {
   const cos = companies(company('efco', 'individual'))
   const people = [member('shen', 'efco'), member('bettina', 'efco')]
 
@@ -57,13 +57,13 @@ describe('individual company — each person pays', () => {
     expect([...plan.members, ...plan.companies].some(d => isInvoice(d.kind))).toBe(false)
   })
 
-  it('never invoices the company, even in invoice mode — the employees pay', () => {
+  it('never invoices the company, even in invoice mode – the employees pay', () => {
     const plan = planDeliveries(people, cos, { ...ALL_ON, invoiceMode: true })
     expect(plan.companies.some(d => isInvoice(d.kind))).toBe(false)
   })
 })
 
-describe('company_paid company — the company pays', () => {
+describe('company_paid company – the company pays', () => {
   const cos = companies(company('4process', 'company_paid'))
   const people = [member('anna', '4process'), member('ben', '4process')]
 
@@ -80,7 +80,7 @@ describe('company_paid company — the company pays', () => {
     expect(plan.members[0].payerName).toBe('4PROCESS')
   })
 
-  it('members used to receive nothing at all — they now get their information copy', () => {
+  it('members used to receive nothing at all – they now get their information copy', () => {
     const plan = planDeliveries(people, cos, ALL_ON)
     expect(plan.members).toHaveLength(2)
   })
@@ -135,7 +135,7 @@ describe('employer copies of employee documents', () => {
     expect(plan.companies[0].includeMemberCopies).toBe(true)
   })
 
-  it('are never attached for a company_paid company — its members hold no invoices to copy', () => {
+  it('are never attached for a company_paid company – its members hold no invoices to copy', () => {
     const cos = companies(company('4process', 'company_paid', { member_document_copies_enabled: true }))
     const plan = planDeliveries([member('a', '4process')], cos, { ...ALL_ON, invoiceMode: true })
     expect(plan.companies[0].includeMemberCopies).toBe(false)
@@ -247,7 +247,7 @@ describe('companyConfigError', () => {
     expect(companyConfigError({ checkout_mode: 'company', billing_mode: 'company_paid', billing_contact_email: 'a@b.de' })).toBeNull()
   })
 
-  it('refuses company checkout where individuals would have to pay — there are no individuals', () => {
+  it('refuses company checkout where individuals would have to pay – there are no individuals', () => {
     expect(companyConfigError({ ...ok, checkout_mode: 'company' })).toMatch(/Firmenkonto/)
   })
 

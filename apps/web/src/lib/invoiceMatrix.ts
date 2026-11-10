@@ -1,7 +1,7 @@
 // How the "Wer bekommt was?" matrix reflects invoice mode.
 //
 // The matrix shows what the admin has CHOSEN, so switching invoice mode on turns
-// every payer's cell into "Rechnung" straight away — even while issuer data is
+// every payer's cell into "Rechnung" straight away – even while issuer data is
 // incomplete or ITC1's authority is missing. Until invoice mode is really active
 // the server keeps sending statements (billing.ts resolveIssuer), and the matrix
 // says so instead of silently showing the old documents.
