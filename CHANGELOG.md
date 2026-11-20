@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/the-app-is-not-for-search
+
+#### Fixed
+- **The app was fully crawlable, and answered 200 for every URL that has ever existed.** The SPA rewrite in `vercel.json` sends every non-API path to `index.html`, so `demo.kaffeelisten.de/robots.txt`, `/admin` and `/this-page-does-not-exist` all returned the same 2,843 bytes with no canonical and no `noindex`. A crawler therefore finds an unlimited number of distinct URLs carrying identical content, under a hostname using the same brand name as the landing page, whose `og:description` is that page's own headline. `public/robots.txt` now disallows everything, and `X-Robots-Tag: noindex, nofollow` is set for all paths so it also applies where a robots file cannot reach and to anything already indexed. `kaffeelisten.de` is the page meant to be found; this is a kiosk.
+
+
 ### fix/paginate-transaction-reads
 
 #### Fixed
