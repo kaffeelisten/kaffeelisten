@@ -14,13 +14,13 @@
 // is a function of the request rather than a file in public/.
 //
 // The deep paths are the other half. The SPA rewrite answers 200 for every path
-// that has ever been invented, so the demo allows its root and nothing below
-// it: there is then nothing for a crawler to find twice.
+// that has ever been invented, so without the canonical below a crawler finds
+// an unlimited number of URLs carrying identical HTML.
 
 export interface PolicyInput {
   /** DEMO_MODE on the deployment answering this request. */
   demo: boolean
-  /** The host asking, kept for messages that name it. */
+  /** The host header, used for the canonical. */
   host: string
 }
 
@@ -60,6 +60,22 @@ Disallow: /
 
 Sitemap: ${LANDING}/sitemap.xml
 `
+}
+
+/**
+ * Every path canonicalises to the deployment's own root.
+ *
+ * Sent as a Link header rather than a tag, because the host is only known at
+ * request time and a tag baked into index.html would point a campus instance at
+ * the demo.
+ */
+export function canonicalLink({ host }: PolicyInput): string {
+  return `<https://${host}/>; rel="canonical"`
+}
+
+/** noindex for a campus instance; nothing at all for the demo. */
+export function robotsHeader({ demo }: PolicyInput): string | null {
+  return demo ? null : 'noindex, nofollow'
 }
 
 /**
