@@ -17,6 +17,7 @@
     "@sparticuz/chromium-min": "^147.0.0",
     "@supabase/supabase-js": "^2.43.0",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/edge": "^1.2.2",
     "exceljs": "^4.4.0",
     "jszip": "^3.10.1",
     "puppeteer-core": "^24.43.0",
