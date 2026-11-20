@@ -11,9 +11,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### fix/the-app-is-not-for-search
 
-#### Fixed
-- **The app was fully crawlable, and answered 200 for every URL that has ever existed.** The SPA rewrite in `vercel.json` sends every non-API path to `index.html`, so `demo.kaffeelisten.de/robots.txt`, `/admin` and `/this-page-does-not-exist` all returned the same 2,843 bytes with no canonical and no `noindex`. A crawler therefore finds an unlimited number of distinct URLs carrying identical content, under a hostname using the same brand name as the landing page, whose `og:description` is that page's own headline. `public/robots.txt` now disallows everything, and `X-Robots-Tag: noindex, nofollow` is set for all paths so it also applies where a robots file cannot reach and to anything already indexed. `kaffeelisten.de` is the page meant to be found; this is a kiosk.
-
+#### Added
+- **Crawlers are told something different on each deployment, because the deployments are different things.** The demo is a shop window and should be easy to find; a campus instance holds real people's consumption records and should not be findable at all. `DEMO_MODE` is a *runtime* variable, so both build from one commit into identical bundles and nothing static can separate them. `middleware.ts` now serves `robots.txt` and `llms.txt` per request: the demo allows exactly its root (`Allow: /$`), closes `/api/`, and carries the landing page's sitemap; a campus instance disallows everything, offers no sitemap, has no `llms.txt`, and sends `X-Robots-Tag: noindex, nofollow`. The policy itself is a pure function in `shared/robotsPolicy.ts` with 18 tests, because an invariant that only shows up on a live deployment is one nobody checks.
+- **Every path canonicalises to its own deployment root**, sent as a `Link` header. The SPA rewrite answers 200 for every invented path, so a crawler could otherwise find unlimited URLs carrying identical HTML. A `<link rel="canonical">` in `index.html` could not do this: the host is only known at request time, and a baked-in tag would point a campus instance at the demo.
 
 ### fix/paginate-transaction-reads
 
