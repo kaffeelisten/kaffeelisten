@@ -2,7 +2,7 @@
 //
 // PostgREST returns at most max_rows (1000) and does not error when it hits the
 // cap. Every unbounded read of `transactions` summed whatever came back, so a
-// busy month was reported as a quiet one — the month-end invoice included.
+// busy month was reported as a quiet one – the month-end invoice included.
 //
 // Reported by Gianna Gonzales (Perch Scan), 6 November 2026, against the paid
 // grid. These tests cover the cap itself, the paging helper, and the month-end
