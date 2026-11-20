@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/the-demo-defers-to-the-landing-page
+
+#### Changed
+- **The demo no longer competes with `kaffeelisten.de` for the word "Kaffeelisten".** Its `<title>` was the bare brand term and its `og:description` was the landing page's own headline, so the two pages were asking to rank for the same query – one of them a page full of explanation, screenshots and an FAQ, the other a JavaScript shell with no text in it. The demo now says it is a demo, in the title and in every social card, which is also plainer for a human arriving from a shared link.
+- **A static `robots.txt` ships with the app, disallowing everything.** The page worth indexing is the one that explains the product; the demo is reached from it, and from the `llms.txt` that names it. One file that is correct on every deployment beats two that have to be kept right, and a campus instance holding real consumption records can never be indexed by accident. No runtime, after edge middleware took the demo down twice on 20 November.
+
+
 ### fix/paginate-transaction-reads
 
 #### Fixed

@@ -1,0 +1,26 @@
+# Kaffeelisten is the application, not the page that explains it.
+#
+# https://kaffeelisten.de is the page to read and the page to index: it carries
+# the description, the screenshots, the FAQ, a sitemap and an llms.txt, and it
+# links here for anyone who wants to try the thing.
+#
+# This file is deliberately the same on every deployment, because the two are
+# not distinguishable from inside the build - DEMO_MODE is a runtime variable.
+# Serving different files per deployment was tried through edge middleware on
+# 20 November 2026 and took the demo down twice, so this is a static file with
+# no runtime and nothing to fail.
+#
+# The demo loses nothing worth having. It is a single-page application that
+# answers 200 for every path ever invented, so what a crawler would index is an
+# unlimited number of identical empty shells competing with kaffeelisten.de for
+# the word "Kaffeelisten". People reach it from the landing page, and a model
+# reaches it from https://kaffeelisten.de/llms.txt, which names it.
+#
+# A campus instance holds real people's consumption records and must never be
+# indexed. One file that is correct for both is worth more than two that have
+# to be kept right.
+
+User-agent: *
+Disallow: /
+
+Sitemap: https://kaffeelisten.de/sitemap.xml
