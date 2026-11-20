@@ -1,49 +1,51 @@
 // Vercel Edge Middleware: the only place that knows which deployment this is.
 //
 // DEMO_MODE is a runtime variable, so the demo and a campus instance build from
-// the same commit into identical bundles. Nothing in public/ or in the static
-// headers of vercel.json can tell them apart - which is why robots.txt is
-// served from here instead of being a file.
+// the same commit into identical bundles. Nothing in public/ and no static
+// header in vercel.json can tell them apart, which is why robots.txt and
+// llms.txt are served from here.
 //
-// See shared/robotsPolicy.ts for what is served and why.
+// DELIBERATELY SMALL. The first version imported `next()` from @vercel/edge to
+// add response headers to ordinary pages, and every request to the demo came
+// back 500 - MIDDLEWARE_INVOCATION_FAILED. That version is reverted here.
+//
+// It turned out those headers were not needed:
+//
+//   * The canonical existed to collapse the SPA's invented paths. robots.txt
+//     already keeps crawlers off them (`Allow: /$` then `Disallow: /`), so
+//     there are no duplicates to collapse.
+//   * X-Robots-Tag on a campus instance is belt to robots.txt's braces. The
+//     braces hold: nothing links to a campus instance and it sits behind
+//     deployment protection.
+//
+// So this returns a Response for the two paths it owns and nothing at all
+// otherwise, which is the documented way to let a request continue. No
+// dependency, no response rewriting, nothing to fail on a request it does not
+// handle.
 
-import { next } from '@vercel/edge'
-import { canonicalLink, llmsTxt, robotsHeader, robotsTxt } from './shared/robotsPolicy'
+import { llmsTxt, robotsTxt } from './shared/robotsPolicy'
 
-export const config = {
-  // Everything except the API and the build output. The API sets its own
-  // no-store headers and is disallowed in robots.txt anyway.
-  matcher: ['/((?!api/|assets/).*)'],
-}
-
-const text = (body: string) =>
+const text = (body: string, status = 200) =>
   new Response(body, {
-    status: 200,
+    status,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      // Short, so flipping DEMO_MODE on a deployment takes effect the same day.
+      // Short, so flipping DEMO_MODE takes effect the same day.
       'Cache-Control': 'public, max-age=3600',
     },
   })
 
-export default function middleware(request: Request): Response {
-  const url = new URL(request.url)
-  const input = {
-    demo: process.env.DEMO_MODE === 'true',
-    host: url.host,
-  }
+export default function middleware(request: Request): Response | undefined {
+  const { pathname, host } = new URL(request.url)
+  const input = { demo: process.env.DEMO_MODE === 'true', host }
 
-  if (url.pathname === '/robots.txt') return text(robotsTxt(input))
+  if (pathname === '/robots.txt') return text(robotsTxt(input))
 
-  if (url.pathname === '/llms.txt') {
+  if (pathname === '/llms.txt') {
     const body = llmsTxt(input)
-    // A campus instance has no llms.txt rather than an empty one: a 404 says
-    // "nothing here" more clearly than a file saying nothing.
-    return body ? text(body) : new Response('Not found', { status: 404 })
+    // A campus instance has no llms.txt rather than an empty one.
+    return body ? text(body) : text('Not found', 404)
   }
 
-  const headers: Record<string, string> = { Link: canonicalLink(input) }
-  const robots = robotsHeader(input)
-  if (robots) headers['X-Robots-Tag'] = robots
-  return next({ headers })
+  return undefined
 }
