@@ -7,9 +7,8 @@
 **Prepared for:** ITC1 / Kaffeelisten stakeholders
 
 > **Not legal or tax advice.** This document reflects the developers' current understanding and
-> must be confirmed by qualified advisers (a Steuerberater/Lohnsteuerhilfeverein for the
-> developers, ITC1's tax adviser for invoice compliance, and the relevant Ausländerbehörde /
-> university international office for residence-permit questions). See §12.
+> must be confirmed by qualified advisers. The tax and personal-status questions are not
+> engineering and are handled in the private handbook, not here.
 
 ---
 
@@ -29,10 +28,12 @@ proposes a **post-v1 phase**, subject to legal, tax, and acceptance confirmation
 
 ### 1.1 The one reframing that governs this whole document
 
-The attached template is **ITC Innovations Technologie Campus GmbH's own invoice** – issuer *ITC
-Innovations Technologie Campus GmbH*, HRB Nr. 2194, **USt-IdNr DE123456789**, charging **19 % USt**,
-payable to **ITC1's own Sparkasse Deggendorf account**, with ITC1's own invoice-number sequence
-(`K-06-01`).
+The template ITC1 supplied is **their own invoice**: ITC1 is the issuer, charging **19 % USt**,
+payable to ITC1's own bank account, under ITC1's own invoice-number sequence.
+
+**Their registration, tax and bank details are deliberately absent from this repository**, which
+is public. They are entered in the admin panel at deployment and live only in that instance's
+database.
 
 Therefore the coffee invoices are legally **issued by ITC1**, not by the developers. Kaffeelisten is
 only *tooling that generates ITC1's document* from issuer data ITC1 configures – exactly like ITC1
@@ -313,8 +314,8 @@ decision is settled – not quoted up front as a large bespoke build (see §11 f
 > These sections were commercial and legal rather than engineering and have moved to the
 > private handbook (`kaffeelisten/playbook`), in `04-legal/05-commercial-history.md`:
 >
-> - **§11 Compensation and legal posture** – the one-time handover payment, the
->   section 16b residence-permit constraints and the tax treatment.
+> - **§11 Compensation and legal posture** – the commercial terms and the developers'
+>   personal tax and status questions, which are private and not engineering.
 > - **§12 Required inputs, approvals and open questions** – what is still needed from ITC1
 >   and from the developers, and the outstanding legal instruments.
 >
@@ -351,7 +352,9 @@ Platform pricing/terms to re-verify before any binding quote:
 - Supabase pricing/billing: https://supabase.com/pricing · https://supabase.com/docs/guides/platform/billing-on-supabase
 - Resend quotas: https://resend.com/pricing · https://resend.com/docs/knowledge-base/account-quotas-and-limits
 
-Legal references (developers to confirm with advisers; not legal advice):
-- § 16b AufenthG (student residence permit): https://www.gesetze-im-internet.de/aufenthg_2004/__16b.html
-- Self-employment for third-country nationals (BAMF): https://www.bamf.de/DE/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Arbeit/SelbstaendigeTaetigkeit/selbstaendigetaetigkeit-node.html
-- § 22 Nr. 3 EStG €256 Freigrenze: https://www.finanztip.de/sonstige-einkuenfte/
+Legal references for the **invoicing** rules this document implements (not legal advice):
+- § 14 UStG (invoice requirements): https://www.gesetze-im-internet.de/ustg_1980/__14.html
+- § 33 UStDV (Kleinbetragsrechnung): https://www.gesetze-im-internet.de/ustdv_1980/__33.html
+
+References about the developers' own tax position and personal status are private and live in
+the handbook, not in a public repository.
