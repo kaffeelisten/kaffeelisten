@@ -19,7 +19,7 @@ const entry = (o: Partial<EnrichedTransaction> = {}): EnrichedTransaction => ({
 
 const invoice: InvoiceRender = {
   documentNumber: 'K-000042', issuerLegalName: 'ITC1 GmbH', issuerAddress: null,
-  issuerVatId: 'DE123', issuerIban: 'DE33741500000380009340', issuerBic: 'BYLADEM1DEG',
+  issuerVatId: 'DE123', issuerIban: 'DE02120300000000202051', issuerBic: 'BYLADEM1001',
   paymentTerms: 'Zahlbar in 14 Tagen', vatRate: 19, netCents: 42, taxCents: 8, grossCents: 50,
 }
 

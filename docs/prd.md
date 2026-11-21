@@ -2,7 +2,7 @@
 
 **Product:** Kaffeelisten  
 **Origin:** ITC1 Kaffeelisten Challenge (B4Y3RW4LD Hackathon)  
-**Location:** ITC1, Ulrichsberger Str. 17, 94469 Deggendorf  
+**Location:** ITC1, Musterstr. 1, 94469 Deggendorf  
 **Status:** v1.0 shipped at the hackathon; in productization toward an ITC1 campus deployment  
 **Date:** 2026-05-08 (original); under active development since
 

@@ -731,14 +731,14 @@ export default function SettingsPage({ onToast, onMenuClick, onNavigate, onSendR
                     {form.issueInvoices && (
                       <div className="flex flex-col gap-4 border-t border-border pt-4">
                         <AdminField label="Aussteller (Firmenname)" required value={form.issuerLegalName} onChange={e => set('issuerLegalName', e.target.value)} placeholder="ITC Innovations Technologie Campus GmbH" />
-                        <Textarea label="Adresse" value={form.issuerAddress} onChange={v => set('issuerAddress', v)} placeholder={'Ulrichsberger Str. 17\n94469 Deggendorf'} />
+                        <Textarea label="Adresse" value={form.issuerAddress} onChange={v => set('issuerAddress', v)} placeholder={'Musterstr. 1\n94469 Deggendorf'} />
                         <div className="grid sm:grid-cols-2 gap-4">
-                          <AdminField label="USt-IdNr" required value={form.issuerVatId} onChange={e => set('issuerVatId', e.target.value)} placeholder="DE207285819" />
+                          <AdminField label="USt-IdNr" required value={form.issuerVatId} onChange={e => set('issuerVatId', e.target.value)} placeholder="DE123456789" />
                           <AdminField label="USt-Satz (%)" inputMode="decimal" value={form.invoiceVatRate} onChange={e => set('invoiceVatRate', e.target.value.replace(/[^0-9.,]/g, ''))} placeholder="19" />
                         </div>
                         <div className="grid sm:grid-cols-2 gap-4">
-                          <AdminField label="IBAN (Empfangskonto)" required value={form.issuerIban} onChange={e => set('issuerIban', e.target.value)} placeholder="DE33 7415 0000 0380 0093 40" hint="ITC1s Konto – hierhin wird überwiesen." />
-                          <AdminField label="BIC" required value={form.issuerBic} onChange={e => set('issuerBic', e.target.value)} placeholder="BYLADEM1DEG" />
+                          <AdminField label="IBAN (Empfangskonto)" required value={form.issuerIban} onChange={e => set('issuerIban', e.target.value)} placeholder="DE02 1203 0000 0000 2020 51" hint="ITC1s Konto – hierhin wird überwiesen." />
+                          <AdminField label="BIC" required value={form.issuerBic} onChange={e => set('issuerBic', e.target.value)} placeholder="BYLADEM1001" />
                         </div>
                         <AdminField label="Rechnungsnummer-Präfix" value={form.invoiceNumberPrefix} onChange={e => set('invoiceNumberPrefix', e.target.value)} placeholder="K-" hint="Die laufende Nummer wird angehängt, z. B. K-000042." />
                         <Textarea label="Zahlungsbedingungen" value={form.invoicePaymentTerms} onChange={v => set('invoicePaymentTerms', v)} placeholder="Zahlung ohne Abzug innerhalb 14 Tagen nach Rechnungsstellung." />
