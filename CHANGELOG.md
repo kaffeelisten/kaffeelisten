@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/redact-client-and-founder-details
+
+- **The invoice preview's sample issuer is fictitious.** It previously carried a real company's
+  address, VAT number, IBAN and BIC, in a public repository. The preview now shows an obviously
+  made-up issuer and the standard German test IBAN. Nothing about how a real issuer block is
+  entered, stored or rendered changes; only the sample values do.
+- The billing addendum no longer prints a client's registration, tax or bank details, and no
+  longer discusses the developers' personal tax or residence status. Those are not engineering
+  and belong in the private handbook.
+
 ### fix/the-demo-defers-to-the-landing-page
 
 #### Changed

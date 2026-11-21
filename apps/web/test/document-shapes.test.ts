@@ -18,7 +18,7 @@ import { generateCompanyItemsExcel, generateEmployeeListExcel } from '../api/_li
 let seq = 0
 const invoice: InvoiceRender = {
   documentNumber: 'K-000001', issuerLegalName: 'ITC1 GmbH', issuerAddress: null, issuerVatId: 'DE1',
-  issuerIban: 'DE33741500000380009340', issuerBic: 'BYLADEM1DEG', paymentTerms: null, vatRate: 19,
+  issuerIban: 'DE02120300000000202051', issuerBic: 'BYLADEM1001', paymentTerms: null, vatRate: 19,
   netCents: 0, taxCents: 0, grossCents: 0,
 }
 function tx(o: Partial<EnrichedTransaction> = {}): EnrichedTransaction {

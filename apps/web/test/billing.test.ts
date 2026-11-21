@@ -10,10 +10,10 @@ import {
 const completeRow: IssuerRow = {
   issue_invoices: true,
   issuer_legal_name: 'ITC Innovations Technologie Campus GmbH',
-  issuer_address: 'Ulrichsberger Str. 17\n94469 Deggendorf',
-  issuer_vat_id: 'DE207285819',
-  issuer_iban: 'DE33741500000380009340',
-  issuer_bic: 'BYLADEM1DEG',
+  issuer_address: 'Musterstr. 1\n94469 Deggendorf',
+  issuer_vat_id: 'DE123456789',
+  issuer_iban: 'DE02120300000000202051',
+  issuer_bic: 'BYLADEM1001',
   invoice_number_prefix: 'K-',
   invoice_payment_terms: 'Zahlung ohne Abzug innerhalb 14 Tagen',
   invoice_vat_rate: 19,
@@ -85,7 +85,7 @@ describe('resolveIssuer', () => {
     const issuer = resolveIssuer(completeRow)
     expect(issuer).not.toBeNull()
     expect(issuer!.legalName).toBe('ITC Innovations Technologie Campus GmbH')
-    expect(issuer!.iban).toBe('DE33741500000380009340')
+    expect(issuer!.iban).toBe('DE02120300000000202051')
     expect(issuer!.vatRate).toBe(19)
     expect(resolveIssuer({ ...completeRow, invoice_number_prefix: null })!.numberPrefix).toBe('')
   })
@@ -97,7 +97,7 @@ describe('toInvoiceRender', () => {
     const split = splitVat(810, 19)
     const render = toInvoiceRender(issuer, 'K-000042', split)
     expect(render.documentNumber).toBe('K-000042')
-    expect(render.issuerIban).toBe('DE33741500000380009340')
+    expect(render.issuerIban).toBe('DE02120300000000202051')
     expect(render.netCents).toBe(split.netCents)
     expect(render.taxCents).toBe(split.taxCents)
     expect(render.grossCents).toBe(810)
