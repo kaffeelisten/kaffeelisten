@@ -74,12 +74,13 @@ export function resolveIssuerForReissue(row: IssuerRow | null | undefined): Issu
   return resolveIssuer({ ...row, issue_invoices: true, invoice_mode_authorized: true })
 }
 
-// Sample issuer for previews before the admin has filled the real block – so an
-// invoice preview shows realistic placeholders instead of blanks. Values are from
-// ITC1's Kaffeerechnung-Vorlage; clearly a preview stand-in, never used to send.
+// Sample issuer for previews before the admin has filled the real block, so an invoice
+// preview shows the right shape instead of blanks. Every value here is FICTITIOUS and must
+// stay that way: this repository is public, and a real company's bank details do not belong
+// in it. The IBAN is the standard German test number. Never used to send.
 export const PLACEHOLDER_ISSUER: IssuerConfig = {
-  legalName: 'ITC Innovations Technologie Campus GmbH',
-  address: 'Musterstr. 1\n94469 Deggendorf',
+  legalName: 'Beispiel GmbH',
+  address: 'Musterstr. 1\n12345 Musterstadt',
   vatId: 'DE123456789',
   iban: 'DE02 1203 0000 0000 2020 51',
   bic: 'BYLADEM1001',
