@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import AdminIcon from './AdminIcon'
 import Logo from '../Logo'
+import Wordmark from '../Wordmark'
 import { visibleNavItems, type PageId } from '../../lib/adminNav'
 
 export type { PageId } from '../../lib/adminNav'
@@ -46,7 +47,7 @@ export default function Sidebar({ active, onNavigate, onSendReport, onLogout, de
           >
             <Logo className="h-8 w-8 text-accent" />
             <div>
-              <p className="text-[15px] font-bold text-fg tracking-tight">Kaffeelisten</p>
+              <Wordmark className="block text-[15px] font-bold text-fg tracking-tight" />
               <p className="text-[11px] text-fg-muted uppercase tracking-[0.06em]">Admin</p>
             </div>
           </Link>
