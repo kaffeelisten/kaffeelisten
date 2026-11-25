@@ -18,6 +18,7 @@ import DeathStarMark from '../components/DeathStarMark'
 import { useTheme } from '../lib/theme-context'
 import { useAppConfig } from '../lib/appConfig'
 import CoachMarks, { type CoachMark } from '../components/CoachMarks'
+import Wordmark from '../components/Wordmark'
 import { setHintsEnabled, useHintsEnabled } from '../lib/coachHints'
 
 // Only the columns anon may read. Billing contact details are admin-only; keep this
@@ -439,7 +440,9 @@ export default function MemberFlow() {
           <CappuccinoMark className="w-28 sm:w-40 h-auto text-fg-muted" />
         )}
         <div className="text-center max-w-xl">
-          <h1 className="text-3xl sm:text-5xl font-bold text-fg tracking-tight">Kaffeelisten</h1>
+          <h1 className="text-3xl sm:text-5xl font-bold text-fg tracking-tight">
+            <Wordmark />
+          </h1>
           <p className="text-xl text-fg-muted mt-2.5 leading-relaxed">
             Kaffee, Getränke, Snacks. Kurz tippen, fertig.
           </p>
