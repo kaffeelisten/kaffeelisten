@@ -18,6 +18,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   now bundled from `@fontsource` and served from the app's own origin; Caveat still loads only
   when a hint is on screen. Google's two hosts are removed from the Content Security Policy, so a
   regression is blocked by the browser rather than silently reintroduced.
+### feat/erase-a-person
+
+#### Added
+- **`scripts/db/erase-person.sql` erases one person on request.** Run as the database owner, it
+  replaces the person's name and email in `members`, `billing_documents` and
+  `document_deliveries` and keeps every amount, so archived months still add up. It is a dry run
+  unless `-v confirm=yes` is given. It refuses a house account, and it refuses while the address
+  is still a company's billing contact, a report recipient or the CC address, because the next
+  monthly run would send to it again. The API cannot do this on purpose: the delivery ledger is
+  append-only for the API role (migration 037). Covered by `supabase/tests/phase8_erase_person.test.sql`.
 
 ### fix/redact-client-and-founder-details
 
