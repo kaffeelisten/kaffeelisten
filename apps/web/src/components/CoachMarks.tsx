@@ -56,21 +56,20 @@ export interface CoachMark {
   minWidth?: number
 }
 
-const HAND_FONT = 'https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap'
-
 /**
- * Fetch the handwriting face only once a hint is actually on screen.
+ * Load the handwriting face only once a hint is actually on screen.
  *
- * Putting it in index.css would make every campus instance download a font it
- * never renders, for a feature only the demo has.
+ * Importing it statically would make every campus instance download a font it
+ * never renders, for a feature only the demo has. The dynamic import becomes its
+ * own CSS chunk, served from our origin like every other font.
  */
+let handFontRequested = false
 function useHandFont(active: boolean): void {
   useEffect(() => {
-    if (!active || document.querySelector(`link[href="${HAND_FONT}"]`)) return
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = HAND_FONT
-    document.head.appendChild(link)
+    if (!active || handFontRequested) return
+    handFontRequested = true
+    void import('@fontsource/caveat/500.css')
+    void import('@fontsource/caveat/600.css')
   }, [active])
 }
 

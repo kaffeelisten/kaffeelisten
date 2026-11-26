@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/self-host-fonts
+
+#### Fixed
+- **No visitor's browser asks Google for anything any more.** Inter, JetBrains Mono and the coach
+  marks' Caveat were loaded from Google Fonts, so every tablet view sent the device's IP address
+  to Google, a recipient no data protection agreement for an instance lists. The three faces are
+  now bundled from `@fontsource` and served from the app's own origin; Caveat still loads only
+  when a hint is on screen. Google's two hosts are removed from the Content Security Policy, so a
+  regression is blocked by the browser rather than silently reintroduced.
 ### feat/erase-a-person
 
 #### Added
