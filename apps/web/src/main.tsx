@@ -6,6 +6,15 @@ import App from './App'
 import { ThemeProvider } from './lib/theme'
 import { databaseConfigError } from './lib/environment'
 import { loadAppConfig } from './lib/appConfig'
+// Fonts are bundled and served from our own origin, never fetched from Google:
+// a third-party font request sends every visitor's IP address to Google, which
+// the data protection agreement does not list as a recipient.
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
+import '@fontsource/jetbrains-mono/500.css'
+import '@fontsource/jetbrains-mono/600.css'
 import './index.css'
 
 // Start the runtime-config fetch before React mounts, so screens that lay out
