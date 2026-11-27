@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { RESTOCK_LIMIT, computeAdminInsights } from '../api/_lib/adminInsights'
-import type { CampusRollup } from '../api/_lib/excel'
+import { computeCampusRollup, type CampusRollup } from '../api/_lib/excel'
 
 const rollup: CampusRollup = {
   month: '2026-09',
@@ -43,8 +43,7 @@ describe('admin insights', () => {
 })
 
 describe('campus roll-up people count', () => {
-  it('does not count a shared company account as a person', async () => {
-    const { computeCampusRollup } = await import('../api/_lib/excel')
+  it('does not count a shared company account as a person', () => {
     const base = {
       company_id: 'c', item_id: 'i', quantity: 1, logged_at: '2026-09-02T09:00:00Z', work_email: null,
       company_name: '4process', item_name: 'Espresso', item_category: 'coffee', unit_label: 'Tasse', price_cents: 50, total_cents: 50,
