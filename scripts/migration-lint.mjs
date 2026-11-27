@@ -7,7 +7,8 @@ export const FIRST_TAGGED = 30
 
 const NAME_RE = /^(\d{3})_[a-z0-9_]+\.sql$/
 const PHASE_RE = /^--\s*deploy:\s*(pre|post)\s*$/im
-const DESTRUCTIVE_RE = /\b(drop\s+(table|column|schema)|delete\s+from|truncate)\b/i
+// TRUNCATE only as a statement: `revoke truncate on ...` removes a privilege and deletes nothing.
+const DESTRUCTIVE_RE = /\b(drop\s+(table|column|schema)|delete\s+from)\b|(^|;)\s*truncate\b/im
 const DESTRUCTIVE_OK_RE = /^--\s*destructive:\s*approved\b/im
 
 /** Strip `--` line comments so a statement mentioned in prose is not flagged. */

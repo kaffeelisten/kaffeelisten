@@ -53,9 +53,9 @@ export default function Datenschutz() {
         <Section title="Verantwortliche Stelle">
           Verantwortlich für die Verarbeitung im Sinne der DSGVO ist die{' '}
           <strong className="text-fg font-medium">
-            ITC1 Innovations- und Technologiecampus Deggendorf GmbH
+            ITC Innovations Technologie Campus GmbH
           </strong>
-          , vertreten durch die Campus-Verwaltung. Fragen zum Datenschutz sowie die
+          , Ulrichsberger Str. 17, 94469 Deggendorf, vertreten durch die Campus-Verwaltung. Fragen zum Datenschutz sowie die
           Ausübung deiner Rechte richtest du bitte direkt an die Campus-Verwaltung.
         </Section>
 
@@ -116,9 +116,10 @@ export default function Datenschutz() {
 
         <Section title="Empfänger &amp; Auftragsverarbeiter">
           <p>
-            Zum Betrieb der Anwendung setzen wir sorgfältig ausgewählte
-            Dienstleister ein, die Daten ausschließlich weisungsgebunden in unserem
-            Auftrag verarbeiten (Art. 28 DSGVO):
+            Betrieben wird die Anwendung für den Campus von{' '}
+            <strong className="text-fg font-medium">Alexander Rudaev (Kaffeelisten), Deggendorf</strong>,
+            als Auftragsverarbeiter nach Art. 28 DSGVO. Er setzt diese Dienstleister ein, die
+            Daten ebenfalls nur weisungsgebunden verarbeiten:
           </p>
           <ul className="flex flex-col gap-1.5 list-none mt-2">
             <li className="flex gap-2">
@@ -138,8 +139,8 @@ export default function Datenschutz() {
             <li className="flex gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent-subtle0 shrink-0" />
               <span>
-                <strong className="text-fg font-medium">Resend</strong> – Versand des
-                monatlichen Abrechnungsberichts per E-Mail
+                <strong className="text-fg font-medium">Resend</strong> – Versand der
+                monatlichen Dokumente per E-Mail
               </span>
             </li>
           </ul>
@@ -152,18 +153,29 @@ export default function Datenschutz() {
 
         <Section title="Speicherdauer">
           Verbrauchseinträge werden nach Versand des monatlichen Berichts archiviert.
-          Das Archiv wird automatisch nach{' '}
-          <strong className="text-fg font-medium">90 Tagen</strong> gelöscht.
-          Stammdaten (Name, Arbeits-E-Mail, Unternehmen) werden gespeichert, solange
-          du am Campus als teilnehmende Person geführt wirst, und auf Anfrage oder bei
-          Wegfall des Zwecks entfernt.
+          Das Archiv bleibt{' '}
+          <strong className="text-fg font-medium">
+            für die Dauer des Betriebs am Campus
+          </strong>{' '}
+          als Grundlage der Monatsberichte erhalten; die Verwaltung kann daraus nichts
+          löschen. Stammdaten (Name, Arbeits-E-Mail, Unternehmen) werden gespeichert,
+          solange du am Campus als teilnehmende Person geführt wirst. Auf Anfrage
+          werden dein Name und deine E-Mail-Adresse in der Datenbank entfernt, auch im
+          Archiv; nur die anonymen Beträge bleiben, damit die Monatsberichte stimmen.
         </Section>
 
         <Section title="Wer hat Zugriff">
-          Ausschließlich die Campus-Verwaltung über das PIN-geschützte Admin-Panel.
-          Mitarbeitende sehen keine fremden Daten – die Logging-Ansicht zeigt nur die
-          eigene Auswahl. Die Admin-PIN wird serverseitig geprüft und ist nicht Teil
-          der Anwendung im Browser.
+          Einträge, Beträge und E-Mail-Adressen sieht im Admin-Panel nur die
+          Campus-Verwaltung; die PIN wird serverseitig geprüft und ist nicht Teil der
+          Anwendung im Browser. Am Monatsende gehen Dokumente per E-Mail an die
+          Campus-Verwaltung und, je nach Einstellung, an dich. Je nach Einstellung deines
+          Unternehmens erhält auch dein
+          Unternehmen deine Abrechnung als Kopie oder, wenn es zahlt, eine Rechnung und auf
+          Wunsch eine Verzehrliste mit deinem Verbrauch.{' '}
+          <strong className="text-fg font-medium">Sichtbar für alle ist die Namensauswahl:</strong>{' '}
+          Name und Unternehmen jeder teilnehmenden Person stehen am Tablet zur Auswahl und
+          sind für alle abrufbar, die die Adresse der Anwendung kennen. Dafür gibt es kein
+          Login.
         </Section>
 
         <Section title="Deine Rechte">
@@ -183,9 +195,9 @@ export default function Datenschutz() {
         </Section>
 
         <Section title="Löschung beantragen">
-          Wende dich direkt an die Campus-Verwaltung. Einträge und Stammdaten werden
-          umgehend aus der Datenbank entfernt. Es gibt keine automatisierte
-          Selbstlöschfunktion.
+          Wende dich direkt an die Campus-Verwaltung. Dein Name und deine
+          E-Mail-Adresse werden dann aus der Datenbank entfernt, wie unter Speicherdauer
+          beschrieben. Es gibt keine automatisierte Selbstlöschfunktion.
         </Section>
 
         <Section title="Keine Cookies · Kein Tracking">
@@ -204,7 +216,7 @@ export default function Datenschutz() {
 
         {/* Footer note */}
         <p className="text-[12px] text-fg-subtle text-center pb-4">
-          ITC1 Innovations- und Technologiecampus Deggendorf GmbH ·{' '}
+          ITC Innovations Technologie Campus GmbH ·{' '}
           Fragen zum Datenschutz bitte direkt an die Campus-Verwaltung richten.
         </p>
       </div>
@@ -283,6 +295,8 @@ function DemoNotice({ onBack }: { onBack: () => void }) {
           deine eigenen Einstellungen lokal im Browser (<code className="font-mono text-[13px]">localStorage</code>)
           und setzt nach der Anmeldung im Administrationsbereich ein technisch notwendiges
           Sitzungs-Cookie. Beides verlässt dein Gerät nicht als Profil und wird nicht ausgewertet.
+          Seitenaufrufe der Demo zählt Vercel Web Analytics, ohne Cookies und ohne Besucherprofil;
+          in einer Campus-Installation ist es ausgeschaltet.
         </Section>
 
         <Section title="Hosting">

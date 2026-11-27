@@ -44,19 +44,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60,
-              },
-            },
-          },
-        ],
+        // No runtime caching. Supabase responses carry names, companies and entries, and a
+        // shared tablet must not keep them on disk. The app needs the network to log anyway.
       },
     }),
   ],

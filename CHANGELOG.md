@@ -9,6 +9,114 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/long-names
+
+#### Fixed
+- **A long name no longer widens the tablet screen.** A company or person name without spaces
+  (120 characters is allowed) pushed the company list, the person list, the confirmation and the
+  success screen to more than twice the screen width, so the whole flow scrolled sideways on an
+  iPad. Names now wrap inside their tile or row. Found with the stress seed on the local stack.
+
+### fix/euro-grouping
+
+#### Fixed
+- **Amounts of €1,000 and more print with a thousands separator on documents and emails.** A
+  company's monthly invoice read "€ 2400,00"; it now reads "€ 2.400,00", as the admin screens
+  already did. Found by rendering the stress data through production's Chromium. The CSV export
+  stays ungrouped, so spreadsheets keep parsing it as numbers.
+
+### fix/archive-no-truncate
+
+#### Security
+- **The archive is append-only for every API role** (migration `044`). Migration `042` revoked
+  DELETE, but the service role could still TRUNCATE the archive or UPDATE a reported month from
+  a direct SQL session. No code did either; both are revoked, so the privacy page's "the
+  administration cannot delete from it" holds at the database level.
+
+### fix/anon-write-limits
+
+#### Security
+- **Writes through the public API are rate-limited in the database** (migration `043`). The anon
+  key ships in the bundle, so anyone with an instance's address could script the member RPCs:
+  log orders against any member (inflating their bill) or self-register thousands of fake
+  members, each of whom would receive the monthly statement and spend the mail quota. Orders now
+  count units, once per call: 60 per person and 300 per company's shared account per 10 minutes;
+  undoing an order gives its units back. Self-registration allows 30 people per company and 200
+  across the instance per hour. Orders have no campus-wide counter, because one a stranger can
+  fill would stop everyone from logging. The
+  service role and direct owner connections (`scripts/db/*.sql`) are never limited, and the
+  service role can delete a counter to lift a limit early. Past a limit the tablet says *Gerade zu
+  viele Einträge auf einmal* instead of a generic error.
+- **Signed-in Supabase users can no longer call the member RPCs.** They were granted to
+  `authenticated` as well as `anon`, and the app uses no Supabase Auth, so a sign-up through
+  `/auth/v1` was a way around any limit. The local stack now has sign-up switched off
+  (`supabase/config.toml`); switch it off on every hosted project too. Covered by
+  `supabase/tests/phase9_anon_write_limits.test.sql`. (An open item from the July audit; the
+  design was changed after an independent review found the first draft could be bypassed.)
+
+### Security
+- **The tablet's anonymous writes are rate-limited in the database** (migration `043`). The anon
+  key ships in the bundle, so anyone with an instance's address could script the member RPCs:
+  log orders against any member (inflating their bill) or self-register thousands of fake
+  members, each of whom would receive the monthly statement and spend the Resend quota. A trigger
+  now allows 40 order rows per member and 1,500 overall per 10 minutes, and 20 self-registrations
+  per company and 60 overall per hour, counted only when the request's role is anon. The
+  administration, the monthly run and `scripts/db/*.sql` are never limited. Past a limit the
+  tablet says *Gerade zu viele Einträge auf einmal* instead of a generic error. Covered by
+  `supabase/tests/phase9_anon_write_limits.test.sql`. (An open item from the July audit.)
+
+### fix/no-cached-personal-data
+
+#### Security
+- **The tablet no longer keeps personal data in its service-worker cache.** The PWA cached up to
+  50 Supabase responses (names, companies, entries) for an hour with `NetworkFirst`, on a device
+  everyone on the campus uses. The rule is gone, and the app deletes the old `supabase-cache` on
+  its next load. Only the static app shell is still precached. The app needs the network to log
+  anyway, so nothing works differently offline. (An open item from the July audit.)
+
+### fix/dependency-security
+
+#### Security
+- **Dependencies updated past 16 open advisories.** `npm audit fix` cleared the non-breaking ones
+  (`follow-redirects`, `ip-address`, `js-yaml`, `smol-toml`, `tar`, `nanoid`, `postcss` and others),
+  and `puppeteer-core` 24 → 25 removes the vulnerable `zod`, `basic-ftp` and proxy chain from the
+  PDF function. What ships at runtime now has four moderate findings, none reachable: `uuid` inside
+  `exceljs` (only with a caller-supplied buffer, which nothing passes) and `react-router` (open
+  redirect and SSR hydration; the app does no SSR and navigates only to fixed paths). The
+  development toolchain (`vite`, `vitest`, `typescript-eslint`) needs major upgrades and follows
+  in its own change; `@vercel/node` moved within 5.x (5.8.22 → 5.10.2) with the non-breaking fixes.
+  Tested against production's own engine: puppeteer-core 25.19 with the Chromium 147 pack, in
+  AWS's Amazon Linux 2023 Node image, renders every document. `scripts/pdf-production-check/run.sh`
+  repeats that check with Docker; run it after any upgrade of either.
+- **`test/pdf-render.chrome.test.ts` renders the real documents in a real Chromium** with hostile,
+  oversized data: names in nine scripts, combining marks, emoji, bidi overrides and injection
+  strings, and a 400-person, 8,000-entry month. It is skipped unless `CHROMIUM_PATH` points at a
+  local Chrome or Edge; run it after any upgrade of `puppeteer-core` or `@sparticuz/chromium-min`.
+### fix/privacy-page-retention
+
+#### Fixed
+- **The privacy page no longer promises a deletion that does not happen.** It said the archive
+  of reported months is deleted automatically after 90 days. Migration `042` made the archive
+  permanent, because it is the record behind every report, so the promise has been false since.
+  The page now says the archive is kept for as long as the campus runs Kaffeelisten, that the
+  administration cannot delete from it, and that a person's name and email are removed on
+  request, in the archive too, while the anonymous amounts stay. `docs/domain.md` and
+  `docs/prd.md` said the same old thing and are corrected. *Löschung beantragen* no longer says
+  entries are removed "umgehend": name and email are removed, the amounts stay.
+- **Two more sentences on that page were not true, and are fixed.** *Wer hat Zugriff* said
+  members see no one else's data, but the name picker shows every participant's name and company
+  to anyone at the tablet, and to anyone who knows the instance's address. The page now says so,
+  and that entries, amounts and email addresses stay with the administration. *Keine Cookies ·
+  Kein Tracking* said "kein Analytics" while Vercel Web Analytics was mounted on every deployment
+  (since 8 July). It now runs on the public demo only, whose privacy text mentions it, and a
+  campus instance has none. (Open items from the July audit.)
+- **The page names the right controller, the operator, and every recipient.** The controller
+  was given as "ITC1 Innovations- und Technologiecampus Deggendorf GmbH"; it is ITC Innovations
+  Technologie Campus GmbH, as in the data protection agreement. The operator, who processes the
+  data on the campus's behalf, was missing from *Empfänger & Auftragsverarbeiter*, and *Wer hat
+  Zugriff* did not say that monthly documents also go to a person's company when it receives
+  copies, an invoice or a Verzehrliste (migrations `033`, `041`).
+
 ### fix/self-host-fonts
 
 #### Fixed
