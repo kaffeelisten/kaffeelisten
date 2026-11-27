@@ -9,6 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/dependency-security
+
+#### Security
+- **Dependencies updated past 16 open advisories.** `npm audit fix` cleared the non-breaking ones
+  (`follow-redirects`, `ip-address`, `js-yaml`, `smol-toml`, `tar`, `nanoid`, `postcss` and others),
+  and `puppeteer-core` 24 → 25 removes the vulnerable `zod`, `basic-ftp` and proxy chain from the
+  PDF function. What ships at runtime now has four moderate findings, none reachable: `uuid` inside
+  `exceljs` (only with a caller-supplied buffer, which nothing passes) and `react-router` (open
+  redirect and SSR hydration; the app does no SSR and navigates only to fixed paths). The
+  development toolchain (`vite`, `vitest`, `typescript-eslint`) needs major upgrades and follows
+  in its own change; `@vercel/node` moved within 5.x (5.8.22 → 5.10.2) with the non-breaking fixes.
+  Tested against production's own engine: puppeteer-core 25.19 with the Chromium 147 pack, in
+  AWS's Amazon Linux 2023 Node image, renders every document. `scripts/pdf-production-check/run.sh`
+  repeats that check with Docker; run it after any upgrade of either.
+- **`test/pdf-render.chrome.test.ts` renders the real documents in a real Chromium** with hostile,
+  oversized data: names in nine scripts, combining marks, emoji, bidi overrides and injection
+  strings, and a 400-person, 8,000-entry month. It is skipped unless `CHROMIUM_PATH` points at a
+  local Chrome or Edge; run it after any upgrade of `puppeteer-core` or `@sparticuz/chromium-min`.
+
 ### fix/self-host-fonts
 
 #### Fixed
