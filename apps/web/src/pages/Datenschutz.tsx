@@ -152,11 +152,15 @@ export default function Datenschutz() {
 
         <Section title="Speicherdauer">
           Verbrauchseinträge werden nach Versand des monatlichen Berichts archiviert.
-          Das Archiv wird automatisch nach{' '}
-          <strong className="text-fg font-medium">90 Tagen</strong> gelöscht.
-          Stammdaten (Name, Arbeits-E-Mail, Unternehmen) werden gespeichert, solange
-          du am Campus als teilnehmende Person geführt wirst, und auf Anfrage oder bei
-          Wegfall des Zwecks entfernt.
+          Das Archiv bleibt{' '}
+          <strong className="text-fg font-medium">
+            für die Dauer des Betriebs am Campus
+          </strong>{' '}
+          als Grundlage der Monatsberichte erhalten; die Verwaltung kann daraus nichts
+          löschen. Stammdaten (Name, Arbeits-E-Mail, Unternehmen) werden gespeichert,
+          solange du am Campus als teilnehmende Person geführt wirst. Auf Anfrage
+          werden dein Name und deine E-Mail-Adresse in der Datenbank entfernt, auch im
+          Archiv; nur die anonymen Beträge bleiben, damit die Monatsberichte stimmen.
         </Section>
 
         <Section title="Wer hat Zugriff">
