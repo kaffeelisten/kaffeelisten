@@ -187,9 +187,9 @@ export default function Datenschutz() {
         </Section>
 
         <Section title="Löschung beantragen">
-          Wende dich direkt an die Campus-Verwaltung. Einträge und Stammdaten werden
-          umgehend aus der Datenbank entfernt. Es gibt keine automatisierte
-          Selbstlöschfunktion.
+          Wende dich direkt an die Campus-Verwaltung. Dein Name und deine
+          E-Mail-Adresse werden dann aus der Datenbank entfernt, wie unter Speicherdauer
+          beschrieben. Es gibt keine automatisierte Selbstlöschfunktion.
         </Section>
 
         <Section title="Keine Cookies · Kein Tracking">

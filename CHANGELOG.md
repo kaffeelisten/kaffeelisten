@@ -85,7 +85,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   The page now says the archive is kept for as long as the campus runs Kaffeelisten, that the
   administration cannot delete from it, and that a person's name and email are removed on
   request, in the archive too, while the anonymous amounts stay. `docs/domain.md` and
-  `docs/prd.md` said the same old thing and are corrected.
+  `docs/prd.md` said the same old thing and are corrected. *Löschung beantragen* no longer says
+  entries are removed "umgehend": name and email are removed, the amounts stay.
 
 ### fix/self-host-fonts
 
