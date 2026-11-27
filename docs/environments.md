@@ -231,8 +231,18 @@ go – up to ~300 on that day for ITC1. The free tier stops at 100 per day and
 needs Resend Pro (50 000/month, no daily limit). A separate Resend account or team
 for staging keeps test runs from using production's quota. The API allows 10
 requests per second; the run sends one email at a time and retries a rate-limited
-send with backoff (`api/_lib/mail.ts`), while a daily or monthly quota error fails
-that document immediately and shows under *Fehlgeschlagen*.
+send with backoff (`api/_lib/mail.ts`). A daily or monthly quota error
+(`daily_quota_exceeded`, `monthly_quota_exceeded`) is not a failure: the email goes
+to the mail outbox (migration 043, `api/_lib/outbox.ts`) with its payload and
+original idempotency key, and every later email of the run follows it there. The
+month is archived but its run stays `queued`, not `completed`, until the outbox has
+sent everything; a forced re-send of that month is refused meanwhile, because it
+would use fresh keys and duplicate the waiting emails. The cron
+`/api/cron/mail-outbox` retries at 00:10 UTC each night (the free plan's daily
+quota resets at midnight UTC) with the same `CRON_SECRET` as the monthly report,
+and the admin can try at once from the notice at the top of the admin area. That
+notice names the operator for a larger plan: set `OPERATOR_CONTACT_EMAIL` to the
+address ITC1 should write to. It shows no prices.
 
 **Resend webhook** (delivery status in the send dialog): in Resend → Webhooks add
 one endpoint per environment, `https://kaffeelisten.de/api/resend-webhook` and the

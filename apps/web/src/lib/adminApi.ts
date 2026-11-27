@@ -9,6 +9,7 @@
 // automatically on same-origin requests, so no PIN is stored or sent here.
 
 import type { ReportProgress } from '../../shared/reportProgress'
+import { emptyMailQueueStatus, type MailQueueStatus, type QuotaReason } from '../../shared/mailQueue'
 import { isDemoNow } from './appConfig'
 import { applyList, paidOverride, recordCreate, recordPaid, recordUpdate, resetDemoStore } from './demoStore'
 
@@ -299,8 +300,17 @@ export const adminApi = {
   previewDelivery: (id: string) =>
     request<{ subject: string; html: string }>(`/api/admin/documents${qs({ id, as: 'html' })}`),
   downloadDelivery: (id: string, as: 'pdf' | 'xlsx') => download(`/api/admin/documents${qs({ id, as })}`),
+  // `queued`: the sending quota is reached; the re-send goes out once it resets.
   resendDelivery: (id: string) =>
-    request<{ ok: true; id: string }>('/api/admin/documents', { method: 'POST', body: { id, action: 'resend' } }),
+    request<{ ok: true; id: string | null; queued: { reason: QuotaReason; nextAttemptAt: string } | null }>(
+      '/api/admin/documents', { method: 'POST', body: { id, action: 'resend' } }),
+
+  // ── Emails held back by the sending quota (migration 043) ──
+  // The demo never sends mail, so nothing ever waits there.
+  getMailQueue: (): Promise<MailQueueStatus> =>
+    isDemoNow() ? Promise.resolve(emptyMailQueueStatus()) : request<MailQueueStatus>('/api/admin/mail-outbox'),
+  retryMailQueue: () =>
+    request<MailQueueStatus & { sent: number }>('/api/admin/mail-outbox', { method: 'POST' }),
 
   /** The visitor's own edits, so the demo can offer to discard them. */
   demoReset: () => resetDemoStore(),

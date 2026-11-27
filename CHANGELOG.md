@@ -9,6 +9,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### feat/mail-quota-outbox
+
+#### Added
+- **An email the sending quota refused now waits and goes out later, instead of failing.** On
+  Resend's free plan an account may send 100 emails a UTC day and 3,000 a month. A refusal for
+  either quota (`daily_quota_exceeded`, `monthly_quota_exceeded`) used to count the document as
+  failed. It now goes to a mail outbox (migration 043, service role only) with its exact content
+  and original idempotency key, and so does every later email of the same run. A nightly cron at
+  00:10 UTC, just after Resend resets the daily quota, sends them again under the same keys, so
+  no document goes out twice. It uses the existing `CRON_SECRET`; nothing changes about how that
+  is set. Manual re-sends from *Dokumente* queue the same way.
+- **The admin area says plainly when emails are waiting.** A notice at the top of every admin
+  page shows how many emails wait, when they go out (campus time), how many were given up on,
+  and that a larger email plan is available from Kaffeelisten as the operator, with the contact
+  from `OPERATOR_CONTACT_EMAIL`. It shows no prices. *Jetzt erneut versuchen* sends the waiting
+  emails at once, for example after the plan was upgraded.
+
+#### Fixed
+- **A monthly run whose emails are waiting is no longer recorded as completed.** It is archived
+  as before, but `report_runs.status` is `queued` until the outbox has sent the last email, and
+  `report_runs.progress` counts the waiting ones. The send dialog shows them under *Wartet auf
+  Versandkontingent*. A forced re-send of such a month is refused, because its fresh keys would
+  duplicate the waiting emails.
+
 ### fix/self-host-fonts
 
 #### Fixed
