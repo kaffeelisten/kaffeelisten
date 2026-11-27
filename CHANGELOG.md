@@ -94,6 +94,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Kein Tracking* said "kein Analytics" while Vercel Web Analytics was mounted on every deployment
   (since 8 July). It now runs on the public demo only, whose privacy text mentions it, and a
   campus instance has none. (Open items from the July audit.)
+- **The page names the right controller, the operator, and every recipient.** The controller
+  was given as "ITC1 Innovations- und Technologiecampus Deggendorf GmbH"; it is ITC Innovations
+  Technologie Campus GmbH, as in the data protection agreement. The operator, who processes the
+  data on the campus's behalf, was missing from *Empfänger & Auftragsverarbeiter*, and *Wer hat
+  Zugriff* did not say that monthly documents also go to a person's company when it receives
+  copies, an invoice or a Verzehrliste (migrations `033`, `041`).
 
 ### fix/self-host-fonts
 
