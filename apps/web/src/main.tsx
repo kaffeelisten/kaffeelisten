@@ -22,6 +22,10 @@ import './index.css'
 // frame instead of shifting once it lands.
 void loadAppConfig()
 
+// Builds before 1.0.0 kept up to 50 Supabase responses (names, companies, entries) in a
+// service-worker cache for an hour. Nothing writes to it now; delete what tablets still hold.
+if ('caches' in window) void caches.delete('supabase-cache').catch(() => undefined)
+
 // A preview or local build wired to the production database must not start.
 const environmentError = databaseConfigError(import.meta.env.VITE_SUPABASE_URL, __VERCEL_ENV__)
 

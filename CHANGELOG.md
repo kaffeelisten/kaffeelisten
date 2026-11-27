@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/no-cached-personal-data
+
+#### Security
+- **The tablet no longer keeps personal data in its service-worker cache.** The PWA cached up to
+  50 Supabase responses (names, companies, entries) for an hour with `NetworkFirst`, on a device
+  everyone on the campus uses. The rule is gone, and the app deletes the old `supabase-cache` on
+  its next load. Only the static app shell is still precached. The app needs the network to log
+  anyway, so nothing works differently offline. (An open item from the July audit.)
+
 ### fix/dependency-security
 
 #### Security
