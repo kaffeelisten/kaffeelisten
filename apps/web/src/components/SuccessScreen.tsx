@@ -33,7 +33,7 @@ export default function SuccessScreen({ summary, onUndo, onReset }: SuccessScree
       {/* Text */}
       <div className="text-center">
         <p className="text-3xl sm:text-4xl font-bold text-fg tracking-tight">Gespeichert.</p>
-        <p className="text-lg text-fg-muted mt-2">{summary}</p>
+        <p className="text-lg text-fg-muted mt-2 [overflow-wrap:anywhere]">{summary}</p>
       </div>
 
       {/* Actions */}

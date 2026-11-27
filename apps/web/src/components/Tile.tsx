@@ -27,9 +27,11 @@ export default function Tile({ label, sub, selected = false, leading, accentColo
         .join(' ')}
     >
       {leading}
-      <div className="flex flex-col gap-0.5 flex-1">
-        <span className="text-lg sm:text-xl font-semibold text-fg">{label}</span>
-        {sub && <span className="text-sm text-fg-muted">{sub}</span>}
+      {/* min-w-0 + overflow-wrap: a name with no spaces wraps inside the tile instead of
+          widening the whole screen (a 120-character name made the tablet scroll sideways). */}
+      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+        <span className="text-lg sm:text-xl font-semibold text-fg [overflow-wrap:anywhere]">{label}</span>
+        {sub && <span className="text-sm text-fg-muted [overflow-wrap:anywhere]">{sub}</span>}
       </div>
       <span
         style={arrowColor ? { backgroundColor: arrowColor + '18', color: arrowColor } : undefined}

@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/long-names
+
+#### Fixed
+- **A long name no longer widens the tablet screen.** A company or person name without spaces
+  (120 characters is allowed) pushed the company list, the person list, the confirmation and the
+  success screen to more than twice the screen width, so the whole flow scrolled sideways on an
+  iPad. Names now wrap inside their tile or row. Found with the stress seed on the local stack.
+
 ### fix/euro-grouping
 
 #### Fixed

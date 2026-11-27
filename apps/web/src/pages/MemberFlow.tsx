@@ -575,7 +575,7 @@ export default function MemberFlow() {
           }}
           header={
             <>
-              <p className="text-sm font-medium text-fg-muted uppercase tracking-[0.06em]">
+              <p className="text-sm font-medium text-fg-muted uppercase tracking-[0.06em] [overflow-wrap:anywhere]">
                 {selectedCompany?.name}
               </p>
               <h1 className="text-3xl font-bold text-fg tracking-tight">Schön, dich zu sehen.</h1>
@@ -756,7 +756,7 @@ export default function MemberFlow() {
         }}
         header={
           <>
-            <p className="text-sm font-medium text-fg-muted uppercase tracking-[0.06em]">{whoLabel}</p>
+            <p className="text-sm font-medium text-fg-muted uppercase tracking-[0.06em] [overflow-wrap:anywhere]">{whoLabel}</p>
             <h1 className="text-3xl font-bold text-fg tracking-tight">Was hast du genommen?</h1>
             {companyCheckout && (
               <p className="text-base text-fg-muted">Wird auf das gemeinsame Konto von {selectedCompany?.name} gebucht.</p>
@@ -852,21 +852,21 @@ export default function MemberFlow() {
       >
         <div className="bg-surface border border-border rounded-2xl p-7 shadow-sm flex flex-col gap-4">
           {selectedMember && !companyCheckout && (
-            <div className="flex justify-between items-center border-b border-border pb-3.5">
-              <span className="text-sm text-fg-muted uppercase tracking-[0.06em]">Person</span>
-              <span className="text-xl font-semibold text-fg">{getDisplayName(selectedMember.name, members.filter(x => x.id !== selectedMember.id).map(x => x.name))}</span>
+            <div className="flex justify-between items-center gap-4 border-b border-border pb-3.5">
+              <span className="text-sm text-fg-muted uppercase tracking-[0.06em] shrink-0">Person</span>
+              <span className="text-xl font-semibold text-fg min-w-0 text-right [overflow-wrap:anywhere]">{getDisplayName(selectedMember.name, members.filter(x => x.id !== selectedMember.id).map(x => x.name))}</span>
             </div>
           )}
-          <div className="flex justify-between items-center border-b border-border pb-3.5">
-            <span className="text-sm text-fg-muted uppercase tracking-[0.06em]">{companyCheckout ? 'Firmenkonto' : 'Unternehmen'}</span>
-            <span className="text-xl font-semibold text-fg">{selectedCompany.name}</span>
+          <div className="flex justify-between items-center gap-4 border-b border-border pb-3.5">
+            <span className="text-sm text-fg-muted uppercase tracking-[0.06em] shrink-0">{companyCheckout ? 'Firmenkonto' : 'Unternehmen'}</span>
+            <span className="text-xl font-semibold text-fg min-w-0 text-right [overflow-wrap:anywhere]">{selectedCompany.name}</span>
           </div>
           {cartEntries.map(({ item, quantity }) => (
             <div
               key={item.id}
-              className="flex justify-between items-center border-b border-border pb-3.5 last:border-0 last:pb-0"
+              className="flex justify-between items-center gap-4 border-b border-border pb-3.5 last:border-0 last:pb-0"
             >
-              <span className="text-base text-fg">{quantity} × {item.name}</span>
+              <span className="text-base text-fg min-w-0 [overflow-wrap:anywhere]">{quantity} × {item.name}</span>
               <span className="text-xl font-semibold text-fg">{formatPrice(item.price_cents * quantity)}</span>
             </div>
           ))}
