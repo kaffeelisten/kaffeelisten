@@ -9,7 +9,7 @@ procedure.
 | | Production | Staging |
 | --- | --- | --- |
 | Supabase project | `kaffeelisten` (`fdnfdscpefxqvtggbbbr`), eu-west-1 | `voyager-56k` (`opqyzcdwboxlugllgzxf`), eu-north-1 – **shared**, see below |
-| Used by | Vercel **Production** (`kaffeelisten.de`) | Vercel **Preview** (every PR), Vercel **Development**, local runs |
+| Used by | The ITC1 instance: Vercel project `kaffeelisten-itc1`, not linked to Git, deployed only as a release tag from `itc1.kaffeelisten.de` | Vercel **Preview** (every PR), Vercel **Development**, local runs, **and the public demo** (`kaffeelisten-demo`, which deploys `main`) |
 | Data | Real ITC1 data | Disposable. An invented campus from `supabase/seeds/003_demo_campus.sql` (committed; no real company or person), or a private roster from `supabase/seeds/staging_roster.local.sql` (gitignored) |
 | Mail | Delivered | Guarded: only `MAIL_ALLOWLIST` recipients (default `example.com`), all redirected to `MAIL_SINK` (`delivered@resend.dev`), subject prefixed `[STAGING]` |
 | Migrations | Only via the `Database - production` workflow, started by hand | Automatically on PRs (`Database - staging`), or `node scripts/db/migrate.mjs` |
@@ -99,7 +99,7 @@ push to a PR ──► CI "Migrations and SQL guards":
              ──► "Database - staging": pending migrations → staging
              ──► Vercel preview (reads staging) → test it
 
-merge to main ──► Vercel builds production
+merge to main ──► Vercel builds the demo (kaffeelisten-demo, against staging)
 
 by hand, from main ──► "Database - production" (Run workflow, type the project ref):
                     plan (dry run, lists pending files)
@@ -110,9 +110,11 @@ by hand, from main ──► "Database - production" (Run workflow, type the pro
 **Production migrations are started by a person** (since 27 November 2026). Until
 then the workflow ran on every merge that changed `supabase/migrations`, which is
 right for a test system and wrong once a client's live data is on the other end.
-The order is: run the workflow, read its plan and result, then deploy the release
-that needs the migration. Every migration is `deploy: pre`, so the code already
-running is unaffected by it.
+Merging to `main` ships no code to the instance: it deploys only release tags, from
+`itc1.kaffeelisten.de`. The order is: merge, run the workflow and read its plan and
+result, then deploy the tag that needs the migration. A `deploy: pre` migration is
+safe under the code already running; a `deploy: post` one (`042`, for example) runs
+after the release that stops using what it removes.
 
 ### Why this is safe to repeat
 
@@ -250,8 +252,15 @@ webhook, or use a stable staging domain.
 
 GitHub: repository secret `SUPABASE_ACCESS_TOKEN`, repository variable
 `STAGING_PROJECT_REF` (a variable, or a secret – both work), and an Environment `production` holding its own
-`SUPABASE_ACCESS_TOKEN` secret (add a required reviewer there if production
-migrations should wait for approval).
+`SUPABASE_ACCESS_TOKEN` secret. **The environment needs protection rules, because
+typing the ref in the workflow guards only against accidents:** deployment branches
+limited to `main`, and a required reviewer. Without them, anyone with write access
+can push a branch whose copy of the workflow drops the checks and dispatch it.
+Supabase personal access tokens belong to an account and reach every project it can
+see, so the repository-level token used for staging can reach production too. That is
+an accepted risk while the only people with write access are the two founders; it
+closes only when production sits under an account of its own, whose token is held
+only in the environment.
 
 ## Local development
 

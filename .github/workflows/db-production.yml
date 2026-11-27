@@ -5,10 +5,15 @@ name: Database - production
 # Until 27 November 2026 this ran on every merge to main that changed
 # supabase/migrations. With a client's live data on the other end, a merge must not
 # reach its database with nobody in the loop, so it is manual: Actions → "Database -
-# production" → Run workflow, typing the project ref to confirm. The plan step lists
-# what will be applied before anything is. Every migration is "deploy: pre"
-# (backwards-compatible, CI enforces it): run this BEFORE deploying a release that
-# needs it, and the running code is unaffected. Procedure: docs/environments.md.
+# production" → Run workflow on main, typing the project ref. The ref is in this
+# public file, so typing it guards against accidents, not against intent; the
+# environment's protection rules do that. The plan step lists what will be applied
+# before anything is.
+#
+# Order: merge to main (which deploys only the demo, against staging), run this, then
+# deploy the release tag to the instance from itc1.kaffeelisten.de. A "deploy: pre"
+# migration is safe under the code already running; a "deploy: post" one is run after
+# the release that stops using what it removes. Procedure: docs/environments.md.
 on:
   workflow_dispatch:
     inputs:
@@ -24,20 +29,23 @@ jobs:
   migrate:
     name: Apply migrations to production
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     environment: production
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PRODUCTION_PROJECT_REF: fdnfdscpefxqvtggbbbr
       STAGING_PROJECT_REF: ${{ vars.STAGING_PROJECT_REF || secrets.STAGING_PROJECT_REF }}
     steps:
-      # A wrong or missing ref fails the run, visibly; it never skips quietly.
-      - name: Confirm the project
+      # A wrong branch or a wrong ref fails the run, visibly; it never skips quietly.
+      - name: Confirm the branch and the project
         env:
           CONFIRM: ${{ inputs.confirm }}
         run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Production is migrated from main only. Nothing was applied."
+            exit 1
+          fi
           if [ "$CONFIRM" != "$PRODUCTION_PROJECT_REF" ]; then
-            echo "::error::Typed '$CONFIRM', expected the production project ref. Nothing was applied."
+            echo "::error::The typed project ref does not match production. Nothing was applied."
             exit 1
           fi
 
