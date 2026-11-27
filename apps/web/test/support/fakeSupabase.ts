@@ -2,8 +2,9 @@
 // monthly report uses, so runMonthlyReport can be exercised end to end without a
 // network, a database or an email provider.
 //
-// Supported: select/insert/upsert/update, the filters eq/in/gte/lt, order (any
-// number of keys), range, single/maybeSingle, and rpc() through a handler map.
+// Supported: select/insert/upsert/update, the filters eq/neq/in/gte/lt/lte, order
+// (any number of keys), range, limit, select with { count: 'exact', head: true },
+// single/maybeSingle, and rpc() through a handler map.
 // Anything else throws, so a new query shape fails loudly here instead of
 // silently returning nothing.
 //
@@ -22,7 +23,9 @@ export interface FakeDb {
   rpc: Record<string, (args: Record<string, unknown>) => unknown>
 }
 
-class Query implements PromiseLike<{ data: unknown; error: null | { message: string } }> {
+type Result = { data: unknown; error: null | { message: string }; count?: number }
+
+class Query implements PromiseLike<Result> {
   private filters: Filter[] = []
   private op: 'select' | 'insert' | 'upsert' | 'update' = 'select'
   private payload: Row | Row[] | null = null
@@ -33,6 +36,8 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
   private columns: string[] | null = null   // null → all columns
   private selectAfterWrite = false
   private mode: 'many' | 'single' | 'maybeSingle' = 'many'
+  private limitTo: number | null = null
+  private countOnly = false
 
   constructor(private db: FakeDb, private table: string) {
     db.tables[table] ??= []
@@ -40,8 +45,9 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
 
   // Honours the column list like PostgREST does, so code that reads a column it
   // never selected fails here too instead of passing against a too-generous fake.
-  select(cols?: string) {
+  select(cols?: string, opts: { count?: 'exact'; head?: boolean } = {}) {
     if (this.op !== 'select') this.selectAfterWrite = true
+    if (opts.count === 'exact' && opts.head) this.countOnly = true
     const list = (cols ?? '*').split(',').map(c => c.trim()).filter(Boolean)
     this.columns = list.includes('*') || list.some(c => c.includes('(')) ? null : list
     return this
@@ -54,6 +60,9 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
   delete(): never { throw new Error(`fakeSupabase: delete() on ${this.table} is not supported`) }
 
   eq(col: string, v: unknown) { this.filters.push(r => r[col] === v); return this }
+  neq(col: string, v: unknown) { this.filters.push(r => r[col] !== v); return this }
+  lte(col: string, v: string) { this.filters.push(r => String(r[col]) <= v); return this }
+  limit(n: number) { this.limitTo = n; return this }
   in(col: string, vs: unknown[]) { this.filters.push(r => vs.includes(r[col])); return this }
   gte(col: string, v: string) { this.filters.push(r => String(r[col]) >= v); return this }
   lt(col: string, v: string) { this.filters.push(r => String(r[col]) < v); return this }
@@ -71,12 +80,13 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
     return this.db.tables[this.table]
   }
 
-  private execute(): { data: unknown; error: null | { message: string } } {
+  private execute(): Result {
     const table = this.rows()
     let result: Row[]
 
     if (this.op === 'select') {
       result = table.filter(r => this.filters.every(f => f(r)))
+      if (this.countOnly) return { data: null, error: null, count: result.length }
     } else if (this.op === 'update') {
       result = table.filter(r => this.filters.every(f => f(r)))
       for (const r of result) Object.assign(r, this.payload)
@@ -115,6 +125,7 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
       const start = this.rangeFrom ?? 0
       const span = this.rangeTo == null ? MAX_ROWS : Math.min(this.rangeTo - start + 1, MAX_ROWS)
       result = result.slice(start, start + span)
+      if (this.limitTo !== null) result = result.slice(0, this.limitTo)
     }
 
     const cols = this.columns
@@ -131,8 +142,8 @@ class Query implements PromiseLike<{ data: unknown; error: null | { message: str
     return { data: copies, error: null }
   }
 
-  then<T1 = { data: unknown; error: null | { message: string } }, T2 = never>(
-    onfulfilled?: ((value: { data: unknown; error: null | { message: string } }) => T1 | PromiseLike<T1>) | null,
+  then<T1 = Result, T2 = never>(
+    onfulfilled?: ((value: Result) => T1 | PromiseLike<T1>) | null,
     onrejected?: ((reason: unknown) => T2 | PromiseLike<T2>) | null,
   ): PromiseLike<T1 | T2> {
     return Promise.resolve().then(() => this.execute()).then(onfulfilled, onrejected)

@@ -46,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const body = (req.body ?? {}) as { id?: unknown; action?: unknown }
       const id = String(body.id ?? '').trim()
       if (!id || body.action !== 'resend') return res.status(400).json({ error: 'id und action: "resend" sind erforderlich.' })
-      const { id: newId } = await resendDelivery(id, async html => {
+      const { id: newId, queued } = await resendDelivery(id, async html => {
         try {
           return await renderPdf(html)
         } catch (err) {
@@ -55,7 +55,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return null
         }
       })
-      return res.status(200).json({ ok: true, id: newId })
+      // queued: the sending quota is reached; it goes out once it resets.
+      return res.status(200).json({ ok: true, id: newId, queued: queued ?? null })
     }
 
     const id = first(req.query.id)

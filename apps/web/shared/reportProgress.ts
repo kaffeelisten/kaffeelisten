@@ -5,7 +5,9 @@
 // Documents already sent are counted from document_deliveries, and delivery
 // status comes from the Resend webhook's email_delivery_events.
 
-export type RunPhase = 'preparing' | 'people' | 'companies' | 'report' | 'archive' | 'finishing' | 'done' | 'failed'
+// `queued`: everything is issued and archived, but some emails wait for the email
+// provider's sending quota to reset (migration 043, api/_lib/outbox.ts).
+export type RunPhase = 'preparing' | 'people' | 'companies' | 'report' | 'archive' | 'finishing' | 'queued' | 'done' | 'failed'
 
 // Invoices carry the PDF and Excel; statements and information copies are email only.
 export type DocGroup = 'invoice' | 'statement' | 'info'
@@ -22,6 +24,8 @@ export type DeliveryEvent = (typeof DELIVERY_EVENTS)[number]
 export interface SingleEmailProgress {
   planned: boolean
   sent: boolean
+  // Waiting in the mail outbox for the sending quota to reset.
+  queued: boolean
   messageId: string | null
 }
 
@@ -30,6 +34,8 @@ export interface StoredProgress {
   phase: RunPhase
   planned: Record<DocGroup, number>
   failed: number
+  // Emails of this run still waiting in the mail outbox.
+  queued: number
   report: SingleEmailProgress
   archive: SingleEmailProgress
 }
@@ -39,8 +45,9 @@ export function emptyProgress(): StoredProgress {
     phase: 'preparing',
     planned: { invoice: 0, statement: 0, info: 0 },
     failed: 0,
-    report: { planned: true, sent: false, messageId: null },
-    archive: { planned: false, sent: false, messageId: null },
+    queued: 0,
+    report: { planned: true, sent: false, queued: false, messageId: null },
+    archive: { planned: false, sent: false, queued: false, messageId: null },
   }
 }
 
@@ -62,7 +69,7 @@ export interface ProgressEvent {
 }
 
 export interface ProgressRun {
-  status: 'running' | 'completed' | 'failed'
+  status: 'running' | 'queued' | 'completed' | 'failed'
   started_at: string
   completed_at: string | null
   last_error: string | null
@@ -75,7 +82,7 @@ export interface DocCount {
 }
 
 export interface ReportProgress {
-  status: 'idle' | 'running' | 'completed' | 'failed'
+  status: 'idle' | 'running' | 'queued' | 'completed' | 'failed'
   startedAt: string | null
   completedAt: string | null
   error: string | null
@@ -84,6 +91,8 @@ export interface ReportProgress {
   // Invoices, documents and the two single emails together.
   total: DocCount
   failed: number
+  // Emails waiting in the mail outbox for the sending quota to reset.
+  queued: number
   report: SingleEmailProgress & { delivery: DeliveryState }
   archive: SingleEmailProgress & { delivery: DeliveryState }
   // Over every email sent so far that has a Resend message id.
@@ -105,7 +114,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
-const PHASES: RunPhase[] = ['preparing', 'people', 'companies', 'report', 'archive', 'finishing', 'done', 'failed']
+const PHASES: RunPhase[] = ['preparing', 'people', 'companies', 'report', 'archive', 'finishing', 'queued', 'done', 'failed']
 
 // Older runs (before migration 040) and hand-edited rows may hold anything.
 export function readStoredProgress(raw: unknown): StoredProgress | null {
@@ -117,6 +126,7 @@ export function readStoredProgress(raw: unknown): StoredProgress | null {
       ? {
           planned: typeof v.planned === 'boolean' ? v.planned : fallback.planned,
           sent: v.sent === true,
+          queued: v.queued === true,
           messageId: typeof v.messageId === 'string' ? v.messageId : null,
         }
       : fallback
@@ -125,6 +135,7 @@ export function readStoredProgress(raw: unknown): StoredProgress | null {
     phase: PHASES.includes(raw.phase as RunPhase) ? (raw.phase as RunPhase) : base.phase,
     planned: { invoice: count(planned.invoice), statement: count(planned.statement), info: count(planned.info) },
     failed: count(raw.failed),
+    queued: count(raw.queued),
     report: single(raw.report, base.report),
     archive: single(raw.archive, base.archive),
   }
@@ -160,7 +171,7 @@ export function summariseProgress(
   for (const group of Object.values(documents)) group.planned = Math.max(group.planned, group.sent)
 
   const single = (p: SingleEmailProgress | undefined, fallbackPlanned: boolean) => {
-    const value = p ?? { planned: fallbackPlanned, sent: false, messageId: null }
+    const value = p ?? { planned: fallbackPlanned, sent: false, queued: false, messageId: null }
     const state = stateOf(value.messageId)
     if (value.messageId) delivery[state]++
     return { ...value, delivery: state }
@@ -176,13 +187,14 @@ export function summariseProgress(
     startedAt: run?.started_at ?? null,
     completedAt: run?.completed_at ?? null,
     error: run?.status === 'failed' ? run.last_error : null,
-    phase: stored?.phase ?? (run?.status === 'completed' ? 'done' : run?.status === 'failed' ? 'failed' : null),
+    phase: stored?.phase ?? (run?.status === 'completed' ? 'done' : run?.status === 'failed' ? 'failed' : run?.status === 'queued' ? 'queued' : null),
     documents,
     total: {
       planned: docsPlanned + (report.planned ? 1 : 0) + (archive.planned ? 1 : 0),
       sent: docsSent + (report.sent ? 1 : 0) + (archive.sent ? 1 : 0),
     },
     failed: stored?.failed ?? 0,
+    queued: run?.status === 'queued' ? stored?.queued ?? 0 : 0,
     report,
     archive,
     delivery,

@@ -18,6 +18,48 @@ export function replyTo(): string | undefined {
 
 type SendArgs = Parameters<Resend['emails']['send']>
 type SendResult = Awaited<ReturnType<Resend['emails']['send']>>
+export type SendPayload = SendArgs[0]
+
+/**
+ * What a failed Resend send means for the caller.
+ *
+ * Resend answers HTTP 429 for three different things (resend.com/docs/api-reference/errors):
+ * - `rate_limit_exceeded`: more than 10 requests per second. Clears in seconds.
+ * - `daily_quota_exceeded`: the free plan's 100 emails per UTC day. Resets at midnight UTC.
+ * - `monthly_quota_exceeded`: the plan's monthly emails. Resets with the plan period.
+ * Resend does not queue a send it refused for quota, so the email was not sent and
+ * must be sent again later. Anything else is an ordinary failure.
+ */
+export type MailErrorKind = 'daily_quota' | 'monthly_quota' | 'rate_limit' | 'other'
+export type QuotaReason = Extract<MailErrorKind, 'daily_quota' | 'monthly_quota'>
+
+export function classifyResendError(error: unknown): MailErrorKind {
+  if (!error || typeof error !== 'object') return 'other'
+  const { name, statusCode } = error as { name?: unknown; statusCode?: unknown }
+  const n = typeof name === 'string' ? name : ''
+  if (n === 'daily_quota_exceeded') return 'daily_quota'
+  if (n === 'monthly_quota_exceeded') return 'monthly_quota'
+  if (n === 'rate_limit_exceeded') return 'rate_limit'
+  // An undocumented 429: a quota if its name says so, otherwise the per-second limit.
+  if (statusCode === 429) {
+    if (/month/i.test(n) && /quota/i.test(n)) return 'monthly_quota'
+    if (/quota/i.test(n)) return 'daily_quota'
+    return 'rate_limit'
+  }
+  return 'other'
+}
+
+export function isQuotaError(kind: MailErrorKind): kind is QuotaReason {
+  return kind === 'daily_quota' || kind === 'monthly_quota'
+}
+
+/** Thrown by a send that Resend refused for quota, so callers can queue instead of fail. */
+export class MailQuotaError extends Error {
+  constructor(readonly reason: QuotaReason, message: string) {
+    super(message)
+    this.name = 'MailQuotaError'
+  }
+}
 
 const RATE_LIMIT_DELAYS_MS = [1000, 2000, 4000]
 
@@ -26,7 +68,7 @@ const RATE_LIMIT_DELAYS_MS = [1000, 2000, 4000]
  * at a time, but a re-send or a second tab can push past that; a 429 used to
  * count the document as failed. Retry it with backoff – the idempotency key on
  * every send makes a retry safe. Quota errors (daily/monthly limit reached) are
- * not retried: waiting seconds does not help.
+ * not retried: waiting seconds does not help. They go to the outbox (outbox.ts).
  */
 export async function retryRateLimited(
   attempt: () => Promise<SendResult>,
@@ -34,10 +76,7 @@ export async function retryRateLimited(
 ): Promise<SendResult> {
   let result = await attempt()
   for (const delay of RATE_LIMIT_DELAYS_MS) {
-    const err = result.error as { name?: string; statusCode?: number | null } | null
-    // Resend answers 429 for both; only the rate limit clears within seconds.
-    const rateLimited = err?.name === 'rate_limit_exceeded' || (err?.statusCode === 429 && !/quota/.test(err.name ?? ''))
-    if (!rateLimited) return result
+    if (classifyResendError(result.error) !== 'rate_limit') return result
     console.warn(`[mail] rate limited by Resend, retrying in ${delay} ms`)
     await sleep(delay)
     result = await attempt()
