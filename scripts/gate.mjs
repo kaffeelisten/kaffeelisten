@@ -69,7 +69,10 @@ for (const [label, cmd] of [
   ['build', 'npm run build'],
 ]) record(label, run(label, cmd, { quiet: true }).ok)
 
-// ── SQL: every migration on a real Postgres, then the behaviour tests ───────
+// ── SQL: CI's migration lint, then every migration on a real Postgres ───────
+if (touches(/^supabase\/migrations\/|^scripts\/(lint-migrations|migration-lint)\.mjs$/)) {
+  record('migration lint (as CI)', run('migration lint', `node scripts/lint-migrations.mjs ${baseRef}`, { quiet: true }).ok)
+}
 if (touches(/^supabase\//)) {
   const pgBin = [process.env.PG_BIN, 'C:/Program Files/PostgreSQL/17/bin', '/usr/lib/postgresql/17/bin', '/opt/homebrew/opt/postgresql@17/bin']
     .filter(Boolean).find(d => existsSync(path.join(d, process.platform === 'win32' ? 'psql.exe' : 'psql')))
