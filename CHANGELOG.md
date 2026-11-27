@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [1.0.0] – 2026-11-27
+
+_The first tagged release since 0.8.2, and the one ITC1's hosted instance runs from December
+2026. It was prepared on 3 July (the section dated then, below) but not tagged, because the July
+audit set conditions that were not all met; the entries above that section came after, and they
+clear the audit's open items: limits on public-API writes, no personal data in the
+service-worker cache, self-hosted fonts and a privacy page that matches the system. It needs
+every migration up to `044` (no `032`); `go-live.yml` applies none, so check the database holds
+`044` before deploying. Known and open: names in Arabic, Hebrew and CJK print blank in PDFs
+(#98)._
+
 ### fix/long-names
 
 #### Fixed
@@ -312,9 +325,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [1.0.0] - 2026-07-03
+### Prepared for 1.0.0 on 3 July 2026
 
-_First production release for the ITC1 Deggendorf campus. Consolidates all development since the initial scaffold; entries below are grouped by the change that introduced them._
+_Everything from the initial scaffold to the July audit, grouped by the change that introduced it._
 
 ### chore/v1-gate-deps-tests
 
