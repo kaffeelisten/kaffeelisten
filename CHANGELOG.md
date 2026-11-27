@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+---
+
+## [1.1.0] – 2026-11-27
+
+_The release ITC1's hosted instance runs from December 2026. Everything since 1.0.0: invoice mode
+and per-company documents, the public demo, paging past the 1,000-row cap, the erasure script,
+self-hosted fonts and a correct privacy page. It needs every migration up to `042` (no `032`);
+`go-live.yml` applies none, so check the database holds `042` before deploying. 1.0.0 was prepared on 3 July and deployed in September but
+was never tagged; its tag goes on that commit (`463f3a8`)._
+
 ### fix/privacy-page-retention
 
 #### Fixed
