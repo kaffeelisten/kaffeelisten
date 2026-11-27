@@ -156,8 +156,57 @@ chore(deps): bump vite to 5.3
 6. **No direct `main` pushes** – open a PR; the CI gate must pass.
 7. **No generated secrets in commits** – `apps/web/.env.local` is gitignored; secrets live there only.
 8. **Before every commit** run `npm run typecheck`, `npm run typecheck:api`, `npm run lint`, `npm test`, `npm run build` and, when SQL changed, `scripts/test-migrations.sh`.
+9. **Before every push, the gate below.** It is not optional and not "when there is time".
 
 > **Monorepo note:** This is an npm workspaces repo. Run `npm install` / `npm ci` from the **repo root**, not from `apps/web`. The root `package.json` proxies all scripts (`dev`, `build`, `lint`, `typecheck`) to the workspace. `package-lock.json` lives at the root.
+
+## Before you push: the gate
+
+**Nothing reaches a remote branch, a pull request or staging until all of this holds for the
+commit being pushed.** A red CI run, a new Dependabot alert, or a reviewer finding the first bug
+means the gate failed late. Its cost is meant to be paid on this machine, on invented data.
+
+1. **`npm run gate` passes** and prints `Gate passed on <sha>`. Put that line in the pull request.
+   It runs what CI runs (typecheck, API typecheck, lint, tests, build), plus:
+   - every migration and SQL behaviour test on a real Postgres when `supabase/` changed;
+   - the real-Chromium PDF test when the PDF path or its engine changed;
+   - `npm audit --omit=dev`: no high or critical advisory in what ships;
+   - hygiene on the added lines: no em dash, no invisible Unicode, no secret, no `.env`, no real
+     people's data, and a `CHANGELOG.md` entry on `feat/` and `fix/` branches.
+
+   A check that cannot run here fails with the reason. It never skips silently. Use
+   `--base <branch>` for a stacked branch.
+2. **Try it on dummy data, locally, first.** `npm run dev:local` brings up Supabase in Docker with
+   every migration. `supabase/snippets/stress-seed.sql` loads far more, and far stranger, data than
+   any campus holds:
+   - 6,000 people with names in nine scripts;
+   - combining marks, emoji, bidi controls and 120-character names;
+   - HTML, template, SQL and CSV-formula injection strings;
+   - prices from 0 to 999,999 cents;
+   - 750,000 entries.
+
+   For anything that renders a list, a document or an amount, load it and look at the result on
+   the tablet at 768×1024. The gate cannot see layout.
+3. **When the PDF path or the `puppeteer-core` / `@sparticuz/chromium-min` version changes:**
+   - run `scripts/pdf-production-check/run.sh`, which uses production's engine on Amazon Linux in
+     Docker;
+   - look at the screenshots it writes.
+
+   Local Chrome has other fonts and another version.
+4. **An independent review**, for anything that touches security, SQL or migrations, money,
+   personal data, or the privacy page.
+   - The reviewer has not seen the work. They get the diff and this file, not your conclusions, and
+     are asked to find what is wrong, as an outside security specialist and senior engineer would.
+   - Every finding is fixed or answered in the pull request. A second pass checks the fixes.
+   - Copy-only and docs-only changes skip it. One review per pull request, not per commit.
+5. **Draft first.** Mark the pull request ready only when CI is green and the preview has been
+   opened.
+
+**Why each step, from 27 November 2026.** The first draft of migration `043` passed every
+automated check, and an independent review bypassed it through Supabase Auth sign-up in minutes.
+Two other bugs showed up only when the stress seed was loaded and looked at: a 120-character name
+made the tablet scroll sideways, and Arabic and Chinese names print blank in production PDFs
+(#98). The gate is necessary, not sufficient.
 
 ## Environment variables and `.env.local`
 
