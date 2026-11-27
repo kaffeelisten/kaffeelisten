@@ -76,6 +76,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   oversized data: names in nine scripts, combining marks, emoji, bidi overrides and injection
   strings, and a 400-person, 8,000-entry month. It is skipped unless `CHROMIUM_PATH` points at a
   local Chrome or Edge; run it after any upgrade of `puppeteer-core` or `@sparticuz/chromium-min`.
+### fix/privacy-page-retention
+
+#### Fixed
+- **The privacy page no longer promises a deletion that does not happen.** It said the archive
+  of reported months is deleted automatically after 90 days. Migration `042` made the archive
+  permanent, because it is the record behind every report, so the promise has been false since.
+  The page now says the archive is kept for as long as the campus runs Kaffeelisten, that the
+  administration cannot delete from it, and that a person's name and email are removed on
+  request, in the archive too, while the anonymous amounts stay. `docs/domain.md` and
+  `docs/prd.md` said the same old thing and are corrected.
 
 ### fix/self-host-fonts
 

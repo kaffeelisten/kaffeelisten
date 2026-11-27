@@ -104,7 +104,7 @@ items     1 ──< transactions
 
 8. **Member inactivity auto-deactivation** (Phase 2) – a monthly cron job soft-deletes any member with zero transactions in the past 90 days (`MEMBER_INACTIVITY_DAYS` env var, default `90`). Deactivated members are hidden from the member flow but remain in the admin Members list for manual reactivation.
 
-9. **Archive retention** (Phase 2) – records in `transactions_archive` older than 90 days are purged after each monthly report is sent (`ARCHIVE_RETENTION_DAYS` env var, default `90`). The live `transactions` table is cleared monthly as part of the normal report cycle, not on this schedule.
+9. **Archive retention** – `transactions_archive` is permanent. The 90-day purge was removed in migration `042`, which also revokes DELETE on the table: the archive is the record behind every report and half of the billing audit trail. A person is erased on request with `scripts/db/erase-person.sql`, which replaces name and email and keeps the amounts.
 
 ---
 

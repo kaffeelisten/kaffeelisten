@@ -100,7 +100,7 @@ The ITC1 campus CEO or an assigned manager. They receive the monthly report and 
 - [x] On trigger (manual or cron), the system computes the full month's transactions
 - [x] Email is sent to the configured admin email address via Resend
 - [x] Email contains: reporting period, per-company breakdown, per-member breakdown within each company, item-level detail, and a total; PDF and Excel attachments included
-- [x] After the email is confirmed sent, transactions are archived to `transactions_archive`; a 90-day rolling window is maintained
+- [x] After the email is confirmed sent, transactions are archived to `transactions_archive`, which is kept permanently (migration `042`)
 
 **PWA Baseline**
 
