@@ -9,6 +9,38 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/anon-write-limits
+
+#### Security
+- **Writes through the public API are rate-limited in the database** (migration `043`). The anon
+  key ships in the bundle, so anyone with an instance's address could script the member RPCs:
+  log orders against any member (inflating their bill) or self-register thousands of fake
+  members, each of whom would receive the monthly statement and spend the mail quota. Orders now
+  count units, once per call: 60 per person and 300 per company's shared account per 10 minutes;
+  undoing an order gives its units back. Self-registration allows 30 people per company and 200
+  across the instance per hour. Orders have no campus-wide counter, because one a stranger can
+  fill would stop everyone from logging. The
+  service role and direct owner connections (`scripts/db/*.sql`) are never limited, and the
+  service role can delete a counter to lift a limit early. Past a limit the tablet says *Gerade zu
+  viele Einträge auf einmal* instead of a generic error.
+- **Signed-in Supabase users can no longer call the member RPCs.** They were granted to
+  `authenticated` as well as `anon`, and the app uses no Supabase Auth, so a sign-up through
+  `/auth/v1` was a way around any limit. The local stack now has sign-up switched off
+  (`supabase/config.toml`); switch it off on every hosted project too. Covered by
+  `supabase/tests/phase9_anon_write_limits.test.sql`. (An open item from the July audit; the
+  design was changed after an independent review found the first draft could be bypassed.)
+
+### Security
+- **The tablet's anonymous writes are rate-limited in the database** (migration `043`). The anon
+  key ships in the bundle, so anyone with an instance's address could script the member RPCs:
+  log orders against any member (inflating their bill) or self-register thousands of fake
+  members, each of whom would receive the monthly statement and spend the Resend quota. A trigger
+  now allows 40 order rows per member and 1,500 overall per 10 minutes, and 20 self-registrations
+  per company and 60 overall per hour, counted only when the request's role is anon. The
+  administration, the monthly run and `scripts/db/*.sql` are never limited. Past a limit the
+  tablet says *Gerade zu viele Einträge auf einmal* instead of a generic error. Covered by
+  `supabase/tests/phase9_anon_write_limits.test.sql`. (An open item from the July audit.)
+
 ### fix/no-cached-personal-data
 
 #### Security

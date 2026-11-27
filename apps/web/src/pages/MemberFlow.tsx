@@ -37,6 +37,8 @@ type CartEntry = { item: Item; quantity: number }
 
 // Basic email shape check – the DB (work_email NOT NULL) is the source of truth.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// The database refuses anonymous writes past a per-person and per-company rate (migration 043).
+const RATE_LIMITED = 'Gerade zu viele Einträge auf einmal. Bitte in ein paar Minuten erneut versuchen.'
 
 const CATEGORY_LABELS: Record<string, string> = {
   coffee: 'Kaffee',
@@ -314,7 +316,9 @@ export default function MemberFlow() {
       : await supabase.rpc('log_order', { p_member_id: selectedMember!.id, p_items: lines })
     setSubmitting(false)
     if (err || !data) {
-      setError('Eintrag konnte nicht gespeichert werden. Bitte erneut versuchen.')
+      setError(err?.message === 'rate_limited'
+        ? RATE_LIMITED
+        : 'Eintrag konnte nicht gespeichert werden. Bitte erneut versuchen.')
       return
     }
     setLastOrderIds(data)
@@ -366,7 +370,10 @@ export default function MemberFlow() {
     })
     setAddingMember(false)
     const created = data?.[0]
-    if (err || !created) { setAddSelfError('Konnte nicht gespeichert werden. Bitte erneut versuchen.'); return }
+    if (err || !created) {
+      setAddSelfError(err?.message === 'rate_limited' ? RATE_LIMITED : 'Konnte nicht gespeichert werden. Bitte erneut versuchen.')
+      return
+    }
     setMembers(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
     setSelectedMember(created)
     setAddSelfOpen(false)
