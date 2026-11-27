@@ -12,7 +12,7 @@ procedure.
 | Used by | Vercel **Production** (`kaffeelisten.de`) | Vercel **Preview** (every PR), Vercel **Development**, local runs |
 | Data | Real ITC1 data | Disposable. An invented campus from `supabase/seeds/003_demo_campus.sql` (committed; no real company or person), or a private roster from `supabase/seeds/staging_roster.local.sql` (gitignored) |
 | Mail | Delivered | Guarded: only `MAIL_ALLOWLIST` recipients (default `example.com`), all redirected to `MAIL_SINK` (`delivered@resend.dev`), subject prefixed `[STAGING]` |
-| Migrations | Only via the `Database - production` workflow | Automatically on PRs (`Database - staging`), or `node scripts/db/migrate.mjs` |
+| Migrations | Only via the `Database - production` workflow, started by hand | Automatically on PRs (`Database - staging`), or `node scripts/db/migrate.mjs` |
 
 Both projects are on the Supabase **Free** plan. Supabase Branching (a database
 per PR) needs the Pro plan. Once the project moves to the ITC1-paid organisation
@@ -100,14 +100,19 @@ push to a PR ──► CI "Migrations and SQL guards":
              ──► Vercel preview (reads staging) → test it
 
 merge to main ──► Vercel builds production
-              ──► "Database - production" (runs because supabase/migrations changed):
+
+by hand, from main ──► "Database - production" (Run workflow, type the project ref):
                     plan (dry run, lists pending files)
                     apply to production, each file in one transaction with its history row
                     schema comparison staging ↔ production (informational)
 ```
 
-Because every migration in a release is `deploy: pre`, it does not matter
-whether the Vercel build or the migration finishes first.
+**Production migrations are started by a person** (since 27 November 2026). Until
+then the workflow ran on every merge that changed `supabase/migrations`, which is
+right for a test system and wrong once a client's live data is on the other end.
+The order is: run the workflow, read its plan and result, then deploy the release
+that needs the migration. Every migration is `deploy: pre`, so the code already
+running is unaffected by it.
 
 ### Why this is safe to repeat
 

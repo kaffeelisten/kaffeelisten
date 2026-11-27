@@ -1,15 +1,20 @@
 name: Database - production
 
-# The ONLY way migrations reach production. Runs automatically when a merge to
-# main changes supabase/migrations, at the same time as Vercel builds main.
-# Every migration in a release must be tagged "deploy: pre" (backwards-compatible),
-# which CI enforces, so it does not matter which of the two finishes first.
-# Post-deploy migrations ship in their own later PR. Procedure: docs/environments.md.
+# The ONLY way migrations reach production, and only when a person starts it.
+#
+# Until 27 November 2026 this ran on every merge to main that changed
+# supabase/migrations. With a client's live data on the other end, a merge must not
+# reach its database with nobody in the loop, so it is manual: Actions → "Database -
+# production" → Run workflow, typing the project ref to confirm. The plan step lists
+# what will be applied before anything is. Every migration is "deploy: pre"
+# (backwards-compatible, CI enforces it): run this BEFORE deploying a release that
+# needs it, and the running code is unaffected. Procedure: docs/environments.md.
 on:
-  push:
-    branches: [main]
-    paths: ['supabase/migrations/**']
   workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type the production project ref to apply pending migrations'
+        required: true
 
 concurrency:
   group: db-production
@@ -26,6 +31,16 @@ jobs:
       PRODUCTION_PROJECT_REF: fdnfdscpefxqvtggbbbr
       STAGING_PROJECT_REF: ${{ vars.STAGING_PROJECT_REF || secrets.STAGING_PROJECT_REF }}
     steps:
+      # A wrong or missing ref fails the run, visibly; it never skips quietly.
+      - name: Confirm the project
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "$PRODUCTION_PROJECT_REF" ]; then
+            echo "::error::Typed '$CONFIRM', expected the production project ref. Nothing was applied."
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
