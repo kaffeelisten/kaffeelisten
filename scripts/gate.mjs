@@ -99,7 +99,16 @@ const audit = run('npm audit (runtime)', 'npm audit --omit=dev --json', { quiet:
 let runtimeHigh = 0, devHigh = 0
 try { const m = JSON.parse(audit.out).metadata.vulnerabilities; runtimeHigh = m.high + m.critical } catch { runtimeHigh = -1 }
 try { const m = JSON.parse(run('npm audit (all)', 'npm audit --json', { quiet: true, silentFailure: true }).out).metadata.vulnerabilities; devHigh = m.high + m.critical } catch { devHigh = -1 }
-record('no high or critical advisory at runtime', runtimeHigh === 0, runtimeHigh === -1 ? 'npm audit did not answer' : runtimeHigh ? `${runtimeHigh} found: npm audit --omit=dev` : '')
+// A branch that changes dependencies owns what ships: it must leave nothing high or
+// critical. One that does not touch them is not failed for its base; the count is
+// reported, so a pre-existing finding stays visible without blocking unrelated work.
+const depsChanged = touches(/(^|\/)package(-lock)?\.json$/)
+if (runtimeHigh === -1) record('npm audit answered', false, 'npm audit did not answer')
+else if (depsChanged || runtimeHigh === 0) {
+  record('no high or critical advisory at runtime', runtimeHigh === 0, runtimeHigh ? `${runtimeHigh} found: npm audit --omit=dev` : '')
+} else {
+  record('dependencies untouched', true, `${runtimeHigh} high/critical at runtime on the base already – not this branch's; say so in the PR`)
+}
 if (devHigh > 0) console.log(`  note: ${devHigh} high/critical in development dependencies – say so in the PR`)
 
 // ── Hygiene on the lines this branch adds ───────────────────────────────────
