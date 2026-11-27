@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/archive-no-truncate
+
+#### Security
+- **The archive is append-only for every API role** (migration `044`). Migration `042` revoked
+  DELETE, but the service role could still TRUNCATE the archive or UPDATE a reported month from
+  a direct SQL session. No code did either; both are revoked, so the privacy page's "the
+  administration cannot delete from it" holds at the database level.
+
 ### fix/anon-write-limits
 
 #### Security
