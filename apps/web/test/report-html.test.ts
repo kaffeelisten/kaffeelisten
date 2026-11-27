@@ -102,3 +102,15 @@ describe('formatDate', () => {
     expect(formatDate('2026-07-31T22:30:00.000Z')).toBe('01.08.2026')
   })
 })
+
+describe('formatEuro on documents', () => {
+  it('groups thousands the German way and keeps cents exact', async () => {
+    const { formatEuro } = await import('../api/_lib/reportHtml')
+    expect(formatEuro(5)).toBe('€ 0,05')
+    expect(formatEuro(205)).toBe('€ 2,05')
+    expect(formatEuro(240000)).toBe('€ 2.400,00')
+    expect(formatEuro(40005871)).toBe('€ 400.058,71')
+    expect(formatEuro(-1550)).toBe('€ -15,50')
+    expect(formatEuro(-0.4)).toBe('€ 0,00')
+  })
+})

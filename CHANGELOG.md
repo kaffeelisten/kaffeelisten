@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### fix/euro-grouping
+
+#### Fixed
+- **Amounts of €1,000 and more print with a thousands separator on documents and emails.** A
+  company's monthly invoice read "€ 2400,00"; it now reads "€ 2.400,00", as the admin screens
+  already did. Found by rendering the stress data through production's Chromium. The CSV export
+  stays ungrouped, so spreadsheets keep parsing it as numbers.
+
 ### fix/archive-no-truncate
 
 #### Security

@@ -42,8 +42,11 @@ export interface CompanySummary {
   total_entries: number
 }
 
+/** "€ 1.234,50": German grouping, as the admin screens show it (src/lib/money.ts). */
 export function formatEuro(cents: number): string {
-  return '€ ' + (cents / 100).toFixed(2).replace('.', ',')
+  const abs = Math.round(Math.abs(cents))
+  const sign = cents < 0 && abs > 0 ? '-' : ''
+  return `€ ${sign}${Math.floor(abs / 100).toLocaleString('de-DE')},${String(abs % 100).padStart(2, '0')}`
 }
 
 // Berlin calendar date. The server runs in UTC, so without the zone an entry
