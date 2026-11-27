@@ -1,11 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
-import { Analytics } from '@vercel/analytics/react'
 import App from './App'
 import { ThemeProvider } from './lib/theme'
 import { databaseConfigError } from './lib/environment'
 import { loadAppConfig } from './lib/appConfig'
+import { DemoAnalytics } from './components/DemoAnalytics'
 // Fonts are bundled and served from our own origin, never fetched from Google:
 // a third-party font request sends every visitor's IP address to Google, which
 // the data protection agreement does not list as a recipient.
@@ -45,8 +45,6 @@ createRoot(document.getElementById('root')!).render(
         </BrowserRouter>
       )}
     </ThemeProvider>
-    {/* Vercel Web Analytics – privacy-friendly page/visit metrics, no cookies.
-        Only sends beacons on Vercel-hosted deployments; a no-op locally. */}
-    <Analytics />
+    <DemoAnalytics />
   </StrictMode>,
 )

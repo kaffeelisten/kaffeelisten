@@ -87,6 +87,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   request, in the archive too, while the anonymous amounts stay. `docs/domain.md` and
   `docs/prd.md` said the same old thing and are corrected. *Löschung beantragen* no longer says
   entries are removed "umgehend": name and email are removed, the amounts stay.
+- **Two more sentences on that page were not true, and are fixed.** *Wer hat Zugriff* said
+  members see no one else's data, but the name picker shows every participant's name and company
+  to anyone at the tablet, and to anyone who knows the instance's address. The page now says so,
+  and that entries, amounts and email addresses stay with the administration. *Keine Cookies ·
+  Kein Tracking* said "kein Analytics" while Vercel Web Analytics was mounted on every deployment
+  (since 8 July). It now runs on the public demo only, whose privacy text mentions it, and a
+  campus instance has none. (Open items from the July audit.)
 
 ### fix/self-host-fonts
 

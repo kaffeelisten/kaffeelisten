@@ -164,10 +164,13 @@ export default function Datenschutz() {
         </Section>
 
         <Section title="Wer hat Zugriff">
-          Ausschließlich die Campus-Verwaltung über das PIN-geschützte Admin-Panel.
-          Mitarbeitende sehen keine fremden Daten – die Logging-Ansicht zeigt nur die
-          eigene Auswahl. Die Admin-PIN wird serverseitig geprüft und ist nicht Teil
-          der Anwendung im Browser.
+          Einträge, Beträge und E-Mail-Adressen sieht ausschließlich die Campus-Verwaltung
+          über das PIN-geschützte Admin-Panel. Die Admin-PIN wird serverseitig geprüft und
+          ist nicht Teil der Anwendung im Browser.{' '}
+          <strong className="text-fg font-medium">Sichtbar für alle ist die Namensauswahl:</strong>{' '}
+          Name und Unternehmen jeder teilnehmenden Person stehen am Tablet zur Auswahl und
+          sind für alle abrufbar, die die Adresse der Anwendung kennen. Dafür gibt es kein
+          Login.
         </Section>
 
         <Section title="Deine Rechte">
@@ -287,6 +290,8 @@ function DemoNotice({ onBack }: { onBack: () => void }) {
           deine eigenen Einstellungen lokal im Browser (<code className="font-mono text-[13px]">localStorage</code>)
           und setzt nach der Anmeldung im Administrationsbereich ein technisch notwendiges
           Sitzungs-Cookie. Beides verlässt dein Gerät nicht als Profil und wird nicht ausgewertet.
+          Seitenaufrufe der Demo zählt Vercel Web Analytics, ohne Cookies und ohne Besucherprofil;
+          in einer Campus-Installation ist es ausgeschaltet.
         </Section>
 
         <Section title="Hosting">
