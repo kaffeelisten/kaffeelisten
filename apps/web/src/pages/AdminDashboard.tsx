@@ -10,6 +10,7 @@ import { todayBerlin } from '../lib/dates'
 import { useAppConfig } from '../lib/appConfig'
 import Sidebar, { type PageId } from '../components/admin/Sidebar'
 import ReportSendDialog from '../components/admin/ReportSendDialog'
+import MailQueueNotice from '../components/admin/MailQueueNotice'
 import Toast from '../components/admin/Toast'
 import OverviewPage from './admin/OverviewPage'
 import EntriesPage from './admin/EntriesPage'
@@ -32,6 +33,8 @@ export default function AdminDashboard() {
   const [month, setMonth] = useState<string>(todayBerlin().slice(0, 7))
   const [reportOpen, setReportOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  // Bumped when the report dialog closes, so the mail-quota notice re-reads.
+  const [mailQueueKey, setMailQueueKey] = useState(0)
 
   // Session guard
   useEffect(() => {
@@ -110,6 +113,7 @@ export default function AdminDashboard() {
       />
 
       <main className="flex-1 min-w-0 bg-bg overflow-y-auto">
+        <MailQueueNotice refreshKey={mailQueueKey} onToast={showToast} />
         {activePage === 'dashboard' && (
           <OverviewPage
             rows={rows}
@@ -151,8 +155,8 @@ export default function AdminDashboard() {
         month={month}
         entryCount={monthRows.length}
         totalCents={monthTotal}
-        onClose={() => setReportOpen(false)}
-        onOpenDocuments={() => { setReportOpen(false); navigateTo('documents') }}
+        onClose={() => { setReportOpen(false); setMailQueueKey(k => k + 1) }}
+        onOpenDocuments={() => { setReportOpen(false); setMailQueueKey(k => k + 1); navigateTo('documents') }}
         onToast={showToast}
       />
 

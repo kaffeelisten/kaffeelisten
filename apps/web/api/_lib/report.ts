@@ -30,7 +30,8 @@ import {
   type IssuerConfig,
 } from './billing'
 import { findPalette } from './palettes'
-import { makeMailer, replyTo } from './mail'
+import { makeMailer, replyTo, type QuotaReason, type SendPayload } from './mail'
+import { QuotaGate, queueTo, sendOrQueue, type DeliveryRecord, type OutboxEntry, type QueueFn, type SendOutcome } from './outbox'
 import { databaseConfigError } from '../../shared/environment'
 import { mergeLiveAndArchive, unitPriceOf } from './pricing'
 import { fetchAllRows } from './paged'
@@ -422,6 +423,32 @@ export function resolveReportSubject(format: ReportFormat, monthLabel: string, r
   return `Kaffeelisten – Monatsbericht ${monthName} ${yearStr}`
 }
 
+// How a send reaches Resend: through the guarded mailer, queued in the mail
+// outbox when the sending quota is reached (outbox.ts). One gate per run.
+export interface MailPath {
+  resend: Resend
+  gate: QuotaGate
+  queue: QueueFn
+}
+
+function makeMailPath(resendKey: string, supabase: ReturnType<typeof makeSupabase>): MailPath {
+  return { resend: makeMailer(resendKey), gate: new QuotaGate(), queue: queueTo(supabase) }
+}
+
+function deliver(path: MailPath, entry: OutboxEntry): Promise<SendOutcome> {
+  return sendOrQueue(
+    {
+      send: async (payload, idempotencyKey) => {
+        const { data, error } = await path.resend.emails.send(payload, { idempotencyKey })
+        return { data: data ? { id: data.id } : null, error }
+      },
+      queue: path.queue,
+    },
+    path.gate,
+    entry,
+  )
+}
+
 export async function sendEmail(
   pdfBuffer: Buffer | null,
   xlsxBuffer: Buffer | null,
@@ -437,14 +464,13 @@ export async function sendEmail(
   // the campus roll-up workbook. The archive ZIP is NOT attached here: it goes
   // to the CEO alone (sendCeoArchive).
   extras: { insights?: AdminInsights; rollupXlsx?: Buffer | null } = {},
-): Promise<string | null> {
+  path?: MailPath,
+): Promise<SendOutcome> {
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) throw new Error('Missing RESEND_API_KEY')
   if (recipients.length === 0) {
     throw new Error('No report recipients configured (app_settings.report_recipients / ADMIN_EMAIL)')
   }
-
-  const resend = makeMailer(resendKey)
 
   const [yearStr] = reportMonth.split('-')
   const html = buildCompanyEmailHtml(summaries, transactions, monthLabel, {
@@ -466,28 +492,32 @@ export async function sendEmail(
     attachments.push({ filename: `Campus-Auswertung-${reportMonth}.xlsx`, content: extras.rollupXlsx.toString('base64') })
   }
 
-  const { data, error } = await resend.emails.send(
-    {
-      from: 'Kaffeelisten <bericht@kaffeelisten.de>',
-      to: recipients,
-      ...(ccEmails.length > 0 ? { cc: ccEmails } : {}),
-      ...(replyTo() ? { replyTo: replyTo()! } : {}),
-      subject: resolveReportSubject(format, monthLabel, reportMonth),
-      html,
-      attachments,
-    },
-    // Idempotency key: a retry for the same run won't send a second copy
-    // (Resend dedupes within its window). The caller varies the key when an
-    // admin explicitly forces a re-send.
-    { idempotencyKey: `report-${idempotencyKey}` },
-  )
-  // Resend returns { data, error } and generally does NOT throw on API errors –
-  // so an unchecked call reports failures as success. Surface it so the caller
-  // does not archive/prune a report that was never delivered.
-  if (error) {
-    throw new Error(`Resend company report failed: ${error.message ?? JSON.stringify(error)}`)
+  const payload: SendPayload = {
+    from: 'Kaffeelisten <bericht@kaffeelisten.de>',
+    to: recipients,
+    ...(ccEmails.length > 0 ? { cc: ccEmails } : {}),
+    ...(replyTo() ? { replyTo: replyTo()! } : {}),
+    subject: resolveReportSubject(format, monthLabel, reportMonth),
+    html,
+    attachments,
   }
-  return data?.id ?? null
+  // Resend returns { data, error } and generally does NOT throw on API errors, so
+  // deliver() throws every failure except the quota: the caller must not
+  // archive/prune a report that was never delivered. A quota refusal is queued.
+  try {
+    return await deliver(path ?? makeMailPath(resendKey, makeSupabase()), {
+      // Idempotency key: a retry for the same run won't send a second copy
+      // (Resend dedupes within its window). The caller varies the key when an
+      // admin explicitly forces a re-send.
+      idempotencyKey: `report-${idempotencyKey}`,
+      reportMonth,
+      purpose: 'report',
+      payload,
+      onSent: { kind: 'run_email', slot: 'report' },
+    })
+  } catch (err) {
+    throw new Error(`Resend company report failed: ${err instanceof Error ? err.message : String(err)}`)
+  }
 }
 
 /**
@@ -503,22 +533,28 @@ export async function sendCeoArchive(
   reportMonth: string,
   format: ReportFormat,
   idempotencyKey: string,
-): Promise<string | null> {
+  path?: MailPath,
+): Promise<SendOutcome> {
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) throw new Error('Missing RESEND_API_KEY')
-  const { data, error } = await makeMailer(resendKey).emails.send(
-    {
-      from: 'Kaffeelisten <bericht@kaffeelisten.de>',
-      to: [ceoEmail],
-      ...(replyTo() ? { replyTo: replyTo()! } : {}),
-      subject: `Kaffeelisten – Dokumentenarchiv ${monthLabel}`,
-      html: buildCeoArchiveEmailHtml(monthLabel, documentCount, { accent: format.accent }),
-      attachments: [{ filename: `Kaffeelisten-Archiv-${reportMonth}.zip`, content: zip.toString('base64') }],
-    },
-    { idempotencyKey: `ceo-archive-${idempotencyKey}` },
-  )
-  if (error) throw new Error(`Resend CEO archive failed: ${error.message ?? JSON.stringify(error)}`)
-  return data?.id ?? null
+  try {
+    return await deliver(path ?? makeMailPath(resendKey, makeSupabase()), {
+      idempotencyKey: `ceo-archive-${idempotencyKey}`,
+      reportMonth,
+      purpose: 'archive',
+      payload: {
+        from: 'Kaffeelisten <bericht@kaffeelisten.de>',
+        to: [ceoEmail],
+        ...(replyTo() ? { replyTo: replyTo()! } : {}),
+        subject: `Kaffeelisten – Dokumentenarchiv ${monthLabel}`,
+        html: buildCeoArchiveEmailHtml(monthLabel, documentCount, { accent: format.accent }),
+        attachments: [{ filename: `Kaffeelisten-Archiv-${reportMonth}.zip`, content: zip.toString('base64') }],
+      },
+      onSent: { kind: 'run_email', slot: 'archive' },
+    })
+  } catch (err) {
+    throw new Error(`Resend CEO archive failed: ${err instanceof Error ? err.message : String(err)}`)
+  }
 }
 
 // ─── Per-person and per-company documents ─────────────────────────────────────
@@ -526,11 +562,13 @@ export async function sendCeoArchive(
 export interface MemberStatementResult {
   sent: number
   failed: number
+  // Held back by the sending quota; in the mail outbox (migration 043).
+  queued: number
 }
 
 // Everything a delivery needs that is the same for the whole run.
 interface DeliveryContext {
-  resend: Resend
+  mail: MailPath
   supabase: ReturnType<typeof makeSupabase>
   monthLabel: string
   reportMonth: string
@@ -610,9 +648,9 @@ async function renderPrepared(ctx: DeliveryContext, prepared: PreparedDoc[]): Pr
 // Append the delivered document to the ledger (migration 037). A ledger failure
 // is logged, not thrown: the email has already gone out, and aborting the loop
 // would leave the remaining recipients unsent.
-async function recordDelivery(ctx: DeliveryContext, p: PreparedDoc, messageId: string | null): Promise<void> {
+function deliveryRecord(p: PreparedDoc): DeliveryRecord {
   const d = p.issued
-  const { error } = await ctx.supabase.from('document_deliveries').insert({
+  return {
     report_month: d.reportMonth,
     kind: d.kind,
     company_id: d.companyId,
@@ -624,15 +662,21 @@ async function recordDelivery(ctx: DeliveryContext, p: PreparedDoc, messageId: s
     gross_cents: d.grossCents,
     has_pdf: !!d.pdf,
     has_xlsx: !!d.xlsx,
-    resend_message_id: messageId,
-  })
+  }
+}
+
+async function recordDelivery(ctx: DeliveryContext, p: PreparedDoc, messageId: string | null): Promise<void> {
+  const d = p.issued
+  const { error } = await ctx.supabase.from('document_deliveries').insert({ ...deliveryRecord(p), resend_message_id: messageId })
   if (error) console.error(`[delivery-ledger] could not record ${d.kind} for ${d.recipientEmail}:`, error.message)
 }
 
 // Send prepared documents one at a time (Resend rate limits), marking ledger rows.
 // Individual failures are counted and logged, not thrown, so one bad address
 // never aborts the run. Every successfully sent document is pushed to `collect`,
-// with or without its files.
+// with or without its files, and so is one queued for the sending quota: it is
+// issued and will go out, so it belongs in the archive. The outbox records it in
+// document_deliveries when it is sent.
 async function sendPrepared(
   ctx: DeliveryContext,
   prepared: readonly PreparedDoc[],
@@ -642,11 +686,15 @@ async function sendPrepared(
 ): Promise<MemberStatementResult> {
   let sent = 0
   let failed = 0
+  let queued = 0
   for (const p of prepared) {
     const attachments = [...attachmentsFor(p.issued), ...(await extraAttachments(p))]
     try {
-      const { data, error } = await ctx.resend.emails.send(
-        {
+      const outcome = await deliver(ctx.mail, {
+        idempotencyKey: p.idempotencyKey,
+        reportMonth: ctx.reportMonth,
+        purpose: 'document',
+        payload: {
           from: 'Kaffeelisten <bericht@kaffeelisten.de>',
           to: [p.to],
           ...(replyTo() ? { replyTo: replyTo()! } : {}),
@@ -654,12 +702,15 @@ async function sendPrepared(
           html: p.html,
           ...(attachments.length ? { attachments } : {}),
         },
-        { idempotencyKey: p.idempotencyKey },
-      )
-      if (error) throw new Error(error.message ?? JSON.stringify(error))
-      if (p.ledgerId) await markBillingDocumentSent(ctx.supabase, p.ledgerId, data?.id ?? null)
-      await recordDelivery(ctx, p, data?.id ?? null)
+        onSent: { kind: 'delivery', delivery: deliveryRecord(p), markInvoiceSent: true },
+      })
       collect.push(p.issued)
+      if (outcome.status === 'queued') {
+        queued++
+        continue
+      }
+      if (p.ledgerId) await markBillingDocumentSent(ctx.supabase, p.ledgerId, outcome.messageId)
+      await recordDelivery(ctx, p, outcome.messageId)
       sent++
       // Light throttle – Resend limits requests per second.
       await new Promise(r => setTimeout(r, 120))
@@ -669,7 +720,7 @@ async function sendPrepared(
       console.error(`[${logLabel}] failed for ${p.to}:`, err instanceof Error ? err.message : err)
     }
   }
-  return { sent, failed }
+  return { sent, failed, queued }
 }
 
 // Sends each planned person their document – an invoice, a statement, or an
@@ -991,17 +1042,25 @@ const RUNNING_STALE_MS = 15 * 60 * 1000
 
 interface RunResult {
   status: 'sent' | 'skipped'
+  // Why a run was skipped: another attempt is running, the month is done, or its
+  // emails are still waiting in the mail outbox (a re-send would duplicate them).
+  skipReason?: 'busy' | 'completed' | 'queued'
   memberStatements?: MemberStatementResult
   // Recipients who could not be sent a document, and why – e.g. a company that
   // pays but has no billing contact. Intentionally disabled documents are omitted.
   skipped?: SkippedDelivery[]
   // Documents delivered without a PDF or Excel (flagged in the archive manifest).
   missingFiles?: { pdf: number; xlsx: number }
+  // Emails of this run held back by the sending quota (documents, report, archive).
+  queued?: { count: number; reason: QuotaReason; nextAttemptAt: string }
 }
 
-// Acquire the run for a month. Returns false when it should be skipped (already
-// completed, or another attempt is actively running) unless force is set.
-async function beginReportRun(reportMonth: string, force: boolean): Promise<boolean> {
+// Acquire the run for a month, or say why it should be skipped: another attempt
+// is actively running, the month is completed (unless force is set), or its
+// emails are still waiting in the mail outbox. The last holds even for force: a
+// forced re-send uses fresh idempotency keys, so the queued emails and the new
+// ones would both go out.
+async function beginReportRun(reportMonth: string, force: boolean): Promise<'acquired' | 'busy' | 'completed' | 'queued'> {
   const supabase = makeSupabase()
   const { data: existing } = await supabase
     .from('report_runs')
@@ -1016,10 +1075,11 @@ async function beginReportRun(reportMonth: string, force: boolean): Promise<bool
       existing.status === 'running' &&
       Date.now() - new Date(existing.updated_at as string).getTime() < RUNNING_STALE_MS
     ) {
-      return false // another invocation is in flight
+      return 'busy' // another invocation is in flight
     }
+    if (existing.status === 'queued') return 'queued'
     // Skip an already-completed month unless the caller forces a re-send.
-    if (existing.status === 'completed' && !force) return false
+    if (existing.status === 'completed' && !force) return 'completed'
   }
 
   const now = new Date().toISOString()
@@ -1028,7 +1088,7 @@ async function beginReportRun(reportMonth: string, force: boolean): Promise<bool
     { onConflict: 'report_month' },
   )
   if (error) throw new Error(`report_runs begin failed: ${error.message}`)
-  return true
+  return 'acquired'
 }
 
 async function completeReportRun(reportMonth: string): Promise<void> {
@@ -1038,6 +1098,17 @@ async function completeReportRun(reportMonth: string): Promise<void> {
     .from('report_runs')
     .update({ status: 'completed', completed_at: now, updated_at: now })
     .eq('report_month', reportMonth)
+}
+
+// Everything is issued and archived, but emails wait in the mail outbox. The
+// outbox retry (outbox.ts settleRuns) completes the run once the last has gone.
+async function queueReportRun(reportMonth: string): Promise<void> {
+  const supabase = makeSupabase()
+  const { error } = await supabase
+    .from('report_runs')
+    .update({ status: 'queued', updated_at: new Date().toISOString() })
+    .eq('report_month', reportMonth)
+  if (error) throw new Error(`report_runs queue failed: ${error.message}`)
 }
 
 async function failReportRun(reportMonth: string, message: string): Promise<void> {
@@ -1070,6 +1141,12 @@ class RunProgress {
 
 // ─── Orchestrator ─────────────────────────────────────────────────────────────
 
+function singleEmail(outcome: SendOutcome): StoredProgress['report'] {
+  return outcome.status === 'sent'
+    ? { planned: true, sent: true, queued: false, messageId: outcome.messageId }
+    : { planned: true, sent: false, queued: true, messageId: null }
+}
+
 // force: bypass the run ledger's skip-if-completed guard (admin explicit re-send)
 // and use a fresh idempotency key so the emails actually go out again.
 export async function runMonthlyReport(
@@ -1080,9 +1157,18 @@ export async function runMonthlyReport(
 
   const force = opts.force ?? false
   const acquired = await beginReportRun(reportMonth, force)
-  if (!acquired) return { status: 'skipped' }
+  if (acquired !== 'acquired') return { status: 'skipped', skipReason: acquired }
   const progress = new RunProgress(reportMonth)
   await progress.update(() => {})
+  // One mail path for the whole run, so the first quota refusal sends every later
+  // email straight to the outbox.
+  let mail: MailPath | null = null
+  const mailPath = (): MailPath => {
+    const resendKey = process.env.RESEND_API_KEY
+    if (!resendKey) throw new Error('Missing RESEND_API_KEY')
+    mail ??= makeMailPath(resendKey, makeSupabase())
+    return mail
+  }
 
   // Stable key dedupes retries of this run; a forced re-send gets a unique key so
   // Resend actually delivers it again.
@@ -1147,10 +1233,8 @@ export async function runMonthlyReport(
           if (s.reason !== 'disabled' && !s.optional) console.warn(`[report] ${s.recipient} ${s.name} not sent: ${s.reason}`)
         }
 
-        const resendKey = process.env.RESEND_API_KEY
-        if (!resendKey) throw new Error('Missing RESEND_API_KEY')
         const ctx: DeliveryContext = {
-          resend: makeMailer(resendKey),
+          mail: mailPath(),
           supabase: makeSupabase(),
           monthLabel, reportMonth, format, idempotencyKey, issuer, budget,
         }
@@ -1170,11 +1254,11 @@ export async function runMonthlyReport(
           const memberDocs: IssuedDoc[] = []
           await progress.update(state => { state.phase = 'people' })
           const m = await sendMemberStatements(ctx, plan.members, entriesByMember, companyNames, memberDocs)
-          await progress.update(state => { state.phase = 'companies'; state.failed = m.failed })
+          await progress.update(state => { state.phase = 'companies'; state.failed = m.failed; state.queued = m.queued })
           const c = await sendCompanyDocuments(ctx, plan.companies, summariesByCompany, memberDocs, issuedDocs)
-          await progress.update(state => { state.failed = m.failed + c.failed })
+          await progress.update(state => { state.failed = m.failed + c.failed; state.queued = m.queued + c.queued })
           issuedDocs.unshift(...memberDocs)
-          memberStatements = { sent: m.sent + c.sent, failed: m.failed + c.failed }
+          memberStatements = { sent: m.sent + c.sent, failed: m.failed + c.failed, queued: m.queued + c.queued }
           if (useLedger) await completeBillingRun(reportMonth)
         } catch (billErr) {
           if (useLedger) await failBillingRun(reportMonth, billErr instanceof Error ? billErr.message : String(billErr))
@@ -1212,7 +1296,7 @@ export async function runMonthlyReport(
         state.phase = 'report'
         state.archive.planned = !!archiveZip && !!archiveTarget
       })
-      const reportMessageId = await sendEmail(
+      const reportOutcome = await sendEmail(
         pdfBuffer,
         xlsxBuffer,
         summaries,
@@ -1224,13 +1308,14 @@ export async function runMonthlyReport(
         format,
         idempotencyKey,
         { insights, rollupXlsx },
+        mailPath(),
       )
-      await progress.update(state => { state.report = { planned: true, sent: true, messageId: reportMessageId } })
+      await progress.update(state => { state.report = singleEmail(reportOutcome) })
       if (archiveZip && archiveTarget) {
         try {
           await progress.update(state => { state.phase = 'archive' })
-          const archiveMessageId = await sendCeoArchive(archiveTarget, archiveZip, issuedDocs.length, monthLabel, reportMonth, format, idempotencyKey)
-          await progress.update(state => { state.archive = { planned: true, sent: true, messageId: archiveMessageId } })
+          const archiveOutcome = await sendCeoArchive(archiveTarget, archiveZip, issuedDocs.length, monthLabel, reportMonth, format, idempotencyKey, mailPath())
+          await progress.update(state => { state.archive = singleEmail(archiveOutcome) })
         } catch (err) {
           // The report itself went out; copies stay re-downloadable from Dokumente.
           console.error('[report] CEO archive not sent:', err instanceof Error ? err.message : err)
@@ -1243,13 +1328,25 @@ export async function runMonthlyReport(
       await pruneOldTransactions()
       await deactivateInactiveMembers()
 
-      await progress.update(state => { state.phase = 'done' })
-      await completeReportRun(reportMonth)
+      // Emails held back by the sending quota: the run is not complete until the
+      // outbox has sent them (outbox.ts settleRuns completes it then).
+      const gate = mail as MailPath | null
+      const queued = gate && gate.gate.reason && gate.gate.nextAttemptAt
+        ? { count: gate.gate.queued, reason: gate.gate.reason, nextAttemptAt: gate.gate.nextAttemptAt }
+        : undefined
+      if (queued) {
+        await progress.update(state => { state.phase = 'queued'; state.queued = queued.count })
+        await queueReportRun(reportMonth)
+      } else {
+        await progress.update(state => { state.phase = 'done' })
+        await completeReportRun(reportMonth)
+      }
       return {
         status: 'sent',
         memberStatements,
         skipped: skipped.filter(s => s.reason !== 'disabled' && !s.optional),
         missingFiles: countMissingFiles(issuedDocs),
+        ...(queued ? { queued } : {}),
       }
     } finally {
       if (browser) {
@@ -1452,11 +1549,14 @@ export async function regenerateDelivery(deliveryId: string): Promise<Regenerate
  * Re-send a delivered document to its original recipient and append the send to
  * the ledger as a new row pointing at the original. The original row is never
  * modified, so the history of both sends survives.
+ *
+ * When the sending quota is reached, the re-send waits in the mail outbox and is
+ * recorded once it goes out: `id` is then null and `queued` says until when.
  */
 export async function resendDelivery(
   deliveryId: string,
   renderPdf: (html: string) => Promise<Buffer | null>,
-): Promise<{ id: string }> {
+): Promise<{ id: string | null; queued?: { reason: QuotaReason; nextAttemptAt: string } }> {
   const regen = await regenerateDelivery(deliveryId)
   const withFiles = carriesAttachments(regen.delivery.kind)
   const pdf = withFiles ? await renderPdf(regen.pdfHtml) : null
@@ -1470,19 +1570,6 @@ export async function resendDelivery(
     ...(listPdf && regen.employeeList ? [{ filename: `${regen.employeeList.stem}.pdf`, content: listPdf.toString('base64') }] : []),
     ...(withFiles && regen.employeeList ? [{ filename: `${regen.employeeList.stem}.xlsx`, content: regen.employeeList.xlsx.toString('base64') }] : []),
   ]
-  const { data, error } = await makeMailer(resendKey).emails.send(
-    {
-      from: 'Kaffeelisten <bericht@kaffeelisten.de>',
-      to: [regen.delivery.recipient_email],
-      ...(replyTo() ? { replyTo: replyTo()! } : {}),
-      subject: regen.subject,
-      html: regen.html,
-      ...(attachments.length ? { attachments } : {}),
-    },
-    // A deliberate re-send must go out even if an identical one did recently.
-    { idempotencyKey: `resend-${deliveryId}-${Date.now()}` },
-  )
-  if (error) throw new Error(`Resend failed: ${error.message ?? JSON.stringify(error)}`)
 
   const supabase = makeSupabase()
   const { data: original, error: origErr } = await supabase
@@ -1490,26 +1577,51 @@ export async function resendDelivery(
     .select('report_month, kind, company_id, member_id, recipient_name, recipient_email, document_number, billing_document_id, gross_cents')
     .eq('id', deliveryId)
     .single()
-  if (origErr) throw new Error(`Re-send delivered but could not be recorded: ${origErr.message}`)
+  if (origErr) throw new Error(`Re-send could not read the original delivery: ${origErr.message}`)
   // Copy the original's fields explicitly – never spread the row, which would
   // carry its id or sent_at into the new record.
+  const record: DeliveryRecord = {
+    report_month: original.report_month,
+    kind: original.kind,
+    company_id: original.company_id,
+    member_id: original.member_id,
+    recipient_name: original.recipient_name,
+    recipient_email: original.recipient_email,
+    document_number: original.document_number,
+    billing_document_id: original.billing_document_id,
+    gross_cents: original.gross_cents,
+    has_pdf: !!pdf,
+    has_xlsx: withFiles,
+    resend_of: deliveryId,
+  }
+
+  let outcome: SendOutcome
+  try {
+    outcome = await deliver(makeMailPath(resendKey, supabase), {
+      // A deliberate re-send must go out even if an identical one did recently.
+      idempotencyKey: `resend-${deliveryId}-${Date.now()}`,
+      reportMonth: original.report_month,
+      purpose: 'resend',
+      payload: {
+        from: 'Kaffeelisten <bericht@kaffeelisten.de>',
+        to: [regen.delivery.recipient_email],
+        ...(replyTo() ? { replyTo: replyTo()! } : {}),
+        subject: regen.subject,
+        html: regen.html,
+        ...(attachments.length ? { attachments } : {}),
+      },
+      onSent: { kind: 'delivery', delivery: record, markInvoiceSent: false },
+    })
+  } catch (err) {
+    throw new Error(`Resend failed: ${err instanceof Error ? err.message : String(err)}`)
+  }
+  if (outcome.status === 'queued') {
+    return { id: null, queued: { reason: outcome.reason, nextAttemptAt: outcome.nextAttemptAt } }
+  }
+
   const { data: row, error: insErr } = await supabase
     .from('document_deliveries')
-    .insert({
-      report_month: original.report_month,
-      kind: original.kind,
-      company_id: original.company_id,
-      member_id: original.member_id,
-      recipient_name: original.recipient_name,
-      recipient_email: original.recipient_email,
-      document_number: original.document_number,
-      billing_document_id: original.billing_document_id,
-      gross_cents: original.gross_cents,
-      has_pdf: !!pdf,
-      has_xlsx: withFiles,
-      resend_message_id: data?.id ?? null,
-      resend_of: deliveryId,
-    })
+    .insert({ ...record, resend_message_id: outcome.messageId })
     .select('id')
     .single()
   if (insErr) throw new Error(`Re-send delivered but could not be recorded: ${insErr.message}`)

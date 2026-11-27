@@ -41,6 +41,8 @@ const REQUIRED: Record<string, Priv[]> = {
   report_runs: ['select', 'insert', 'update'],
   // Delivery events (migration 040) – the Resend webhook appends, the admin reads.
   email_delivery_events: ['select', 'insert'],
+  // Mail outbox (migration 043) – quota-held emails are queued, then marked sent.
+  mail_outbox: ['select', 'insert', 'update'],
 }
 
 // Privileges service_role must NOT hold per table.
@@ -53,6 +55,8 @@ const FORBIDDEN: Record<string, Priv[]> = {
   // Append-only: a re-send adds a row, it never rewrites or removes one.
   document_deliveries: ['update', 'delete'],
   email_delivery_events: ['update', 'delete'],
+  // The outbox keeps every queued email's history; nothing removes a row.
+  mail_outbox: ['delete'],
 }
 
 // Privileges that exist in production only through Supabase's bootstrap
@@ -64,6 +68,7 @@ const MUST_REVOKE_EXPLICITLY: Record<string, Priv[]> = {
   company_payments: ['delete'],
   document_deliveries: ['update', 'delete'],
   email_delivery_events: ['update', 'delete'],
+  mail_outbox: ['delete'],
 }
 
 /**

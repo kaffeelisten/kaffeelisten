@@ -576,10 +576,67 @@ export type Database = {
         }
         Relationships: []
       }
+      mail_outbox: {
+        Row: {
+          id: string
+          idempotency_key: string
+          report_month: string | null
+          purpose: 'document' | 'report' | 'archive' | 'resend'
+          recipient: string
+          payload: Record<string, unknown> | null
+          on_sent: Record<string, unknown> | null
+          status: 'queued' | 'sent' | 'failed'
+          reason: 'daily_quota' | 'monthly_quota'
+          attempts: number
+          next_attempt_at: string
+          last_error: string | null
+          resend_message_id: string | null
+          created_at: string
+          updated_at: string
+          sent_at: string | null
+        }
+        Insert: {
+          id?: string
+          idempotency_key: string
+          report_month?: string | null
+          purpose: 'document' | 'report' | 'archive' | 'resend'
+          recipient: string
+          payload?: Record<string, unknown> | null
+          on_sent?: Record<string, unknown> | null
+          status?: 'queued' | 'sent' | 'failed'
+          reason: 'daily_quota' | 'monthly_quota'
+          attempts?: number
+          next_attempt_at: string
+          last_error?: string | null
+          resend_message_id?: string | null
+          created_at?: string
+          updated_at?: string
+          sent_at?: string | null
+        }
+        Update: {
+          id?: string
+          idempotency_key?: string
+          report_month?: string | null
+          purpose?: 'document' | 'report' | 'archive' | 'resend'
+          recipient?: string
+          payload?: Record<string, unknown> | null
+          on_sent?: Record<string, unknown> | null
+          status?: 'queued' | 'sent' | 'failed'
+          reason?: 'daily_quota' | 'monthly_quota'
+          attempts?: number
+          next_attempt_at?: string
+          last_error?: string | null
+          resend_message_id?: string | null
+          created_at?: string
+          updated_at?: string
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
       report_runs: {
         Row: {
           report_month: string
-          status: 'running' | 'completed' | 'failed'
+          status: 'running' | 'queued' | 'completed' | 'failed'
           attempts: number
           last_error: string | null
           started_at: string
@@ -589,7 +646,7 @@ export type Database = {
         }
         Insert: {
           report_month: string
-          status?: 'running' | 'completed' | 'failed'
+          status?: 'running' | 'queued' | 'completed' | 'failed'
           attempts?: number
           last_error?: string | null
           started_at?: string
@@ -599,7 +656,7 @@ export type Database = {
         }
         Update: {
           report_month?: string
-          status?: 'running' | 'completed' | 'failed'
+          status?: 'running' | 'queued' | 'completed' | 'failed'
           attempts?: number
           last_error?: string | null
           started_at?: string

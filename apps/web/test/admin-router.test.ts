@@ -16,6 +16,7 @@ vi.mock('../api/_lib/admin/billing', () => ({ default: spy('billing') }))
 vi.mock('../api/_lib/admin/data', () => ({ default: spy('data') }))
 vi.mock('../api/_lib/admin/documents', () => ({ default: spy('documents') }))
 vi.mock('../api/_lib/admin/export', () => ({ default: spy('export') }))
+vi.mock('../api/_lib/admin/mail-outbox', () => ({ default: spy('mail-outbox') }))
 vi.mock('../api/_lib/admin/payments', () => ({ default: spy('payments') }))
 vi.mock('../api/_lib/admin/preview-report', () => ({ default: spy('preview-report') }))
 vi.mock('../api/_lib/admin/report-progress', () => ({ default: spy('report-progress') }))
@@ -42,7 +43,7 @@ function makeRes() {
 }
 
 const ROUTES = [
-  'auth', 'billing', 'data', 'documents', 'export',
+  'auth', 'billing', 'data', 'documents', 'export', 'mail-outbox',
   'payments', 'preview-report', 'report-progress', 'settings', 'theme',
 ]
 
@@ -95,6 +96,6 @@ describe('admin catch-all router', () => {
     // Guards against a module being added to the router but never exercised.
     const mod = await import('../api/admin/[...path]')
     expect(typeof mod.default).toBe('function')
-    expect(ROUTES).toHaveLength(10)
+    expect(ROUTES).toHaveLength(11)
   })
 })

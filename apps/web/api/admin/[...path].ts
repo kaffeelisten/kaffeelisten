@@ -22,6 +22,7 @@ import billing from '../_lib/admin/billing'
 import data from '../_lib/admin/data'
 import documents from '../_lib/admin/documents'
 import exportHandler from '../_lib/admin/export'
+import mailOutbox from '../_lib/admin/mail-outbox'
 import payments from '../_lib/admin/payments'
 import previewReport from '../_lib/admin/preview-report'
 import reportProgress from '../_lib/admin/report-progress'
@@ -36,6 +37,7 @@ const ROUTES: Record<string, Handler> = {
   data,
   documents,
   export: exportHandler,
+  'mail-outbox': mailOutbox,
   payments,
   'preview-report': previewReport,
   'report-progress': reportProgress,

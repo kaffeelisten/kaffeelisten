@@ -13,6 +13,7 @@ import { adminApi, type DeliveryKind, type DocumentDelivery } from '../../lib/ad
 import { monthLabel } from '../../lib/dates'
 import { formatEuro as euro } from '../../lib/money'
 import { hasAttachments, needsAttention, resolvedByResend, summariseDeliveries } from '../../lib/deliveries'
+import { formatNextAttempt } from '../../../shared/mailQueue'
 
 const KIND_LABEL: Record<DeliveryKind, string> = {
   member_invoice: 'Rechnung',
@@ -128,8 +129,10 @@ export default function DocumentsPage({ onToast, onMenuClick }: Props) {
     if (!resendTarget) return
     setResending(true)
     try {
-      await adminApi.resendDelivery(resendTarget.id)
-      onToast(`Erneut an ${resendTarget.recipient_email} gesendet.`)
+      const sent = await adminApi.resendDelivery(resendTarget.id)
+      onToast(sent.queued
+        ? `Versandkontingent erreicht: Die E-Mail an ${resendTarget.recipient_email} geht am ${formatNextAttempt(sent.queued.nextAttemptAt)} automatisch raus.`
+        : `Erneut an ${resendTarget.recipient_email} gesendet.`)
       setResendTarget(null)
       load(month ?? undefined)
     } catch (err) {

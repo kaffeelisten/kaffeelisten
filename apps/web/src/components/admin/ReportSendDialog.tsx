@@ -11,6 +11,7 @@ import {
   type ReportProgress,
   type RunPhase,
 } from '../../../shared/reportProgress'
+import { formatNextAttempt, type QuotaReason } from '../../../shared/mailQueue'
 
 // The manual monthly send: confirm, then live progress while the run goes out,
 // then the result with delivery status as Resend reports it.
@@ -24,6 +25,8 @@ export interface SendResult {
   failed: number
   skipped: { recipient: 'member' | 'company'; name: string; reason: string }[]
   missingFiles: { pdf: number; xlsx: number }
+  // Emails held back by the sending quota; they go out automatically.
+  queued: { count: number; reason: QuotaReason; nextAttemptAt: string } | null
 }
 
 export type SendStage = 'confirm' | 'running' | 'done' | 'failed'
@@ -42,6 +45,7 @@ const PHASE_LABEL: Record<RunPhase, string> = {
   report: 'Bericht an die Verwaltung wird versendet …',
   archive: 'Archiv an die Geschäftsführung wird versendet …',
   finishing: 'Monat wird archiviert …',
+  queued: 'Versandkontingent erreicht – die übrigen E-Mails gehen automatisch raus.',
   done: 'Alles versendet.',
   failed: 'Der Versand wurde abgebrochen.',
 }
@@ -84,6 +88,10 @@ function Row({ label, hint, value }: { label: string; hint?: string; value: stri
   )
 }
 
+function singleState(p: { sent: boolean; queued: boolean }): string {
+  return p.sent ? 'versendet' : p.queued ? 'wartet' : 'ausstehend'
+}
+
 function ProgressDetails({ progress, stage }: { progress: ReportProgress; stage: SendStage }) {
   const percent = progressPercent(progress)
   const { documents, report, archive, delivery } = progress
@@ -115,10 +123,11 @@ function ProgressDetails({ progress, stage }: { progress: ReportProgress; stage:
         <Row label="Rechnungen" hint="mit PDF und Excel" value={`${documents.invoice.sent} / ${documents.invoice.planned}`} />
         <Row label="Aufstellungen" hint="nur E-Mail" value={`${documents.statement.sent} / ${documents.statement.planned}`} />
         <Row label="Informationen" hint="nur E-Mail" value={`${documents.info.sent} / ${documents.info.planned}`} />
-        <Row label="Bericht an die Verwaltung" hint="mit PDF und Excel" value={report.sent ? 'versendet' : 'ausstehend'} />
+        <Row label="Bericht an die Verwaltung" hint="mit PDF und Excel" value={singleState(report)} />
         {archive.planned && (
-          <Row label="Archiv an die Geschäftsführung" hint="ZIP" value={archive.sent ? 'versendet' : 'ausstehend'} />
+          <Row label="Archiv an die Geschäftsführung" hint="ZIP" value={singleState(archive)} />
         )}
+        {progress.queued > 0 && <Row label="Wartet auf Versandkontingent" value={String(progress.queued)} />}
         {progress.failed > 0 && <Row label="Fehlgeschlagen" value={String(progress.failed)} />}
       </div>
 
@@ -155,7 +164,7 @@ export function ReportSendView(props: ReportSendViewProps) {
   const title =
     stage === 'confirm' ? 'Monatsbericht senden'
     : stage === 'running' ? 'Monatsversand läuft'
-    : stage === 'done' ? 'Monatsversand abgeschlossen'
+    : stage === 'done' ? (result?.queued || progress?.status === 'queued' ? 'Monatsversand: E-Mails warten' : 'Monatsversand abgeschlossen')
     : 'Monatsversand fehlgeschlagen'
 
   const actions =
@@ -198,6 +207,11 @@ export function ReportSendView(props: ReportSendViewProps) {
           )}
           {stage === 'failed' && error && (
             <p className="text-error"><span>{error}</span></p>
+          )}
+          {result?.queued && (
+            <p className="text-sm text-fg">
+              <span>{`${result.queued.count} E-Mails warten auf das Versandkontingent des E-Mail-Dienstes und gehen am ${formatNextAttempt(result.queued.nextAttemptAt)} automatisch raus. Der Monat ist archiviert; nichts wird doppelt versendet.`}</span>
+            </p>
           )}
           {result && (result.missingFiles.pdf > 0 || result.missingFiles.xlsx > 0) && (
             <p className="text-error text-sm">
@@ -319,6 +333,12 @@ export default function ReportSendDialog({ open, month, entryCount, totalCents, 
         await refresh()
         return
       }
+      if (body.status === 'skipped' && body.skipReason === 'queued') {
+        // A re-send would duplicate the emails already waiting for the quota.
+        onToast('Für diesen Monat warten noch E-Mails auf das Versandkontingent. Sie gehen automatisch raus – ein erneuter Versand ist erst danach möglich.')
+        onClose()
+        return
+      }
       if (body.status === 'skipped') {
         // Another run holds the lock: follow that one.
         onToast('Für diesen Monat läuft bereits ein Versand – der Fortschritt wird angezeigt.')
@@ -331,6 +351,7 @@ export default function ReportSendDialog({ open, month, entryCount, totalCents, 
         failed: body.memberStatements?.failed ?? 0,
         skipped: body.skipped ?? [],
         missingFiles: body.missingFiles ?? { pdf: 0, xlsx: 0 },
+        queued: body.queued ?? null,
       })
       finishedAt.current = Date.now()
       await refresh()

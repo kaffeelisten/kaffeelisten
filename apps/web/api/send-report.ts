@@ -30,11 +30,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({
       ok: true,
       status: result.status,
+      // Why it was skipped; 'queued': the month's emails still wait for the quota.
+      skipReason: result.skipReason ?? null,
       memberStatements: result.memberStatements ?? null,
       // Who could not be sent a document and why, and how many went without a
       // file – so the admin sees a partial result instead of a bare "success".
       skipped: result.skipped ?? [],
       missingFiles: result.missingFiles ?? { pdf: 0, xlsx: 0 },
+      // Emails held back by the sending quota, sent automatically once it resets.
+      queued: result.queued ?? null,
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
